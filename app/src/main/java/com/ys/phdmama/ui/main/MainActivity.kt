@@ -1,39 +1,37 @@
 package com.ys.phdmama.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
 import com.google.firebase.auth.FirebaseAuth
+import com.ys.phdmama.ui.login.LoginActivity
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainScreen()
+            MainScreen(
+                onSignOutClick = {
+                    signOut()
+                }
+            )
         }
+    }
+
+    // Función para cerrar sesión
+    private fun signOut() {
+        FirebaseAuth.getInstance().signOut()
+        // Redirigir a la pantalla de inicio de sesión después de cerrar sesión
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 }
 
 @Composable
-fun MainScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("Hola, Bienvenido a la app")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            FirebaseAuth.getInstance().signOut() // Cerrar sesión de Firebase
-            // Aquí deberías navegar a LoginActivity luego de hacer sign out
-        }) {
-            Text("Sign Out")
-        }
-    }
+fun MainScreen(onSignOutClick: () -> Unit) {
+    // Aquí puedes agregar el resto de la UI de tu MainScreen si es necesario
+    ExitAppCard(onSignOutClick = onSignOutClick)
 }
