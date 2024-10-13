@@ -37,15 +37,12 @@ class SignInViewModel : ViewModel() {
                 auth.signInWithEmailAndPassword(_email.value, _password.value)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Log.e("[LORENX]", "LORENX exito")
                             onSuccess()
                         } else {
-                            Log.e("[LORENX]", "LORENX Error en el inicio de sesión")
                             onError(task.exception?.message ?: "Error en el inicio de sesión")
                         }
                     }
             } catch (e: Exception) {
-                Log.e("[LORENX]", "LORENX Error inesperado 1")
                 onError(e.message ?: "Error inesperado")
             }
         }
@@ -54,21 +51,17 @@ class SignInViewModel : ViewModel() {
     // Función para manejar el inicio de sesión con Google
     fun onSignInWithGoogle(account: GoogleSignInAccount, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
-            Log.e("[LORENX]", "LORENX")
             try {
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
                 auth.signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Log.e("[LORENX]", "LORENX exito")
                             onSuccess()
                         } else {
-                            Log.e("[LORENX]", "LORENX Error en Google SignIn")
                             onError(task.exception?.message ?: "Error en Google SignIn")
                         }
                     }
             } catch (e: Exception) {
-                Log.e("[LORENX]", "LORENX Error inesperado 2")
                 onError(e.message ?: "Error inesperado")
             }
         }

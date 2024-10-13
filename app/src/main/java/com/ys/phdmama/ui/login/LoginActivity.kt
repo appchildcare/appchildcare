@@ -11,19 +11,23 @@ import androidx.activity.viewModels
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.ys.phdmama.R
 import com.ys.phdmama.ui.main.MainActivity
+import com.ys.phdmama.ui.register.RegisterActivity
 import com.ys.phdmama.viewmodel.SignInViewModel
 
 class LoginActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
     private val viewModel: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = FirebaseAuth.getInstance()
 
-        // Configurar Google SignIn
+        // Google SignIn
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -31,7 +35,7 @@ class LoginActivity : ComponentActivity() {
 
         val googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Inicializar launcher para manejar el resultado del SignIn de Google
+        // launcher of SignIn Google
         googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             handleGoogleSignInResult(task.result)
@@ -39,11 +43,11 @@ class LoginActivity : ComponentActivity() {
 
         setContent {
             LoginScreen(
-                onSignInWithEmail = { email, password ->
-//                    signInWithEmail(email, password)
+                onSignInWithEmail = { email: String, password: String ->
+                    signInWithEmail(email, password)
                 },
                 onSignUp = {
-//                    startActivity(Intent(this, RegisterActivity::class.java))
+                    startActivity(Intent(this, RegisterActivity::class.java))
                 },
                 onSignInWithGoogle = {
                     val signInIntent = googleSignInClient.signInIntent
@@ -53,7 +57,7 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    // Manejar el resultado de Google SignIn
+    // Result Google SignIn
     private fun handleGoogleSignInResult(account: GoogleSignInAccount?) {
         account?.let {
             viewModel.onSignInWithGoogle(
@@ -67,6 +71,21 @@ class LoginActivity : ComponentActivity() {
                 }
             )
         }
+    }
+
+    // Manage email / password login
+    private fun signInWithEmail(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // success
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                } else {
+                    // error
+                    Toast.makeText(this, "${task.exception?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
     }
 }
 
