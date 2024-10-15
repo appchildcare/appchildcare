@@ -63,5 +63,6 @@ dependencies {
     implementation(libs.androidx.activity.compose.v172)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.auth)
+    implementation(libs.material.components)
 
 }

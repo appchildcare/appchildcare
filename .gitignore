@@ -1,5 +1,5 @@
 *.keystore
-/.idea/
+/.idea/*
 *.iml
 .gradle
 /local.properties
@@ -17,3 +17,4 @@
 local.properties
 /app/google-services.json
 *fire
+/.idea/deploymentTargetSelector.xml

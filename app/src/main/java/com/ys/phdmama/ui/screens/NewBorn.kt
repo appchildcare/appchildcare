@@ -1,20 +1,24 @@
-package com.ys.phdmama.ui.main
+package com.ys.phdmama.ui.screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.navigation.compose.rememberNavController
-import com.ys.phdmama.navigation.NavGraph
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import com.ys.phdmama.ui.theme.PhdmamaTheme
 
-class MainActivity : ComponentActivity() {
+class NewBornActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             PhdmamaTheme {
-                val navController = rememberNavController()
-                NavGraph(navController = navController)
+                NewBornScreen()
             }
         }
     }
+}
+
+@Composable
+fun NewBornScreen() {
+    Text("Pantalla de Lista de Verificación del Recién Nacido")
 }

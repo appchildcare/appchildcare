@@ -1,5 +1,10 @@
 package com.ys.phdmama.ui.login
 
+import android.app.PendingIntent
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -15,22 +20,56 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.google.android.gms.auth.api.identity.Identity
 import com.ys.phdmama.R
+import com.ys.phdmama.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onSignInWithEmail: (String, String) -> Unit,
-    onSignUp: () -> Unit,
-    onSignInWithGoogle: () -> Unit,
-    modifier: Modifier = Modifier
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel = viewModel()
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val email by loginViewModel.email.collectAsState()
+    val password by loginViewModel.password.collectAsState()
+    val context = LocalContext.current
+
+    // Configure the Google Sign-In launcher
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val credential = Identity.getSignInClient(context).getSignInCredentialFromIntent(result.data)
+            val idToken = credential.googleIdToken
+            if (idToken != null) {
+                loginViewModel.signInWithGoogle(
+                    idToken = idToken,
+                    onSuccess = {
+                        Log.d("LoginScreen", "Navegando a la pantalla principal")
+                        navController.navigate("main") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
+                    onError = { errorMessage ->
+                        Log.e("LoginScreen", "Error al iniciar sesión con Google: $errorMessage")
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            } else {
+                Toast.makeText(context, "Error: No se pudo obtener el token de Google", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "Inicio de sesión cancelado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -52,9 +91,17 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(12.dp))
 
-        // Campo para ingresar email
+        // Campo de correo electrónico
         OutlinedTextField(
             singleLine = true,
+            value = email,
+            onValueChange = { loginViewModel.onEmailChange(it) },
+            placeholder = { Text("Correo Electrónico") },
+            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            ),
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
@@ -62,18 +109,9 @@ fun LoginScreen(
                     BorderStroke(width = 2.dp, color = Color(0xFF6200EE)),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            value = email,
-            onValueChange = { email = it },
-            placeholder = { Text("Correo Electrónico") },
-            leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") }
         )
 
-        // Campo para ingresar la contraseña
+        // Campo de contraseña
         OutlinedTextField(
             singleLine = true,
             modifier = modifier
@@ -83,13 +121,12 @@ fun LoginScreen(
                     BorderStroke(width = 2.dp, color = Color(0xFF6200EE)),
                     shape = RoundedCornerShape(50)
                 ),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
             ),
             value = password,
-            onValueChange = { password = it },
+            onValueChange = { loginViewModel.onPasswordChange(it) },
             placeholder = { Text("Contraseña") },
             leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Password") },
             visualTransformation = PasswordVisualTransformation()
@@ -99,9 +136,20 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(12.dp))
 
-        // Botón de inicio de sesión con correo y contraseña
+        // Botón de inicio de sesión con email
         Button(
-            onClick = { onSignInWithEmail(email, password) },
+            onClick = {
+                loginViewModel.onSignInWithEmailPassword(
+                    onSuccess = {
+                        navController.navigate("main") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
+                    onError = { errorMessage ->
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
             modifier = modifier
                 .fillMaxWidth()
@@ -124,9 +172,21 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(4.dp))
 
-        // Botón para iniciar sesión con Google
+        // Botón de inicio de sesión con Google
         Button(
-            onClick = { onSignInWithGoogle() },
+            onClick = {
+                loginViewModel.initGoogleSignIn(
+                    context = context,
+                    onSuccess = { pendingIntent : PendingIntent ->
+                        launcher.launch(
+                            androidx.activity.result.IntentSenderRequest.Builder(pendingIntent).build()
+                        )
+                    },
+                    onError = { errorMessage ->
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4285F4)),
             modifier = modifier
                 .fillMaxWidth()
@@ -144,7 +204,9 @@ fun LoginScreen(
             .padding(8.dp))
 
         // Link para ir a la pantalla de registro
-        TextButton(onClick = { onSignUp() }) {
+        TextButton(onClick = {
+            navController.navigate("register")
+        }) {
             Text(text = "No tienes cuenta? Regístrate aquí", fontSize = 16.sp, color = Color(0xFF6200EE))
         }
     }
