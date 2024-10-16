@@ -86,6 +86,30 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun signOut(
+        context: Context,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                // Cerrar sesión de Firebase
+                firebaseAuth.signOut()
+
+                // Cerrar sesión de Google Sign-In si fue utilizado
+                Identity.getSignInClient(context).signOut().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        onSuccess()
+                    } else {
+                        onError("Error al cerrar sesión con Google")
+                    }
+                }
+            } catch (e: Exception) {
+                onError(e.localizedMessage ?: "Error al cerrar sesión")
+            }
+        }
+    }
+
 
 
 

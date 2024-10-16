@@ -14,11 +14,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.ys.phdmama.viewmodel.LoginViewModel
 
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, loginViewModel: LoginViewModel = viewModel()) {
+    val context = LocalContext.current 
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,6 +75,27 @@ fun MainScreen(navController: NavHostController) {
             rightButton = "DiaperChange",
             onLeftClick = { navController.navigate("pediatrician_appointments") },
             onRightClick = { navController.navigate("diaper_change") }
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Botón de cerrar sesión (ExitAppCard)
+        ExitAppCard(
+            onSignOutClick = {
+                // Manejar el cierre de sesión en el ViewModel
+                loginViewModel.signOut(
+                    context = context,
+                    onSuccess = {
+                        navController.navigate("splash") {
+                            popUpTo("main") { inclusive = true }
+                        }
+                    },
+                    onError = { errorMessage ->
+                        // Mostrar error en caso de que algo falle
+                        // Puedes agregar un Toast u otra notificación aquí
+                    }
+                )
+            }
         )
     }
 }
