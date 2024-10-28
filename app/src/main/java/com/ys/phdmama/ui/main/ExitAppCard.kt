@@ -5,11 +5,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ys.phdmama.R
+import com.ys.phdmama.viewmodel.WizardViewModel
+import com.ys.phdmama.viewmodel.WizardViewModelFactory
 
 @Composable
 fun ExitAppCard(onSignOutClick: () -> Unit) {
+    val context = LocalContext.current
     var showExitAppDialog by remember { mutableStateOf(false) }
+    val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory(context))
+
 
     // Botón para mostrar el diálogo de confirmación
     Button(onClick = { showExitAppDialog = true }) {
@@ -31,6 +38,7 @@ fun ExitAppCard(onSignOutClick: () -> Unit) {
                 Button(onClick = {
                     onSignOutClick()
                     showExitAppDialog = false
+//                    wizardViewModel.setWizardFinished(false)
                 }) {
                     Text(text = stringResource(R.string.sign_out))
                 }

@@ -8,6 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.ys.phdmama.R
@@ -57,33 +61,35 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun initGoogleSignIn(context: Context, onSuccess: (PendingIntent) -> Unit, onError: (String) -> Unit) {
-        val oneTapClient: SignInClient = Identity.getSignInClient(context)
+    fun handleGoogleSignInResult(
+        account: GoogleSignInAccount?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        if (account == null) {
+            onError("Cuenta de Google no encontrada")
+            return
+        }
 
-        val signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    .setServerClientId(context.getString(R.string.default_web_client_id))
-                    .setFilterByAuthorizedAccounts(false)
-                    .build()
-            )
-            .setAutoSelectEnabled(true)
-            .build()
-
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         viewModelScope.launch {
-            oneTapClient.beginSignIn(signInRequest)
-                .addOnSuccessListener { result ->
-                    try {
-                        onSuccess(result.pendingIntent)
-                    } catch (e: Exception) {
-                        onError("Error obteniendo las credenciales: ${e.localizedMessage}")
+            firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        onSuccess()
+                    } else {
+                        onError(task.exception?.message ?: "Error de autenticación con Google")
                     }
                 }
-                .addOnFailureListener { e ->
-                    onError(e.localizedMessage ?: "Error durante el inicio de sesión con Google")
-                }
         }
+    }
+
+    fun getGoogleSignInClient(context: Context): GoogleSignInClient {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        return GoogleSignIn.getClient(context, gso)
     }
 
     fun signOut(
@@ -107,24 +113,6 @@ class LoginViewModel : ViewModel() {
             } catch (e: Exception) {
                 onError(e.localizedMessage ?: "Error al cerrar sesión")
             }
-        }
-    }
-
-
-
-
-
-    fun signInWithGoogle(idToken: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        viewModelScope.launch {
-            firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        onSuccess()
-                    } else {
-                        onError(task.exception?.message ?: "Error de autenticación con Google")
-                    }
-                }
         }
     }
 

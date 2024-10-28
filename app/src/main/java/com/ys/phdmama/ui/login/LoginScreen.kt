@@ -1,10 +1,12 @@
 package com.ys.phdmama.ui.login
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -28,7 +30,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.ys.phdmama.R
+import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,32 +48,31 @@ fun LoginScreen(
 
     // Configure the Google Sign-In launcher
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
+        contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            val credential = Identity.getSignInClient(context).getSignInCredentialFromIntent(result.data)
-            val idToken = credential.googleIdToken
-            if (idToken != null) {
-                loginViewModel.signInWithGoogle(
-                    idToken = idToken,
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(Exception::class.java)
+            if (account != null) {
+                loginViewModel.handleGoogleSignInResult(
+                    account = account,
                     onSuccess = {
-                        Log.d("LoginScreen", "Navegando a la pantalla principal")
-                        navController.navigate("main") {
-                            popUpTo("login") { inclusive = true }
+                        Log.d("LoginScreen", "Inicio de sesión con Google exitoso")
+                        navController.navigate(NavRoutes.BABY_STATUS) {
+                            popUpTo(NavRoutes.LOGIN) { inclusive = true }
                         }
                     },
                     onError = { errorMessage ->
-                        Log.e("LoginScreen", "Error al iniciar sesión con Google: $errorMessage")
+                        Log.e("LoginScreen", "Error en Google Sign-In: $errorMessage")
                         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 )
-            } else {
-                Toast.makeText(context, "Error: No se pudo obtener el token de Google", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(context, "Inicio de sesión cancelado", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Google Sign-In falló: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     Column(
         modifier = modifier
@@ -141,7 +144,7 @@ fun LoginScreen(
             onClick = {
                 loginViewModel.onSignInWithEmailPassword(
                     onSuccess = {
-                        navController.navigate("main") {
+                        navController.navigate("baby_status") {
                             popUpTo("login") { inclusive = true }
                         }
                     },
@@ -175,17 +178,13 @@ fun LoginScreen(
         // Botón de inicio de sesión con Google
         Button(
             onClick = {
-                loginViewModel.initGoogleSignIn(
-                    context = context,
-                    onSuccess = { pendingIntent : PendingIntent ->
-                        launcher.launch(
-                            androidx.activity.result.IntentSenderRequest.Builder(pendingIntent).build()
-                        )
-                    },
-                    onError = { errorMessage ->
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                    }
-                )
+                try {
+                    val signInClient = loginViewModel.getGoogleSignInClient(context)
+                    launcher.launch(signInClient.signInIntent)
+                } catch (e: Exception) {
+                    Log.e("LoginScreen", "Error al iniciar Google Sign-In: ${e.localizedMessage}")
+                    Toast.makeText(context, "Error al iniciar Google Sign-In", Toast.LENGTH_SHORT).show()
+                }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4285F4)),
             modifier = modifier
