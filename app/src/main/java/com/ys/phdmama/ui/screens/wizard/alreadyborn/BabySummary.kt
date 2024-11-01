@@ -47,7 +47,7 @@ fun BabySummary(navController: NavHostController,
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-//                wizardViewModel.setWizardFinished(true)
+                wizardViewModel.setWizardFinished(true)
                 navController.navigate(NavRoutes.MAIN) {
                     popUpTo(0) { inclusive = true }
             }

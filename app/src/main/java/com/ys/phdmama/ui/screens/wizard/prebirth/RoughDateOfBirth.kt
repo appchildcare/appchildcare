@@ -10,14 +10,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.RoughDateOfBirthViewModel
+import com.ys.phdmama.viewmodel.WizardViewModel
+import com.ys.phdmama.viewmodel.WizardViewModelFactory
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun RoughDateOfBirthScreen(navController: NavHostController,
                    viewModel: RoughDateOfBirthViewModel = viewModel()) {
-    
+
     val context = LocalContext.current
+    val wizardViewModel: WizardViewModel = viewModel(
+        factory = WizardViewModelFactory(context)
+    )
     val calendar = Calendar.getInstance()
     var selectedDate by remember { mutableStateOf(calendar.time) }
 
@@ -48,10 +55,40 @@ fun RoughDateOfBirthScreen(navController: NavHostController,
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Fecha seleccionada: ${selectedDate.toString()}", style = MaterialTheme.typography.bodyMedium)
+        val formattedDate = remember(selectedDate) {
+            android.text.format.DateFormat.format("EEEE, dd MMMM yyyy", selectedDate).toString()
+        }
 
+        Text(
+            text = "Fecha seleccionada: $formattedDate",
+            style = MaterialTheme.typography.bodyMedium
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Fecha aproximada de parto: ${viewModel.calculatedDate}", style = MaterialTheme.typography.bodyMedium)
+        val roughtBirthDate = viewModel.calculatedDate
+        val formattedBirthDate = remember(roughtBirthDate) {
+            try {
+                roughtBirthDate?.let {
+                    val myDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it)
+                    android.text.format.DateFormat.format("EEEE, dd MMMM yyyy", myDate).toString()
+                } ?: ""
+            } catch (e: Exception) {
+                "Fecha no válida"
+            }
+        }
+
+
+
+        Text(text = "Fecha aproximada de parto: $formattedBirthDate", style = MaterialTheme.typography.bodyMedium)
+
+
+        Button(onClick = {
+            wizardViewModel.setWizardFinished(true)
+            navController.navigate(NavRoutes.MAIN) {
+                popUpTo(0) { inclusive = true }
+            }
+        }) {
+            Text(text = "Iniciemos la aventura!")
+        }
     }
 }

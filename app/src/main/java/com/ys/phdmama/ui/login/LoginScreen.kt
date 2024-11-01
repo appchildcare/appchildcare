@@ -1,12 +1,10 @@
 package com.ys.phdmama.ui.login
 
-import android.app.Activity
-import android.app.PendingIntent
+
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -40,10 +38,11 @@ import com.ys.phdmama.viewmodel.LoginViewModel
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
 ) {
     val email by loginViewModel.email.collectAsState()
     val password by loginViewModel.password.collectAsState()
+    val displayName by loginViewModel.displayName.collectAsState()
     val context = LocalContext.current
 
     // Configure the Google Sign-In launcher
@@ -57,21 +56,20 @@ fun LoginScreen(
                 loginViewModel.handleGoogleSignInResult(
                     account = account,
                     onSuccess = {
-                        Log.d("LoginScreen", "Inicio de sesión con Google exitoso")
                         navController.navigate(NavRoutes.BABY_STATUS) {
                             popUpTo(NavRoutes.LOGIN) { inclusive = true }
                         }
                     },
                     onError = { errorMessage ->
-                        Log.e("LoginScreen", "Error en Google Sign-In: $errorMessage")
                         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 )
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Google Sign-In falló: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error en Google Sign-In: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
         }
     }
+
 
 
     Column(
@@ -144,8 +142,11 @@ fun LoginScreen(
             onClick = {
                 loginViewModel.onSignInWithEmailPassword(
                     onSuccess = {
-                        navController.navigate("baby_status") {
-                            popUpTo("login") { inclusive = true }
+                        val uid = loginViewModel.getCurrentUserUid().orEmpty()
+                        loginViewModel.onUserLoggedIn(uid, email, displayName) {
+                            navController.navigate(NavRoutes.BABY_STATUS) {
+                                popUpTo(NavRoutes.LOGIN) { inclusive = true }
+                            }
                         }
                     },
                     onError = { errorMessage ->

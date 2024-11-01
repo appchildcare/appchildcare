@@ -29,7 +29,7 @@ fun BirthWaitingScreen(
 
         Button(
             onClick = {
-//                wizardViewModel.setWizardFinished(finished = true)
+                wizardViewModel.setWizardFinished(finished = true)
                 navController.navigate(NavRoutes.ROUGHBIRTH) {
                     popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
                 }

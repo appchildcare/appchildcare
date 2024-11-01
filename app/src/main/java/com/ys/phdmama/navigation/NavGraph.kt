@@ -32,7 +32,7 @@ object NavRoutes {
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val MAIN = "main"
-    const val BABY_PROFILE = "baby_profile"
+    const val BABY_PROFILE = "baby_profile" // this is the hub to access to edit profile, vaccines, grow history
 //    const val CHECKLIST_PREBIRTH = "checklist_prebirth"
 //    const val CHECKLIST_NEWBORN = ""
     const val BABY_STATUS = "baby_status"
@@ -48,6 +48,9 @@ object NavRoutes {
     const val BABY_BLOOD_TYPE = "baby_blood_type"
     const val BABY_SEX = "baby_sex"
     const val BABY_PERIMETER = "baby_perimeter"
+    const val HOME = "home"
+    const val COUNTERS = "counters"
+    const val RESOURCES = "resources"
 
     // Add other routes here
 }

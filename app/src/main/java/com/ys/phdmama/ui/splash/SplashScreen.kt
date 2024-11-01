@@ -25,17 +25,15 @@ fun SplashScreen(
 ) {
     val context = LocalContext.current
     val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory(context))
-    val isWizardFinished by wizardViewModel.wizardFinished.collectAsState()
+    val wizardFinished by wizardViewModel.wizardFinished.collectAsState()
 
     LaunchedEffect(Unit) {
+//        wizardViewModel.setWizardFinished(false)
         delay(1000L)
         val isUserLoggedIn = loginViewModel.checkUserAuthState()
         wizardViewModel.checkWizardFinished()
-        Log.d("CV isUserLoggedIn", "isUserLoggedIn: $isUserLoggedIn")
-        Log.d("CV isWizardFinished", "isWizardFinished: $isWizardFinished  ")
-
         if (isUserLoggedIn) {
-            if (isWizardFinished) {
+            if (wizardFinished == true) {
                 navController.navigate(NavRoutes.MAIN) {
                     popUpTo(NavRoutes.SPLASH) { inclusive = true }
                 }

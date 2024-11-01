@@ -11,13 +11,11 @@ import kotlinx.coroutines.launch
 class WizardViewModel(context: Context) : ViewModel() {
     private val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-    private val _wizardFinished = MutableStateFlow(false)
-    val wizardFinished: StateFlow<Boolean> = _wizardFinished
+    private val _wizardFinished = MutableStateFlow<Boolean?>(null) // Estado inicial nulo
+    val wizardFinished: StateFlow<Boolean?> = _wizardFinished
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            _wizardFinished.value = sharedPreferences.getBoolean("wizardFinished", false)
-        }
+        checkWizardFinished() // Se llama al iniciar para actualizar el estado.
     }
 
     fun setWizardFinished(finished: Boolean) {
@@ -29,7 +27,8 @@ class WizardViewModel(context: Context) : ViewModel() {
 
     fun checkWizardFinished() {
         viewModelScope.launch(Dispatchers.IO) {
-            _wizardFinished.value = sharedPreferences.getBoolean("wizardFinished", false)
+            val isFinished = sharedPreferences.getBoolean("wizardFinished", false)
+            _wizardFinished.value = isFinished
         }
     }
 }

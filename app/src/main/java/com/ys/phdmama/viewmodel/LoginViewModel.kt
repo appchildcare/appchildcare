@@ -14,13 +14,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.R
+import com.ys.phdmama.model.User
+import com.ys.phdmama.model.UserRoleDTO
+import com.ys.phdmama.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+) : ViewModel() {
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
@@ -28,7 +35,8 @@ class LoginViewModel : ViewModel() {
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val _displayName = MutableStateFlow("")
+    val displayName: StateFlow<String> = _displayName.asStateFlow()
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
@@ -36,6 +44,40 @@ class LoginViewModel : ViewModel() {
 
     fun onPasswordChange(newPassword: String) {
         _password.value = newPassword
+    }
+
+    fun onDisplayNameChange(newDisplayName: String) {
+        _displayName.value = newDisplayName
+    }
+
+    fun getCurrentUserUid(): String? {
+        return firebaseAuth.currentUser?.uid
+    }
+
+    fun getCurrentUserEmail(): String? {
+        return firebaseAuth.currentUser?.email
+    }
+
+    fun getCurrentUserDisplayName(): String? {
+        return firebaseAuth.currentUser?.displayName
+    }
+
+
+    fun onUserLoggedIn(uid: String, email: String, displayName: String, onComplete: () -> Unit) {
+        val user = hashMapOf(
+            "uid" to uid,
+            "email" to email,
+            "displayName" to displayName
+        )
+
+        firestore.collection("users").document(uid).set(user)
+            .addOnSuccessListener {
+                Log.d("LoginViewModel", "Usuario creado o actualizado en Firestore")
+                onComplete() // Llama al callback de finalización
+            }
+            .addOnFailureListener { e ->
+                Log.e("LoginViewModel", "Error al crear o actualizar el usuario en Firestore", e)
+            }
     }
 
     fun onSignInWithEmailPassword(
@@ -76,7 +118,15 @@ class LoginViewModel : ViewModel() {
             firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        onSuccess()
+                        // Asegúrate de obtener el uid después de una autenticación exitosa
+                        val uid = firebaseAuth.currentUser?.uid
+                        if (uid != null) {
+                            onUserLoggedIn(uid, account.email ?: "", account.displayName ?: "") {
+                                onSuccess()
+                            }
+                        } else {
+                            onError("No se pudo obtener el UID del usuario después de iniciar sesión con Google")
+                        }
                     } else {
                         onError(task.exception?.message ?: "Error de autenticación con Google")
                     }
@@ -118,27 +168,5 @@ class LoginViewModel : ViewModel() {
 
     fun checkUserAuthState(): Boolean {
         return firebaseAuth.currentUser != null
-    }
-
-    fun signUpWithEmailPassword(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        if (email.isNotBlank() && password.isNotBlank()) {
-            viewModelScope.launch {
-                firebaseAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            onSuccess()
-                        } else {
-                            onError(task.exception?.message ?: "Error de registro")
-                        }
-                    }
-            }
-        } else {
-            onError("El correo o la contraseña no pueden estar vacíos")
-        }
     }
 }
