@@ -1,7 +1,5 @@
-
 package com.ys.phdmama.ui.screens.wizard.alreadyborn
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -18,7 +16,7 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 @Composable
 fun BabyBloodTypeScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
     var expandedBloodType by remember { mutableStateOf(false) }
-    val babyBloodType by viewModel.babyBloodType.collectAsState()
+    var babyBloodType by remember { mutableStateOf(viewModel.getBabyAttribute("bloodType") ?: "") }
 
     val bloodTypes = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
 
@@ -34,7 +32,7 @@ fun BabyBloodTypeScreen(navController: NavHostController, viewModel: BabyDataVie
             TextField(
                 value = babyBloodType,
                 onValueChange = {},
-                label = { Text("BloodType") },
+                label = { Text("Blood Type") },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {
@@ -51,7 +49,8 @@ fun BabyBloodTypeScreen(navController: NavHostController, viewModel: BabyDataVie
                     DropdownMenuItem(
                         text = { Text(bloodType) },
                         onClick = {
-                            viewModel.updateBabyBloodType(bloodType)
+                            babyBloodType = bloodType
+                            viewModel.setBabyAttribute("bloodType", bloodType)
                             expandedBloodType = false
                         }
                     )
@@ -62,12 +61,11 @@ fun BabyBloodTypeScreen(navController: NavHostController, viewModel: BabyDataVie
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.setBabyBloodType(babyBloodType)
             navController.navigate(NavRoutes.BABY_SEX) {
                 popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
             }
         }) {
-            Text(text = "Guardar blood type")
+            Text(text = "Guardar Blood Type")
         }
 
         Button(onClick = {

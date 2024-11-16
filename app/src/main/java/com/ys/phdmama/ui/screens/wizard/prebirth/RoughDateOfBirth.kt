@@ -2,6 +2,7 @@ package com.ys.phdmama.ui.screens.wizard.prebirth
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
+import com.ys.phdmama.viewmodel.BabyStatusViewModel
 import com.ys.phdmama.viewmodel.RoughDateOfBirthViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 import com.ys.phdmama.viewmodel.WizardViewModelFactory
@@ -18,15 +20,16 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun RoughDateOfBirthScreen(navController: NavHostController,
-                   viewModel: RoughDateOfBirthViewModel = viewModel()) {
-
+fun RoughDateOfBirthScreen(
+    navController: NavHostController,
+    babyStatusViewModel: BabyStatusViewModel = viewModel(),
+    viewModel: RoughDateOfBirthViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val wizardViewModel: WizardViewModel = viewModel(
-        factory = WizardViewModelFactory(context)
-    )
+    val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory())
     val calendar = Calendar.getInstance()
     var selectedDate by remember { mutableStateOf(calendar.time) }
+    var isLoading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -77,18 +80,36 @@ fun RoughDateOfBirthScreen(navController: NavHostController,
             }
         }
 
-
-
         Text(text = "Fecha aproximada de parto: $formattedBirthDate", style = MaterialTheme.typography.bodyMedium)
 
-
-        Button(onClick = {
-            wizardViewModel.setWizardFinished(true)
-            navController.navigate(NavRoutes.MAIN) {
-                popUpTo(0) { inclusive = true }
+        Button(
+            onClick = {
+                isLoading = true
+                babyStatusViewModel.updateUserRole(
+                    role = "waiting",
+                    onSuccess = {
+                        isLoading = false
+                        navController.navigate(NavRoutes.WAITING_DASHBOARD) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                        wizardViewModel.setWizardFinished(true)
+                    },
+                    onError = { errorMessage ->
+                        isLoading = false
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            enabled = !isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Text(text = "Iniciemos la aventura!")
             }
-        }) {
-            Text(text = "Iniciemos la aventura!")
         }
     }
 }

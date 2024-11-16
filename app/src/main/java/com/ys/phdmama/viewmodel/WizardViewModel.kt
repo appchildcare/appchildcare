@@ -1,34 +1,52 @@
 package com.ys.phdmama.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
-class WizardViewModel(context: Context) : ViewModel() {
-    private val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+class WizardViewModel(
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+) : ViewModel() {
 
-    private val _wizardFinished = MutableStateFlow<Boolean?>(null) // Estado inicial nulo
-    val wizardFinished: StateFlow<Boolean?> = _wizardFinished
+    private val _wizardFinished = MutableStateFlow(false)
+    val wizardFinished: StateFlow<Boolean> = _wizardFinished
 
     init {
-        checkWizardFinished() // Se llama al iniciar para actualizar el estado.
+        checkWizardFinished()
     }
 
     fun setWizardFinished(finished: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            sharedPreferences.edit().putBoolean("wizardFinished", finished).apply()
-            _wizardFinished.value = finished
+            val currentUser = firebaseAuth.currentUser
+            currentUser?.let {
+                firestore.collection("users")
+                    .document(it.uid)
+                    .update("wizardFinished", finished)
+                    .addOnSuccessListener { _wizardFinished.value = finished }
+                    .addOnFailureListener { _wizardFinished.value = false } // Opcional, maneja el error
+            }
         }
     }
 
     fun checkWizardFinished() {
         viewModelScope.launch(Dispatchers.IO) {
-            val isFinished = sharedPreferences.getBoolean("wizardFinished", false)
-            _wizardFinished.value = isFinished
+            val currentUser = firebaseAuth.currentUser
+            currentUser?.let {
+                try {
+                    val documentSnapshot = firestore.collection("users").document(it.uid).get().await()
+                    val isFinished = documentSnapshot.getBoolean("wizardFinished") ?: false
+                    _wizardFinished.value = isFinished
+                } catch (e: Exception) {
+                    _wizardFinished.value = false
+                }
+            }
         }
     }
 }

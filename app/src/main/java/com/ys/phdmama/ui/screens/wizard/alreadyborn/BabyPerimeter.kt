@@ -14,7 +14,7 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 
 @Composable
 fun BabyPerimeterScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
-    val babyPerimeter by viewModel.babyCefalicPerimeter.collectAsState()
+    var babyPerimeter by remember { mutableStateOf(viewModel.getBabyAttribute("perimeter") ?: "") }
 
     Column(
         modifier = Modifier
@@ -25,7 +25,10 @@ fun BabyPerimeterScreen(navController: NavHostController, viewModel: BabyDataVie
     ) {
         TextField(
             value = babyPerimeter,
-            onValueChange = { viewModel.updateBabyCefalicPerimeter(it) },
+            onValueChange = {
+                babyPerimeter = it
+                viewModel.setBabyAttribute("perimeter", it)
+            },
             label = { Text("Perímetro cefálico") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -33,7 +36,6 @@ fun BabyPerimeterScreen(navController: NavHostController, viewModel: BabyDataVie
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.setBabyCefalicPerimeter(babyPerimeter)
             navController.navigate(NavRoutes.BABY_BLOOD_TYPE) {
                 popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
             }

@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.screens.wizard.alreadyborn
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,20 +12,31 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.BabyStatusViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 import com.ys.phdmama.viewmodel.WizardViewModelFactory
 
 @Composable
-fun BabySummary(navController: NavHostController,
-                   viewModel: BabyDataViewModel = viewModel(),
-                   wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory(LocalContext.current))) {
+fun BabySummary(
+    navController: NavHostController,
+    viewModel: BabyDataViewModel = viewModel(),
+    babyStatusViewModel: BabyStatusViewModel = viewModel(),
+    wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory())
+) {
+    val context = LocalContext.current
+    val isLoading by remember { mutableStateOf(false) }
+    val isLoadingRoleUpdate by babyStatusViewModel.isLoadingRoleUpdate.collectAsState()
 
-    val babyName by viewModel.babyName.collectAsState()
-    val babyAPGAR by viewModel.babyAPGAR.collectAsState()
-    val babyHeight by viewModel.babyHeight .collectAsState()
-    val babyWeight by viewModel.babyWeight.collectAsState()
-    val babyBloodType by viewModel.babyBloodType.collectAsState()
-    val babySex by viewModel.babySex.collectAsState()
+    // Recopilar los datos del bebé en un mapa
+    val babyData = mapOf(
+        "name" to (viewModel.getBabyAttribute("name") ?: ""),
+        "apgar" to (viewModel.getBabyAttribute("apgar") ?: ""),
+        "height" to (viewModel.getBabyAttribute("height") ?: ""),
+        "weight" to (viewModel.getBabyAttribute("weight") ?: ""),
+        "perimeter" to (viewModel.getBabyAttribute("perimeter") ?: ""),
+        "bloodType" to (viewModel.getBabyAttribute("bloodType") ?: ""),
+        "sex" to (viewModel.getBabyAttribute("sex") ?: "")
+    )
 
     Column(
         modifier = Modifier
@@ -37,27 +49,53 @@ fun BabySummary(navController: NavHostController,
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Name: $babyName", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "APGAR: $babyAPGAR", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "babyHeight: $babyHeight", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "babyWeight: $babyWeight", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Tipo de Sangre: $babyBloodType", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Sexo: $babySex", style = MaterialTheme.typography.bodyLarge)
+        // Mostrar detalles del bebé
+        babyData.forEach { (label, value) ->
+            Text(text = "$label: $value", style = MaterialTheme.typography.bodyLarge)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
+        // Botón para guardar los datos del bebé y actualizar el rol
+        Button(
+            onClick = {
                 wizardViewModel.setWizardFinished(true)
-                navController.navigate(NavRoutes.MAIN) {
-                    popUpTo(0) { inclusive = true }
+                babyStatusViewModel.addBabyToUser(
+                    babyData = babyData,
+                    onSuccess = {
+                        babyStatusViewModel.updateUserRole("born", onSuccess = {
+                            navController.navigate(NavRoutes.BORN_DASHBOARD) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }, onError = { errorMessage ->
+                            babyStatusViewModel.setLoadingRoleUpdate(false)
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        })
+                    },
+                    onError = { errorMessage ->
+                        babyStatusViewModel.setLoadingRoleUpdate(false)
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            enabled = !isLoadingRoleUpdate,
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
+        ) {
+            if (isLoadingRoleUpdate) {
+                CircularProgressIndicator()
+            } else {
+                Text(text = "Iniciemos la aventura")
             }
-        }) {
-            Text(text = "Confirmar y Guardar")
         }
 
-        Button(onClick = {
-            navController.navigate(NavRoutes.BABY_SEX) {}
-        }) {
+
+        Button(
+            onClick = {
+                navController.navigate(NavRoutes.BABY_SEX)
+            },
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
+        ) {
             Text(text = "Revisar")
         }
     }

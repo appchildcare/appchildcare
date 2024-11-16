@@ -15,7 +15,7 @@ import com.ys.phdmama.viewmodel.WizardViewModelFactory
 fun ExitAppCard(onSignOutClick: () -> Unit) {
     val context = LocalContext.current
     var showExitAppDialog by remember { mutableStateOf(false) }
-    val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory(context))
+//    val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory(context))
 
 
     // Botón para mostrar el diálogo de confirmación

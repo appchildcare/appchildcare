@@ -15,27 +15,35 @@ import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
-import com.ys.phdmama.viewmodel.WizardViewModelFactory
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
     navController: NavHostController,
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    wizardViewModel: WizardViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory(context))
     val wizardFinished by wizardViewModel.wizardFinished.collectAsState()
 
     LaunchedEffect(Unit) {
-//        wizardViewModel.setWizardFinished(false)
         delay(1000L)
         val isUserLoggedIn = loginViewModel.checkUserAuthState()
         wizardViewModel.checkWizardFinished()
+
         if (isUserLoggedIn) {
-            if (wizardFinished == true) {
-                navController.navigate(NavRoutes.MAIN) {
-                    popUpTo(NavRoutes.SPLASH) { inclusive = true }
+            val userRole = loginViewModel.getUserRoleFromFirestore()
+            if (wizardFinished) {
+                when (userRole) {
+                    "born" -> navController.navigate(NavRoutes.BORN_DASHBOARD) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                    "waiting" -> navController.navigate(NavRoutes.WAITING_DASHBOARD) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                    else -> navController.navigate(NavRoutes.BABY_STATUS) {
+                        popUpTo(NavRoutes.SPLASH) { inclusive = true }
+                    }
                 }
             } else {
                 navController.navigate(NavRoutes.BABY_STATUS) {

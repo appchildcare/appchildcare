@@ -2,6 +2,7 @@
 activityComposeVersion = "1.7.2"
 agp = "8.7.0"
 coreKtxVersion = "1.10.1"
+datastorePreferences = "1.1.1"
 firebaseBom = "33.4.0"  # Versión de Firebase BOM
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
@@ -25,6 +26,7 @@ firebaseFirestoreKtx = "25.1.1"
 androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-ktx-v1101 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-runtime-ktx-v261 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

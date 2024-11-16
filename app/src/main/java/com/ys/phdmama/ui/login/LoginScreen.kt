@@ -27,23 +27,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.LoginViewModel
+import com.ys.phdmama.viewmodel.WizardViewModel
+import com.ys.phdmama.viewmodel.WizardViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val email by loginViewModel.email.collectAsState()
     val password by loginViewModel.password.collectAsState()
     val displayName by loginViewModel.displayName.collectAsState()
-    val context = LocalContext.current
+    val wizardViewModel: WizardViewModel = viewModel(
+        factory = WizardViewModelFactory()
+    )
+    val wizardFinished by wizardViewModel.wizardFinished.collectAsState()
+    var isGoogleLoading by remember { mutableStateOf(false) }
+    var isEmailLoading by remember { mutableStateOf(false) }
+
 
     // Configure the Google Sign-In launcher
     val launcher = rememberLauncherForActivityResult(
@@ -56,8 +64,18 @@ fun LoginScreen(
                 loginViewModel.handleGoogleSignInResult(
                     account = account,
                     onSuccess = {
-                        navController.navigate(NavRoutes.BABY_STATUS) {
-                            popUpTo(NavRoutes.LOGIN) { inclusive = true }
+                        // Verificamos wizardFinished desde Firestore
+                        wizardViewModel.checkWizardFinished()
+                        loginViewModel.fetchUserRole { role ->
+                            // Determinamos el destino según el estado del wizard y el rol
+                            val destination = if (wizardViewModel.wizardFinished.value == true) {
+                                if (role == "born") NavRoutes.BORN_DASHBOARD else NavRoutes.WAITING_DASHBOARD
+                            } else {
+                                NavRoutes.BABY_STATUS
+                            }
+                            navController.navigate(destination) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
                     },
                     onError = { errorMessage ->
@@ -66,7 +84,7 @@ fun LoginScreen(
                 )
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Error en Google Sign-In: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Google Sign-In falló: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -140,30 +158,37 @@ fun LoginScreen(
         // Botón de inicio de sesión con email
         Button(
             onClick = {
+                isEmailLoading = true
                 loginViewModel.onSignInWithEmailPassword(
                     onSuccess = {
-                        val uid = loginViewModel.getCurrentUserUid().orEmpty()
-                        loginViewModel.onUserLoggedIn(uid, email, displayName) {
-                            navController.navigate(NavRoutes.BABY_STATUS) {
-                                popUpTo(NavRoutes.LOGIN) { inclusive = true }
+                        isEmailLoading = true
+                        wizardViewModel.checkWizardFinished()
+                        loginViewModel.fetchUserRole { role ->
+                            val destination = if (wizardViewModel.wizardFinished.value == true) {
+                                if (role == "born") NavRoutes.BORN_DASHBOARD else NavRoutes.WAITING_DASHBOARD
+                            } else {
+                                NavRoutes.BABY_STATUS
+                            }
+                            navController.navigate(destination) {
+                                popUpTo(0) { inclusive = true }
                             }
                         }
                     },
                     onError = { errorMessage ->
+                        isEmailLoading = false
                         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 )
             },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
             modifier = modifier
                 .fillMaxWidth()
-                .padding(16.dp, 0.dp)
-        ) {
-            Text(
-                text = "Iniciar Sesión",
-                fontSize = 16.sp,
-                modifier = modifier.padding(0.dp, 6.dp)
-            )
+                .padding(16.dp, 0.dp),
+            enabled = !isEmailLoading) {
+            if (isEmailLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                Text(text = "Iniciar Sesión")
+            }
         }
 
         Spacer(modifier = Modifier
@@ -175,29 +200,32 @@ fun LoginScreen(
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp))
-
+// HAY QUE HACERLE EL MISMO TRABAJITO DE LAS PANTALLAS ASYNC en el botón de Waiting en la dulce espera
         // Botón de inicio de sesión con Google
         Button(
             onClick = {
+                isGoogleLoading = true
                 try {
                     val signInClient = loginViewModel.getGoogleSignInClient(context)
                     launcher.launch(signInClient.signInIntent)
                 } catch (e: Exception) {
-                    Log.e("LoginScreen", "Error al iniciar Google Sign-In: ${e.localizedMessage}")
+                    isGoogleLoading = false
                     Toast.makeText(context, "Error al iniciar Google Sign-In", Toast.LENGTH_SHORT).show()
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4285F4)),
             modifier = modifier
                 .fillMaxWidth()
-                .padding(16.dp, 0.dp)
+                .padding(16.dp, 0.dp),
+            enabled = !isGoogleLoading
         ) {
-            Text(
-                text = "Iniciar sesión con Google",
-                fontSize = 16.sp,
-                modifier = modifier.padding(0.dp, 6.dp)
-            )
+            if (isGoogleLoading) {
+                CircularProgressIndicator(color = Color.White)
+            } else {
+                Text(text = "Iniciar sesión con Google")
+            }
         }
+
 
         Spacer(modifier = Modifier
             .fillMaxWidth()

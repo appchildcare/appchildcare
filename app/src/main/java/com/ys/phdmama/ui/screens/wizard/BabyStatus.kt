@@ -1,9 +1,11 @@
 package com.ys.phdmama.ui.screens.wizard
 
+import BabyStatusViewModelFactory
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,16 +21,13 @@ import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.BabyStatusViewModel
 
 @Composable
-fun BabyStatusScreen(
-    navController: NavHostController,
-    babyStatusViewModel: BabyStatusViewModel = viewModel()
-) {
+fun BabyStatusScreen(navController: NavHostController) {
     val context = LocalContext.current
+    val babyStatusViewModel: BabyStatusViewModel = viewModel(factory = BabyStatusViewModelFactory())
+    var isLoadingWaiting by remember { mutableStateOf(false) }
+    var isLoadingBorn by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Imagen de fondo
+    Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.one),
             contentDescription = null,
@@ -36,7 +35,6 @@ fun BabyStatusScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Contenido principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -46,36 +44,60 @@ fun BabyStatusScreen(
         ) {
             Button(
                 onClick = {
-                    babyStatusViewModel.updateUserRole("waiting", onSuccess = {
-                        navController.navigate(NavRoutes.ROUGHBIRTH) {
-                            popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
+                    isLoadingWaiting = true
+                    babyStatusViewModel.updateUserRole(
+                        role = "waiting",
+                        onSuccess = {
+                            isLoadingWaiting = false
+                            navController.navigate(NavRoutes.ROUGHBIRTH) {
+                                popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
+                            }
+                        },
+                        onError = { errorMessage ->
+                            isLoadingWaiting = false
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }
-                    }, onError = { errorMessage ->
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                    })
+                    )
                 },
+                enabled = !isLoadingWaiting,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                Text(text = "En la dulce espera")
+                if (isLoadingWaiting) {
+                    CircularProgressIndicator()
+                } else {
+                    Text(text = "En la dulce espera")
+                }
             }
 
             Button(
                 onClick = {
-                    babyStatusViewModel.updateUserRole("born", onSuccess = {
-                        navController.navigate(NavRoutes.BABY_ALREADY_BORN) {
-                            popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
+                    isLoadingBorn = true
+                    babyStatusViewModel.updateUserRole(
+                        role = "born",
+                        onSuccess = {
+                            isLoadingBorn = false
+                            navController.navigate(NavRoutes.BABY_ALREADY_BORN) {
+                                popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
+                            }
+                        },
+                        onError = { errorMessage ->
+                            isLoadingBorn = false
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }
-                    }, onError = { errorMessage ->
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                    })
+                    )
                 },
+                enabled = !isLoadingBorn,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                Text(text = "Mi bebé ya nació")
+                if (isLoadingBorn) {
+                    CircularProgressIndicator()
+                } else {
+                    Text(text = "Mi bebé ya nació")
+                }
             }
         }
     }

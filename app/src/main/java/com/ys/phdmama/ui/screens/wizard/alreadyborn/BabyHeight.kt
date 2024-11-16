@@ -14,7 +14,7 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 
 @Composable
 fun BabyHeightScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
-    val babyHeight by viewModel.babyHeight.collectAsState()
+    var babyHeight by remember { mutableStateOf(viewModel.getBabyAttribute("height") ?: "") }
 
     Column(
         modifier = Modifier
@@ -25,7 +25,10 @@ fun BabyHeightScreen(navController: NavHostController, viewModel: BabyDataViewMo
     ) {
         TextField(
             value = babyHeight,
-            onValueChange = { viewModel.updateBabyHeight(it) },
+            onValueChange = {
+                babyHeight = it
+                viewModel.setBabyAttribute("height", it)
+                            },
             label = { Text("Baby Height") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -33,7 +36,6 @@ fun BabyHeightScreen(navController: NavHostController, viewModel: BabyDataViewMo
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.setBabyHeight(babyHeight)
             navController.navigate(NavRoutes.BABY_PERIMETER) {
                 popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
             }

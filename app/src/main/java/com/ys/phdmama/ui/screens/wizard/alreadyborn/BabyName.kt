@@ -14,7 +14,7 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 
 @Composable
 fun BabyNameScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
-    val babyName by viewModel.babyName.collectAsState()
+    var babyName by remember { mutableStateOf(viewModel.getBabyAttribute("name") ?: "") }
 
     Column(
         modifier = Modifier
@@ -25,7 +25,10 @@ fun BabyNameScreen(navController: NavHostController, viewModel: BabyDataViewMode
     ) {
         TextField(
             value = babyName,
-            onValueChange = { viewModel.updateBabyName(it) },
+            onValueChange = {
+                babyName = it
+                viewModel.setBabyAttribute("name", it)
+            },
             label = { Text("Nombre del bebé") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -33,8 +36,6 @@ fun BabyNameScreen(navController: NavHostController, viewModel: BabyDataViewMode
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.setBabyName(babyName)
-            Log.d("BabyNameScreen", "Nombre del bebé: $babyName")
             navController.navigate(NavRoutes.BABY_APGAR) {
                 popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
             }

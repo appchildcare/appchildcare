@@ -17,9 +17,8 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 
 @Composable
 fun BabySexScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
-//    var babySex by remember { mutableStateOf("") }
     var expandedSex by remember { mutableStateOf(false) }
-    val babySex by viewModel.babySex.collectAsState()
+    var babySex by remember { mutableStateOf(viewModel.getBabyAttribute("sex") ?: "") }
 
     val sexes = listOf("Masculino", "Femenino")
 
@@ -52,7 +51,8 @@ fun BabySexScreen(navController: NavHostController, viewModel: BabyDataViewModel
                     DropdownMenuItem(
                         text = { Text(sex) },
                         onClick = {
-                            viewModel.updateBabySex(sex)
+                            babySex = sex
+                            viewModel.setBabyAttribute("sex", sex)
                             expandedSex = false
                         }
                     )
@@ -63,7 +63,6 @@ fun BabySexScreen(navController: NavHostController, viewModel: BabyDataViewModel
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.setBabySex(babySex)
             navController.navigate(NavRoutes.BABY_SUMMARY) {
                 popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
             }
@@ -72,8 +71,7 @@ fun BabySexScreen(navController: NavHostController, viewModel: BabyDataViewModel
         }
 
         Button(onClick = {
-            navController.navigate(NavRoutes.BABY_BLOOD_TYPE) {
-            }
+            navController.navigate(NavRoutes.BABY_BLOOD_TYPE) {}
         }) {
             Text(text = "Revisar tipo de sangre")
         }

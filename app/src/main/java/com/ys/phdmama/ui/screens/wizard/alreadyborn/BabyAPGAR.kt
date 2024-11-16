@@ -14,7 +14,7 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 
 @Composable
 fun BabyAPGARScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
-    val babyAPGAR by viewModel.babyAPGAR.collectAsState()
+    var babyAPGAR by remember { mutableStateOf(viewModel.getBabyAttribute("apgar") ?: "") }
 
     Column(
         modifier = Modifier
@@ -25,7 +25,10 @@ fun BabyAPGARScreen(navController: NavHostController, viewModel: BabyDataViewMod
     ) {
         TextField(
             value = babyAPGAR,
-            onValueChange = { viewModel.updateBabyAPGAR(it) },
+            onValueChange = {
+                babyAPGAR = it
+                viewModel.setBabyAttribute("apgar", it)
+                            },
             label = { Text("APGAR") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -33,7 +36,7 @@ fun BabyAPGARScreen(navController: NavHostController, viewModel: BabyDataViewMod
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            viewModel.setBabyAPGAR(babyAPGAR)
+            viewModel.setBabyAttribute("apgar", babyAPGAR)
             navController.navigate(NavRoutes.BABY_WEIGHT) {
                 popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
             }

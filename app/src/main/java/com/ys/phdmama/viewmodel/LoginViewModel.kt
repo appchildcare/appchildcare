@@ -1,13 +1,10 @@
 package com.ys.phdmama.viewmodel
 
-import android.app.PendingIntent
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -16,13 +13,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.R
-import com.ys.phdmama.model.User
-import com.ys.phdmama.model.UserRoleDTO
-import com.ys.phdmama.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class LoginViewModel(
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -46,10 +43,6 @@ class LoginViewModel(
         _password.value = newPassword
     }
 
-    fun onDisplayNameChange(newDisplayName: String) {
-        _displayName.value = newDisplayName
-    }
-
     fun getCurrentUserUid(): String? {
         return firebaseAuth.currentUser?.uid
     }
@@ -61,7 +54,6 @@ class LoginViewModel(
     fun getCurrentUserDisplayName(): String? {
         return firebaseAuth.currentUser?.displayName
     }
-
 
     fun onUserLoggedIn(uid: String, email: String, displayName: String, onComplete: () -> Unit) {
         val user = hashMapOf(
@@ -89,17 +81,43 @@ class LoginViewModel(
 
         if (email.isNotBlank() && password.isNotBlank()) {
             viewModelScope.launch {
-                firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            onSuccess()
-                        } else {
-                            onError(task.exception?.message ?: "Error de autenticación")
-                        }
+                try {
+                    val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+                    if (result.user != null) {
+                        checkUserData(onSuccess, onError)
+                    } else {
+                        onError("Error de autenticación")
                     }
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error de autenticación")
+                }
             }
         } else {
             onError("El correo o la contraseña no pueden estar vacíos")
+        }
+    }
+
+    private suspend fun checkUserData(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        try {
+            fetchUserRole { role ->
+                if (role != "unknown") {
+                    onSuccess()
+                } else {
+                    onError("No se pudo obtener el rol del usuario")
+                }
+            }
+        } catch (e: Exception) {
+            onError(e.localizedMessage ?: "Error al obtener los datos del usuario")
+        }
+    }
+
+
+    fun getUserRole(uid: String, onComplete: (String?) -> Unit) {
+        val userRef = firestore.collection("users").document(uid)
+        userRef.get().addOnSuccessListener { document ->
+            onComplete(document.getString("role"))
+        }.addOnFailureListener { e ->
+            onComplete(null)
         }
     }
 
@@ -115,24 +133,27 @@ class LoginViewModel(
 
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         viewModelScope.launch {
-            firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Asegúrate de obtener el uid después de una autenticación exitosa
-                        val uid = firebaseAuth.currentUser?.uid
-                        if (uid != null) {
-                            onUserLoggedIn(uid, account.email ?: "", account.displayName ?: "") {
-                                onSuccess()
-                            }
+            try {
+                firebaseAuth.signInWithCredential(credential).await()
+                val uid = firebaseAuth.currentUser?.uid
+                if (uid != null) {
+                    fetchUserRole { role ->
+                        if (role != "unknown") {
+                            onSuccess()
                         } else {
-                            onError("No se pudo obtener el UID del usuario después de iniciar sesión con Google")
+                            onError("No se pudo obtener el rol del usuario")
                         }
-                    } else {
-                        onError(task.exception?.message ?: "Error de autenticación con Google")
                     }
+                } else {
+                    onError("No se pudo obtener el UID del usuario")
                 }
+            } catch (e: Exception) {
+                onError(e.localizedMessage ?: "Error de autenticación con Google")
+            }
         }
     }
+
+
 
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -169,4 +190,34 @@ class LoginViewModel(
     fun checkUserAuthState(): Boolean {
         return firebaseAuth.currentUser != null
     }
+
+    private var userRole: String? = null
+
+    // Función para obtener el rol del usuario desde Firestore en una coroutine
+    fun fetchUserRole(onRoleFetched: (String) -> Unit) {
+        viewModelScope.launch {
+            val role = getUserRoleFromFirestore()
+            userRole = role
+            onRoleFetched(role)
+        }
+    }
+
+    suspend fun getUserRoleFromFirestore(): String {
+        return withContext(Dispatchers.IO) {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                try {
+                    val uid = currentUser.uid
+                    val document = firestore.collection("users").document(uid).get().await()
+                    document.getString("role") ?: "unknown"
+                } catch (e: Exception) {
+                    "unknown"
+                }
+            } else {
+                "unknown"
+            }
+        }
+    }
+
+
 }

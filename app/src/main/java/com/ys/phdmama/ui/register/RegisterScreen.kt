@@ -105,7 +105,7 @@ fun RegisterScreen(
                         val userDisplayName = loginViewModel.getCurrentUserDisplayName().orEmpty()
                         loginViewModel.onUserLoggedIn(uid, userEmail, userDisplayName) {
                             navController.navigate(NavRoutes.BABY_STATUS) {
-                                popUpTo(NavRoutes.REGISTER) { inclusive = true }
+                                popUpTo(0) { inclusive = true }
                             }
                         }
                     },
