@@ -84,7 +84,7 @@ class LoginViewModel(
                 try {
                     val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                     if (result.user != null) {
-                        checkUserData(onSuccess, onError)
+                        onSuccess()
                     } else {
                         onError("Error de autenticación")
                     }
@@ -97,19 +97,20 @@ class LoginViewModel(
         }
     }
 
-    private suspend fun checkUserData(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        try {
-            fetchUserRole { role ->
-                if (role != "unknown") {
-                    onSuccess()
-                } else {
-                    onError("No se pudo obtener el rol del usuario")
-                }
-            }
-        } catch (e: Exception) {
-            onError(e.localizedMessage ?: "Error al obtener los datos del usuario")
-        }
-    }
+
+//    private suspend fun checkUserData(onSuccess: () -> Unit, onError: (String) -> Unit) {
+//        try {
+//            fetchUserRole { role ->
+//                if (role != "unknown") {
+//                    onSuccess()
+//                } else {
+//                    onError("No se pudo obtener el rol del usuario")
+//                }
+//            }
+//        } catch (e: Exception) {
+//            onError(e.localizedMessage ?: "Error al obtener los datos del usuario")
+//        }
+//    }
 
 
     fun getUserRole(uid: String, onComplete: (String?) -> Unit) {
@@ -121,37 +122,37 @@ class LoginViewModel(
         }
     }
 
-    fun handleGoogleSignInResult(
-        account: GoogleSignInAccount?,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        if (account == null) {
-            onError("Cuenta de Google no encontrada")
-            return
-        }
-
-        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        viewModelScope.launch {
-            try {
-                firebaseAuth.signInWithCredential(credential).await()
-                val uid = firebaseAuth.currentUser?.uid
-                if (uid != null) {
-                    fetchUserRole { role ->
-                        if (role != "unknown") {
-                            onSuccess()
-                        } else {
-                            onError("No se pudo obtener el rol del usuario")
-                        }
-                    }
-                } else {
-                    onError("No se pudo obtener el UID del usuario")
-                }
-            } catch (e: Exception) {
-                onError(e.localizedMessage ?: "Error de autenticación con Google")
-            }
-        }
-    }
+//    fun handleGoogleSignInResult(
+//        account: GoogleSignInAccount?,
+//        onSuccess: () -> Unit,
+//        onError: (String) -> Unit
+//    ) {
+//        if (account == null) {
+//            onError("Cuenta de Google no encontrada")
+//            return
+//        }
+//
+//        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+//        viewModelScope.launch {
+//            try {
+//                firebaseAuth.signInWithCredential(credential).await()
+//                val uid = firebaseAuth.currentUser?.uid
+//                if (uid != null) {
+//                    fetchUserRole { role ->
+//                        if (role != "unknown") {
+//                            onSuccess()
+//                        } else {
+//                            onError("No se pudo obtener el rol del usuario")
+//                        }
+//                    }
+//                } else {
+//                    onError("No se pudo obtener el UID del usuario")
+//                }
+//            } catch (e: Exception) {
+//                onError(e.localizedMessage ?: "Error de autenticación con Google")
+//            }
+//        }
+//    }
 
 
 
@@ -191,16 +192,32 @@ class LoginViewModel(
         return firebaseAuth.currentUser != null
     }
 
-    private var userRole: String? = null
+    // Función para obtener el usuario desde Firestore en una coroutine
+    fun fetchUserDetails(onSuccess: (String?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    val userRef = firestore.collection("users").document(uid)
+                    val document = userRef.get().await()
+                    val role = document.getString("role")
+                    val wizardFinished = document.getBoolean("wizardFinished") ?: false
 
-    // Función para obtener el rol del usuario desde Firestore en una coroutine
-    fun fetchUserRole(onRoleFetched: (String) -> Unit) {
-        viewModelScope.launch {
-            val role = getUserRoleFromFirestore()
-            userRole = role
-            onRoleFetched(role)
+                    // Si role es nulo o wizardFinished es false, saltamos la validación.
+                    if (role == null || !wizardFinished) {
+                        onSkip()
+                    } else {
+                        onSuccess(role)
+                    }
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al obtener detalles del usuario")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
         }
     }
+
 
     suspend fun getUserRoleFromFirestore(): String {
         return withContext(Dispatchers.IO) {

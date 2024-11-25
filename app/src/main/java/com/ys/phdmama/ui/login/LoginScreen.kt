@@ -61,34 +61,34 @@ fun LoginScreen(
         try {
             val account = task.getResult(Exception::class.java)
             if (account != null) {
-                loginViewModel.handleGoogleSignInResult(
-                    account = account,
-                    onSuccess = {
-                        // Verificamos wizardFinished desde Firestore
-                        wizardViewModel.checkWizardFinished()
-                        loginViewModel.fetchUserRole { role ->
-                            // Determinamos el destino según el estado del wizard y el rol
-                            val destination = if (wizardViewModel.wizardFinished.value == true) {
-                                if (role == "born") NavRoutes.BORN_DASHBOARD else NavRoutes.WAITING_DASHBOARD
-                            } else {
-                                NavRoutes.BABY_STATUS
-                            }
-                            navController.navigate(destination) {
-                                popUpTo(0) { inclusive = true }
-                            }
+                loginViewModel.fetchUserDetails(
+                    onSuccess = { role ->
+                        // Verificamos el rol y redirigimos
+                        val destination = if (role == "born") {
+                            NavRoutes.BORN_DASHBOARD
+                        } else {
+                            NavRoutes.WAITING_DASHBOARD
+                        }
+                        navController.navigate(destination) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    onSkip = {
+                        // Si no existe el rol o wizardFinished es false, vamos a BABY_STATUS
+                        navController.navigate(NavRoutes.BABY_STATUS) {
+                            popUpTo(0) { inclusive = true }
                         }
                     },
                     onError = { errorMessage ->
                         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                     }
                 )
+
             }
         } catch (e: Exception) {
             Toast.makeText(context, "Google Sign-In falló: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 
     Column(
         modifier = modifier
@@ -161,18 +161,22 @@ fun LoginScreen(
                 isEmailLoading = true
                 loginViewModel.onSignInWithEmailPassword(
                     onSuccess = {
-                        isEmailLoading = true
-                        wizardViewModel.checkWizardFinished()
-                        loginViewModel.fetchUserRole { role ->
-                            val destination = if (wizardViewModel.wizardFinished.value == true) {
-                                if (role == "born") NavRoutes.BORN_DASHBOARD else NavRoutes.WAITING_DASHBOARD
-                            } else {
-                                NavRoutes.BABY_STATUS
+                        loginViewModel.fetchUserDetails(
+                            onSuccess = { role ->
+                                val destination = if (role == "born") NavRoutes.BORN_DASHBOARD else NavRoutes.WAITING_DASHBOARD
+                                navController.navigate(destination) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onSkip = {
+                                navController.navigate(NavRoutes.BABY_STATUS) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onError = { errorMessage ->
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                             }
-                            navController.navigate(destination) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
+                        )
                     },
                     onError = { errorMessage ->
                         isEmailLoading = false
@@ -183,7 +187,8 @@ fun LoginScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 0.dp),
-            enabled = !isEmailLoading) {
+            enabled = !isEmailLoading
+        ) {
             if (isEmailLoading) {
                 CircularProgressIndicator(color = Color.White)
             } else {

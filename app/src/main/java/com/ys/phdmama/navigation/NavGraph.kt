@@ -61,10 +61,19 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     var userRole by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        loginViewModel.fetchUserRole { role ->
-            userRole = role
-        }
+        loginViewModel.fetchUserDetails(
+            onSuccess = { role ->
+                userRole = role
+            },
+            onSkip = {
+                userRole = null // Saltar validación y redirigir
+            },
+            onError = { errorMessage ->
+                userRole = null
+            }
+        )
     }
+
 
     if (userRole != null) {
         NavHost(navController = navController, startDestination = startDestination) {
