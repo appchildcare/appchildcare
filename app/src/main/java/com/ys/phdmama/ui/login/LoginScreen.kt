@@ -44,11 +44,9 @@ fun LoginScreen(
     val context = LocalContext.current
     val email by loginViewModel.email.collectAsState()
     val password by loginViewModel.password.collectAsState()
-    val displayName by loginViewModel.displayName.collectAsState()
     val wizardViewModel: WizardViewModel = viewModel(
         factory = WizardViewModelFactory()
     )
-    val wizardFinished by wizardViewModel.wizardFinished.collectAsState()
     var isGoogleLoading by remember { mutableStateOf(false) }
     var isEmailLoading by remember { mutableStateOf(false) }
 
@@ -163,7 +161,11 @@ fun LoginScreen(
                     onSuccess = {
                         loginViewModel.fetchUserDetails(
                             onSuccess = { role ->
-                                val destination = if (role == "born") NavRoutes.BORN_DASHBOARD else NavRoutes.WAITING_DASHBOARD
+                                val destination = when (role) {
+                                    "born" -> NavRoutes.BORN_DASHBOARD
+                                    "waiting" -> NavRoutes.WAITING_DASHBOARD
+                                    else -> NavRoutes.BABY_STATUS
+                                }
                                 navController.navigate(destination) {
                                     popUpTo(0) { inclusive = true }
                                 }
@@ -184,9 +186,7 @@ fun LoginScreen(
                     }
                 )
             },
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp, 0.dp),
+            modifier = modifier.fillMaxWidth().padding(16.dp, 0.dp),
             enabled = !isEmailLoading
         ) {
             if (isEmailLoading) {

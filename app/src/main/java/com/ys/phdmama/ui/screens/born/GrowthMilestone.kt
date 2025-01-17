@@ -1,6 +1,8 @@
 package com.ys.phdmama.ui.screens.born
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -12,16 +14,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
+import java.util.UUID
 
 @Composable
 fun GrowthMilestonesScreen(
     navController: NavHostController,
-    viewModel: BabyDataViewModel = viewModel()
+    viewModel: GrowthMilestonesViewModel = viewModel()
 ) {
-    // Variables para almacenar el peso, la talla y el perímetro cefálico ingresados
+    // Variables para los campos de texto
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var headCircumference by remember { mutableStateOf("") }
+
+    // Estado para controlar la visibilidad de la alerta
+    var showAlert by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -34,7 +41,6 @@ fun GrowthMilestonesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo de texto para ingresar el peso
         OutlinedTextField(
             value = weight,
             onValueChange = { weight = it },
@@ -44,7 +50,6 @@ fun GrowthMilestonesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo de texto para ingresar la talla
         OutlinedTextField(
             value = height,
             onValueChange = { height = it },
@@ -54,7 +59,6 @@ fun GrowthMilestonesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo de texto para ingresar el perímetro cefálico
         OutlinedTextField(
             value = headCircumference,
             onValueChange = { headCircumference = it },
@@ -64,14 +68,45 @@ fun GrowthMilestonesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para guardar los valores
         Button(onClick = {
-            viewModel.setBabyAttribute("weight", weight)
-            viewModel.setBabyAttribute("height", height)
-            viewModel.setBabyAttribute("headCircumference", headCircumference)
-            navController.navigate("next_screen_route") // Ajusta la navegación según tu flujo
+            if (weight.isNotEmpty() && height.isNotEmpty() && headCircumference.isNotEmpty()) {
+                val milestoneData = mapOf(
+                    "weight" to weight,
+                    "height" to height,
+                    "headCircumference" to headCircumference,
+                    "timestamp" to System.currentTimeMillis()
+                )
+                viewModel.saveGrowthMilestone(
+                    milestoneData = milestoneData,
+                    onSuccess = {
+                        showAlert = true // Muestra la alerta al guardar
+                    },
+                    onError = { errorMessage ->
+                        Log.e("GrowthMilestone", "Error al guardar: $errorMessage")
+                    }
+                )
+            } else {
+                viewModel.clearErrorMessage()
+            }
         }) {
             Text(text = "Guardar")
         }
+    }
+
+    // Mostrar alerta al guardar con éxito
+    if (showAlert) {
+        AlertDialog(
+            onDismissRequest = { showAlert = false },
+            title = { Text(text = "Confirmación") },
+            text = { Text(text = "Datos registrados") },
+            confirmButton = {
+                Button(onClick = {
+                    showAlert = false
+                    navController.popBackStack() // Navega hacia atrás
+                }) {
+                    Text(text = "Aceptar")
+                }
+            }
+        )
     }
 }

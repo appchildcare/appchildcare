@@ -8,7 +8,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -23,38 +22,9 @@ fun SplashScreen(
     loginViewModel: LoginViewModel = viewModel(),
     wizardViewModel: WizardViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val wizardFinished by wizardViewModel.wizardFinished.collectAsState()
-
     LaunchedEffect(Unit) {
-        delay(1000L)
-        val isUserLoggedIn = loginViewModel.checkUserAuthState()
-        wizardViewModel.checkWizardFinished()
-
-        if (isUserLoggedIn) {
-            val userRole = loginViewModel.getUserRoleFromFirestore()
-            if (wizardFinished) {
-                when (userRole) {
-                    "born" -> navController.navigate(NavRoutes.BORN_DASHBOARD) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                    "waiting" -> navController.navigate(NavRoutes.WAITING_DASHBOARD) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                    else -> navController.navigate(NavRoutes.BABY_STATUS) {
-                        popUpTo(NavRoutes.SPLASH) { inclusive = true }
-                    }
-                }
-            } else {
-                navController.navigate(NavRoutes.BABY_STATUS) {
-                    popUpTo(NavRoutes.SPLASH) { inclusive = true }
-                }
-            }
-        } else {
-            navController.navigate(NavRoutes.LOGIN) {
-                popUpTo(NavRoutes.SPLASH) { inclusive = true }
-            }
-        }
+//        delay(1000L) // Simula un tiempo de carga inicial
+        handleNavigation(navController, loginViewModel, wizardViewModel)
     }
 
     Box(
@@ -62,5 +32,51 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(modifier = Modifier.size(50.dp))
+    }
+}
+
+fun handleNavigation(
+    navController: NavHostController,
+    loginViewModel: LoginViewModel,
+    wizardViewModel: WizardViewModel
+) {
+    val isUserLoggedIn = loginViewModel.checkUserAuthState()
+    val wizardFinished = try {
+        wizardViewModel.checkWizardFinished()
+        wizardViewModel.wizardFinished.value
+    } catch (e: Exception) {
+        Log.e("SplashScreen", "Failed to check wizard status: ${e.localizedMessage}")
+        false
+    }
+
+    if (isUserLoggedIn) {
+        loginViewModel.fetchUserDetails(
+            onSuccess = { role ->
+                when {
+                    wizardFinished && role == "born" -> navigateSafely(navController, "born")
+                    wizardFinished && role == "waiting" -> navigateSafely(navController, "waiting")
+                    else -> navigateSafely(navController, NavRoutes.BABY_STATUS)
+                }
+            },
+            onSkip = {
+                navigateSafely(navController, NavRoutes.BABY_STATUS)
+            },
+            onError = { errorMessage ->
+                Log.e("SplashScreen", "Error fetching user details: $errorMessage")
+                navigateSafely(navController, NavRoutes.LOGIN)
+            }
+        )
+    } else {
+        navigateSafely(navController, NavRoutes.LOGIN)
+    }
+}
+
+fun navigateSafely(navController: NavHostController, route: String) {
+    try {
+        navController.navigate(route) {
+            popUpTo(0) { inclusive = true }
+        }
+    } catch (e: Exception) {
+        Log.e("Navigation", "Failed to navigate to $route: ${e.localizedMessage}")
     }
 }
