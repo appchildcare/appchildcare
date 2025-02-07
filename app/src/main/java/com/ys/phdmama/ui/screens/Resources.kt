@@ -24,7 +24,7 @@ fun Resources(navController: NavController, openDrawer: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Waiting Dashboard") },
+                title = { Text("Recursos") },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
