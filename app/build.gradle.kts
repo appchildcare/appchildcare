@@ -68,4 +68,6 @@ dependencies {
     implementation(libs.material.components)
     implementation(libs.androidx.datastore.preferences)
 
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
 }

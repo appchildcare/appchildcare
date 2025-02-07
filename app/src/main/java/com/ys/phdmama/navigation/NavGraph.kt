@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.ys.phdmama.navigation
 
 import android.util.Log
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,7 +67,8 @@ object NavRoutes {
 }
 
 @Composable
-fun NavGraph(navController: NavHostController, startDestination: String = NavRoutes.SPLASH) {
+fun NavGraph(navController: NavHostController, startDestination: String = NavRoutes.SPLASH,
+             openDrawer: () -> Unit) {
     val viewModelStoreOwner = LocalViewModelStoreOwner.current
     val babyDataViewModel: BabyDataViewModel = viewModel(viewModelStoreOwner!!)
     val loginViewModel: LoginViewModel = viewModel()
@@ -108,7 +112,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             RegisterScreen(navController = navController)
         }
         composable(NavRoutes.MAIN) {
-            MainScreen(navController = navController)
+            MainScreen(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BABY_STATUS) {
             BabyStatusScreen(navController = navController)
@@ -152,7 +156,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
             composable(NavRoutes.BORN_DASHBOARD) {
-                BornDashboardScreen(navController = navController)
+                BornDashboardScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.BORN_MENU) {
                 BabyMenuScreen(navController = navController)
@@ -164,7 +168,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         navigation(startDestination = NavRoutes.WAITING_DASHBOARD, route = "waiting") {
             composable(NavRoutes.WAITING_DASHBOARD) {
-                WaitingDashboardScreen(navController = navController)
+                WaitingDashboardScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.ROUGHBIRTH) {
                 RoughDateOfBirthScreen(navController = navController)
@@ -173,15 +177,15 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         // Definir bornNavGraph y waitingNavGraph
         when {
-            userRole == "born" -> bornNavGraph(navController, babyDataViewModel)
-            userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel)
+            userRole == "born" -> bornNavGraph(navController, babyDataViewModel, openDrawer)
+            userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, openDrawer)
         }
     }
 }
 
-fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel) {
+fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit) {
     composable(NavRoutes.BORN_DASHBOARD) {
-        BornDashboardScreen(navController = navController)
+        BornDashboardScreen(navController = navController, openDrawer = openDrawer)
     }
     composable(NavRoutes.BORN_MENU) {
         BabyMenuScreen(navController = navController)
@@ -191,9 +195,9 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
     }
 }
 
-fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel) {
+fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit) {
     composable(NavRoutes.WAITING_DASHBOARD) {
-        WaitingDashboardScreen(navController = navController)
+        WaitingDashboardScreen(navController = navController, openDrawer = openDrawer)
     }
     composable(NavRoutes.ROUGHBIRTH) {
         RoughDateOfBirthScreen(navController = navController)

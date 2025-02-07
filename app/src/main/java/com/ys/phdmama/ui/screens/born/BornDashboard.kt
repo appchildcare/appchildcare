@@ -4,6 +4,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,12 +24,24 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BornDashboardScreen(
     navController: NavHostController,
-    dashboardViewModel: BabyDataViewModel = viewModel()
+    dashboardViewModel: BabyDataViewModel = viewModel(),
+    openDrawer: () -> Unit
 ) {
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Panel") },
+                navigationIcon = {
+                    IconButton(onClick = openDrawer) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    }
+                }
+            )
+        },
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Column(

@@ -7,10 +7,10 @@ import androidx.navigation.compose.composable
 import com.ys.phdmama.ui.screens.waiting.WaitingDashboardScreen
 
 @Composable
-fun WaitingNavGraph(navController: NavHostController) {
+fun WaitingNavGraph(navController: NavHostController,  openDrawer: () -> Unit) {
     NavHost(navController = navController, startDestination = NavRoutes.WAITING_DASHBOARD) {
         composable(NavRoutes.WAITING_DASHBOARD) {
-            WaitingDashboardScreen(navController = navController)
+            WaitingDashboardScreen(navController = navController, openDrawer = openDrawer)
         }
     }
 }

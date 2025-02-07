@@ -26,13 +26,33 @@ val navItems = listOf(
     NavBarItem("baby", "Bebé", Icons.Default.Face)
 )
 
+val sideNavItems = listOf(
+    NavBarItem("option1", "Perfil de bebé", Icons.Default.Edit),
+    NavBarItem("option2", "Elegir bebé", Icons.Default.Face),
+    NavBarItem("option3", "Políticas de uso", Icons.Default.Info),
+    NavBarItem("option4", "Link 1", Icons.Default.Star),
+    NavBarItem("option5", "Link 2", Icons.Default.Star),
+)
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navController: NavController = rememberNavController(),
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    openDrawer: () -> Unit
 ) {
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("PHDMama") },
+                navigationIcon = {
+                    IconButton(onClick = { openDrawer() }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    }
+                }
+            )
+        },
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Box(
@@ -74,3 +94,23 @@ fun BottomNavigationBar(navController: NavController) {
     }
 }
 
+@Composable
+fun SideNavigationBar(navController: NavController, closeDrawer: () -> Unit) {
+    ModalDrawerSheet {
+        Text("Menú de Navegación", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
+        Divider()
+
+        sideNavItems.forEach { item ->
+            NavigationDrawerItem(
+                label = { Text(item.label) },
+                icon = { Icon(item.icon, contentDescription = item.label) },
+                selected = false,
+                onClick = {
+                    navController.navigate(item.route)
+                    closeDrawer()
+                },
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            )
+        }
+    }
+}
