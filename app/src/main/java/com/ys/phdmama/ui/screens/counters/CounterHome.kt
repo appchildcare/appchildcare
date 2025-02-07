@@ -45,7 +45,7 @@ fun CounterHome(navController: NavController,  openDrawer: () -> Unit) {
                 .padding(innerPadding)
         ) {
             Text(
-                text = "Countador Screen",
+                text = "Contador Screen",
                 modifier = Modifier.align(Alignment.Center),
                 style = MaterialTheme.typography.titleLarge
             )
