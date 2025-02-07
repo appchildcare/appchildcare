@@ -16,9 +16,11 @@ import com.ys.phdmama.ui.login.LoginScreen
 import com.ys.phdmama.ui.main.MainScreen
 import com.ys.phdmama.ui.register.RegisterScreen
 import com.ys.phdmama.ui.screens.BabyProfileScreen
+import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
+import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.waiting.WaitingDashboardScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -152,6 +154,12 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
         composable(NavRoutes.BABY_SUMMARY) {
             BabySummary(navController = navController, viewModel = babyDataViewModel)
+        }
+        composable(NavRoutes.BORN_COUNTERS) {
+            CounterHome(navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.BORN_RESOURCES) {
+            Resources(navController = navController, openDrawer = openDrawer)
         }
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
