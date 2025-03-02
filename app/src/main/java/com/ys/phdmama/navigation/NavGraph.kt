@@ -2,9 +2,12 @@
 
 package com.ys.phdmama.navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
@@ -21,6 +24,9 @@ import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
 import com.ys.phdmama.ui.screens.counters.CounterHome
+import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
+import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
+import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.waiting.WaitingDashboardScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -66,8 +72,12 @@ object NavRoutes {
     const val BABY_BLOOD_TYPE = "baby_blood_type"
     const val BABY_SEX = "baby_sex"
     const val BABY_PERIMETER = "baby_perimeter"
+    const val WAITING_GYNECOLOGIST = "waiting_gynecologist"
+    const val PREGNANCY_RESOURCES = "pregnancyResources"
+    const val PREGNANCY_DASHBOARD = "pregnancyDashboard"
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController, startDestination: String = NavRoutes.SPLASH,
              openDrawer: () -> Unit) {
@@ -76,9 +86,12 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
 
-    var userRole by remember { mutableStateOf<String?>(null) }
+    var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var isUserLoggedIn by remember { mutableStateOf(false) }
     var wizardFinished by remember { mutableStateOf(false) }
+
+    Log.d("NavGraph", "userRole = $userRole")
+
 
     LaunchedEffect(Unit) {
         isUserLoggedIn = loginViewModel.checkUserAuthState()
@@ -161,6 +174,16 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         composable(NavRoutes.BORN_RESOURCES) {
             Resources(navController = navController, openDrawer = openDrawer)
         }
+        composable(NavRoutes.PREGNANCY_RESOURCES) {
+            PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.WAITING_GYNECOLOGIST) {
+            GynecologistScreen(navController = navController, loginViewModel, openDrawer = openDrawer)
+        }
+
+        composable(NavRoutes.PREGNANCY_DASHBOARD) {
+            PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
+        }
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
             composable(NavRoutes.BORN_DASHBOARD) {
@@ -176,10 +199,13 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         navigation(startDestination = NavRoutes.WAITING_DASHBOARD, route = "waiting") {
             composable(NavRoutes.WAITING_DASHBOARD) {
-                WaitingDashboardScreen(navController = navController, openDrawer = openDrawer)
+                PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.ROUGHBIRTH) {
                 RoughDateOfBirthScreen(navController = navController)
+            }
+            composable(NavRoutes.WAITING_GYNECOLOGIST) {
+                GynecologistScreen(navController = navController, openDrawer = openDrawer)
             }
         }
 
@@ -205,7 +231,7 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
 
 fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit) {
     composable(NavRoutes.WAITING_DASHBOARD) {
-        WaitingDashboardScreen(navController = navController, openDrawer = openDrawer)
+        PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
     }
     composable(NavRoutes.ROUGHBIRTH) {
         RoughDateOfBirthScreen(navController = navController)

@@ -39,7 +39,7 @@ fun WaitingDashboardScreen(
                 }
             )
         },
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = { BottomNavigationBar(navController) } // AQUI REVISAR
     ) { innerPadding ->
         Box(
             modifier = Modifier

@@ -1,7 +1,9 @@
 package com.ys.phdmama.ui.main
 
+import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,10 +16,12 @@ import com.ys.phdmama.navigation.NavRoutes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.ys.phdmama.viewmodel.LoginViewModel
 
-data class NavBarItem(val route: String, val label: String, val icon: ImageVector)
+data class NavBarItem(val route: String, val label: String, val icon: ImageVector,
+                      val isPremium: Boolean = false)
 
 val navItems = listOf(
     NavBarItem("home", "Inicio", Icons.Default.Home),
@@ -28,7 +32,7 @@ val navItems = listOf(
 
 val sideNavItems = listOf(
     NavBarItem("option1", "Perfil de bebé", Icons.Default.Edit),
-    NavBarItem("option2", "Elegir bebé", Icons.Default.Face),
+    NavBarItem("option2", "Agregar bebé", Icons.Default.Face,  isPremium = true),
     NavBarItem("option3", "Políticas de uso", Icons.Default.Info),
     NavBarItem("option4", "Link 1", Icons.Default.Star),
     NavBarItem("option5", "Link 2", Icons.Default.Star),
@@ -95,15 +99,42 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun SideNavigationBar(navController: NavController, closeDrawer: () -> Unit) {
+fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel, closeDrawer: () -> Unit) {
     ModalDrawerSheet {
         Text("Menú de Navegación", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
         Divider()
+        val Gold = Color(0xFFA28834)
 
         sideNavItems.forEach { item ->
             NavigationDrawerItem(
                 label = { Text(item.label) },
-                icon = { Icon(item.icon, contentDescription = item.label) },
+                icon = {
+                    if (item.isPremium) {
+                        BadgedBox(
+                            badge = {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 150.dp)
+                                ) {
+                                    Text(
+                                        text = "Premium",
+                                        color = Color.White,
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .background(Gold, shape = CircleShape)
+//                                            .padding(2.dp)
+                                            .wrapContentSize(Alignment.Center)
+                                    )
+                                }
+                            }
+                        ) {
+                            Icon(item.icon, contentDescription = item.label)
+                        }
+                    } else {
+                        // Regular icon for non-premium items
+                        Icon(item.icon, contentDescription = item.label)
+                    }
+                },
                 selected = false,
                 onClick = {
                     navController.navigate(item.route)
@@ -111,6 +142,14 @@ fun SideNavigationBar(navController: NavController, closeDrawer: () -> Unit) {
                 },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
+        }
+        //innerPadding ->
+        Column (modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
+            Button(onClick = { loginViewModel.logout(navController, loginViewModel) }) {
+                Text("Logout")
+            }
         }
     }
 }

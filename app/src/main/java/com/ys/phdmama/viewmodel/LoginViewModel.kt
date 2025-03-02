@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -13,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.R
+import com.ys.phdmama.navigation.NavRoutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +37,33 @@ class LoginViewModel(
 
     private val _displayName = MutableStateFlow("")
     val displayName: StateFlow<String> = _displayName.asStateFlow()
+
+    private val _userRole = MutableStateFlow<String?>(null)
+    val userRole: StateFlow<String?> = _userRole.asStateFlow()
+
+    init {
+        fetchUserRole()
+    }
+
+    fun fetchUserRole() {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        viewModelScope.launch {
+            try {
+                val document = firestore.collection("users").document(uid).get().await()
+                _userRole.value = document.getString("role")
+            } catch (e: Exception) {
+                _userRole.value = null
+            }
+        }
+    }
+
+    fun logout(navController: NavController, loginViewModel: LoginViewModel) {
+        FirebaseAuth.getInstance().signOut()
+        navController.navigate(NavRoutes.LOGIN) {
+            popUpTo(NavRoutes.MAIN) { inclusive = true } // Clears backstack
+        }
+    }
+
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
