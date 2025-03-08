@@ -1,17 +1,14 @@
 package com.ys.phdmama.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.Date
 
 class WizardViewModel(
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -53,30 +50,4 @@ class WizardViewModel(
         }
     }
 
-    fun savePregnancyTracker(
-        birthProximateDate: Date,
-        ecoWeeks: Int,
-        lastMenstruationDate: Date
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentUser = firebaseAuth.currentUser
-            currentUser?.let {
-                val pregnancyTracker = hashMapOf(
-                    "birthProximateDate" to birthProximateDate,
-                    "ecoWeeks" to ecoWeeks,
-                    "lastMenstruationDate" to lastMenstruationDate
-                )
-
-                firestore.collection("users")
-                    .document(it.uid)
-                    .set(pregnancyTracker, SetOptions.merge())
-                    .addOnSuccessListener {
-                        Log.d("SUCCESS SAVED", "pregnancyTracker saved $pregnancyTracker")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("ERROR PREGNANCY", "detail $e")
-                    }
-            }
-        }
-    }
 }

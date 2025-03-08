@@ -31,11 +31,11 @@ val navItems = listOf(
 )
 
 val sideNavItems = listOf(
-    NavBarItem("option1", "Perfil de bebé", Icons.Default.Edit),
-    NavBarItem("option2", "Agregar bebé", Icons.Default.Face,  isPremium = true),
-    NavBarItem("option3", "Políticas de uso", Icons.Default.Info),
-    NavBarItem("option4", "Link 1", Icons.Default.Star),
-    NavBarItem("option5", "Link 2", Icons.Default.Star),
+    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, "Perfil de bebé", Icons.Default.Edit),
+    NavBarItem(NavRoutes.SIDEBAR_ADD_BABY, "Agregar bebé", Icons.Default.Face,  isPremium = true),
+    NavBarItem(NavRoutes.SIDEBAR_POLICIES, "Políticas de uso", Icons.Default.Info),
+    NavBarItem(NavRoutes.SIDEBAR_LINK1, "Link 1", Icons.Default.Star),
+    NavBarItem(NavRoutes.SIDEBAR_LINK2, "Link 2", Icons.Default.Star),
 )
 
 
@@ -102,9 +102,8 @@ fun BottomNavigationBar(navController: NavController) {
 fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel, closeDrawer: () -> Unit) {
     ModalDrawerSheet {
         Text("Menú de Navegación", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
-        Divider()
+        HorizontalDivider()
         val Gold = Color(0xFFA28834)
-
         sideNavItems.forEach { item ->
             NavigationDrawerItem(
                 label = { Text(item.label) },
@@ -122,7 +121,6 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                                         modifier = Modifier
                                             .size(100.dp)
                                             .background(Gold, shape = CircleShape)
-//                                            .padding(2.dp)
                                             .wrapContentSize(Alignment.Center)
                                     )
                                 }
@@ -143,11 +141,13 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
-        //innerPadding ->
         Column (modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)) {
-            Button(onClick = { loginViewModel.logout(navController, loginViewModel) }) {
+            Button(onClick = {
+                loginViewModel.logout(navController, loginViewModel)
+                closeDrawer()
+            }) {
                 Text("Logout")
             }
         }

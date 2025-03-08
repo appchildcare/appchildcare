@@ -20,6 +20,7 @@ import com.ys.phdmama.ui.main.MainScreen
 import com.ys.phdmama.ui.register.RegisterScreen
 import com.ys.phdmama.ui.screens.BabyProfileScreen
 import com.ys.phdmama.ui.screens.Resources
+import com.ys.phdmama.ui.screens.born.Addbaby
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
@@ -75,6 +76,12 @@ object NavRoutes {
     const val WAITING_GYNECOLOGIST = "waiting_gynecologist"
     const val PREGNANCY_RESOURCES = "pregnancyResources"
     const val PREGNANCY_DASHBOARD = "pregnancyDashboard"
+    const val SIDEBAR_BABY_PROFILE = "baby_profile"
+    const val SIDEBAR_ADD_BABY = "add_baby"
+    const val SIDEBAR_POLICIES = "policies"
+    const val SIDEBAR_LINK1 = "link1"
+    const val SIDEBAR_LINK2 = "link2"
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -185,6 +192,10 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
         }
 
+        composable(NavRoutes.SIDEBAR_ADD_BABY) {
+            Addbaby(navController = navController, openDrawer = openDrawer)
+        }
+
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
             composable(NavRoutes.BORN_DASHBOARD) {
                 BornDashboardScreen(navController = navController, openDrawer = openDrawer)
@@ -229,7 +240,8 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
     }
 }
 
-fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit) {
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel, openDrawer: () -> Unit) {
     composable(NavRoutes.WAITING_DASHBOARD) {
         PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
     }

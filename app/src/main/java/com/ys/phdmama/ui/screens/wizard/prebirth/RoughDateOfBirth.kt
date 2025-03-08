@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.screens.wizard.prebirth
 
+import PregnancyTrackerViewModel
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import android.widget.Toast
@@ -15,6 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.BabyStatusViewModel
+import com.ys.phdmama.viewmodel.PregnancyTrackingViewModelFactory
 import com.ys.phdmama.viewmodel.RoughDateOfBirthViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 import com.ys.phdmama.viewmodel.WizardViewModelFactory
@@ -30,6 +32,7 @@ fun RoughDateOfBirthScreen(
 ) {
     val context = LocalContext.current
     val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory())
+    val pregnancyTrackerViewModel: PregnancyTrackerViewModel = viewModel(factory = PregnancyTrackingViewModelFactory())
     val calendar = Calendar.getInstance()
     var selectedDate by remember { mutableStateOf(calendar.time) }
     var isLoading by remember { mutableStateOf(false) }
@@ -190,7 +193,7 @@ fun RoughDateOfBirthScreen(
                             val upcomingBirthDate = if (formattedBirthDate.isNotEmpty()) {formattedBirthDate} else { formattedBirthDateWeek}
                             val convertedUpcomingBirthDate = viewModel.convertToDate(upcomingBirthDate)
 
-                            wizardViewModel.savePregnancyTracker(
+                            pregnancyTrackerViewModel.savePregnancyTracker(
                                     convertedUpcomingBirthDate,
                                 selectedOption.toInt(),
                                 selectedDate)

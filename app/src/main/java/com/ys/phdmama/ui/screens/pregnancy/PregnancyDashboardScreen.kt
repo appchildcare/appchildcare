@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.screens.pregnancy
 
+import PregnancyTrackerViewModel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -41,13 +42,16 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun PregnancyDashboardScreen (
     navController: NavHostController,
-    viewModel: UserDataViewModel = viewModel(),
+    userViewModel: UserDataViewModel = viewModel(),
+    pregnancyTrackingViewModel: PregnancyTrackerViewModel = viewModel(),
     openDrawer: () -> Unit
 ) {
-    val currentUser by viewModel.currentUser.collectAsState()
+    val currentUser by userViewModel.currentUser.collectAsState()
+    val currentPregnancyTracking by pregnancyTrackingViewModel.currentPregnancyTracking.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchCurrentUser()
+        userViewModel.fetchCurrentUser()
+        pregnancyTrackingViewModel.fetchPregnancyTracking()
     }
 
     Scaffold(
@@ -86,26 +90,32 @@ fun PregnancyDashboardScreen (
                     text = "${currentUser?.displayName}, tu fecha de parto aproximada es:",
                     style = MaterialTheme.typography.titleMedium
                 )
-                val formattedDate = remember(currentUser?.birthProximateDate) {
-                    android.text.format.DateFormat.format("dd MMMM yyyy", currentUser?.birthProximateDate).toString()
+
+                if(currentPregnancyTracking == null) {
+                    Text("Loading...")
+                } else {
+                    val formattedDate = remember(currentPregnancyTracking?.birthProximateDate) {
+                        android.text.format.DateFormat.format("dd MMMM yyyy", currentPregnancyTracking?.birthProximateDate).toString()
+                    }
+                    Text(text = formattedDate,
+                        style = MaterialTheme.typography.bodyLarge)
+
+                    val fechaFinal = currentPregnancyTracking?.birthProximateDate
+                        ?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
+
+                    val diasEntreFechas = ChronoUnit.DAYS.between(LocalDate.now(), fechaFinal)
+
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Text(
+                        text = "Días para tu fecha de parto",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "$diasEntreFechas",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+
                 }
-                Text(text = formattedDate,
-                    style = MaterialTheme.typography.bodyLarge)
-
-                val fechaFinal = currentUser?.birthProximateDate
-                    ?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
-
-                val diasEntreFechas = ChronoUnit.DAYS.between(LocalDate.now(), fechaFinal)
-
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    text = "Días para tu fecha de parto",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "$diasEntreFechas",
-                    style = MaterialTheme.typography.titleLarge
-                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
