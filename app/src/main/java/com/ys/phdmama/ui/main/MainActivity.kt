@@ -9,6 +9,8 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.PurchasesUpdatedListener
 import com.ys.phdmama.navigation.NavGraph
 import com.ys.phdmama.ui.theme.PhdmamaTheme
 import com.ys.phdmama.viewmodel.LoginViewModel
@@ -35,4 +37,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private val purchasesUpdatedListener =
+        PurchasesUpdatedListener { billingResult, purchases ->
+            /// }
+        }
+
+    private var billingClient = BillingClient.newBuilder(this)
+        .setListener(purchasesUpdatedListener)
+        //Configure other settings
+        .build()
 }
