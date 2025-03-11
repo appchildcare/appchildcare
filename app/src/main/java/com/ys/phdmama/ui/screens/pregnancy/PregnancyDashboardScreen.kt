@@ -49,6 +49,14 @@ fun PregnancyDashboardScreen (
     val currentUser by userViewModel.currentUser.collectAsState()
     val currentPregnancyTracking by pregnancyTrackingViewModel.currentPregnancyTracking.collectAsState()
 
+    if(currentUser?.role == "waiting") {
+        userViewModel.createUserChecklists("waiting")
+    }
+
+    if(currentUser?.role == "born") {
+        userViewModel.createUserChecklists("born")
+    }
+
     LaunchedEffect(Unit) {
         userViewModel.fetchCurrentUser()
         pregnancyTrackingViewModel.fetchPregnancyTracking()
@@ -90,6 +98,7 @@ fun PregnancyDashboardScreen (
                     text = "${currentUser?.displayName}, tu fecha de parto aproximada es:",
                     style = MaterialTheme.typography.titleMedium
                 )
+
 
                 if(currentPregnancyTracking == null) {
                     Text("Loading...")

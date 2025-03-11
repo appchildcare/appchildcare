@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.ys.phdmama.viewmodel.LoginViewModel
 
 data class NavBarItem(val route: String, val label: String, val icon: ImageVector)
@@ -48,8 +49,7 @@ fun BottomNavigationBar(navController: NavController,
                 selected = currentRoute == screen.route,
                 onClick = {
                     navController.navigate(screen.route) {
-//                        popUpTo(navController.graph.findStartDestination().id) {
-                        popUpTo(0) {
+                        popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }
                         launchSingleTop = true

@@ -28,7 +28,6 @@ import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
-import com.ys.phdmama.ui.screens.waiting.WaitingDashboardScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAlreadyBornScreen
@@ -98,7 +97,6 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     var wizardFinished by remember { mutableStateOf(false) }
 
     Log.d("NavGraph", "userRole = $userRole")
-
 
     LaunchedEffect(Unit) {
         isUserLoggedIn = loginViewModel.checkUserAuthState()
@@ -218,6 +216,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             composable(NavRoutes.WAITING_GYNECOLOGIST) {
                 GynecologistScreen(navController = navController, openDrawer = openDrawer)
             }
+            composable(NavRoutes.PREGNANCY_RESOURCES) {
+                PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+            }
         }
 
         // Definir bornNavGraph y waitingNavGraph
@@ -247,5 +248,8 @@ fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataVi
     }
     composable(NavRoutes.ROUGHBIRTH) {
         RoughDateOfBirthScreen(navController = navController)
+    }
+    composable(NavRoutes.PREGNANCY_RESOURCES) {
+        PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
     }
 }
