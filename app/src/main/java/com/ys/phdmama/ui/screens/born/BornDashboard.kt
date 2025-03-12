@@ -14,20 +14,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.ui.components.BottomNavigationBar
 import com.ys.phdmama.viewmodel.BabyDataViewModel
-import kotlin.math.roundToInt
+import com.ys.phdmama.viewmodel.UserDataViewModel
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BornDashboardScreen(
     navController: NavHostController,
+    userViewModel: UserDataViewModel = viewModel(),
     dashboardViewModel: BabyDataViewModel = viewModel(),
     openDrawer: () -> Unit
 ) {
@@ -50,6 +49,7 @@ fun BornDashboardScreen(
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            userViewModel.createUserChecklists("born")
             BabyInfoCard(name = "Pepito", ageInMonths = 8)
             Spacer(modifier = Modifier.height(16.dp))
             GrowthChartCard()

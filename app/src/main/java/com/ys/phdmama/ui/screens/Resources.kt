@@ -78,8 +78,10 @@ fun ChecklistScreen(loginViewModel: LoginViewModel = viewModel(), userViewModel:
     var checklistItems by remember { mutableStateOf<List<ChecklistItem>>(emptyList()) }
 
     LaunchedEffect(userRole) {
-        userViewModel.fetchWaitingChecklist() { items ->
-            checklistItems = items
+        userRole?.let {
+            userViewModel.fetchWaitingChecklist(it) { items ->
+                checklistItems = items
+            }
         }
     }
 
@@ -95,7 +97,7 @@ fun ChecklistScreen(loginViewModel: LoginViewModel = viewModel(), userViewModel:
                     Checkbox(
                         checked = item.checked,
                         onCheckedChange = { checked ->
-                            userViewModel.updateCheckedState(item.id, checked)
+                            userViewModel.updateCheckedState(item.id, checked, userRole.toString())
                             checklistItems = checklistItems.map {
                                 if (it.id == item.id) it.copy(checked = checked) else it
                             }

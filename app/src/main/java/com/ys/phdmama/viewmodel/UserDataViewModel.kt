@@ -97,13 +97,13 @@ class UserDataViewModel : ViewModel() {
         }
     }
 
-
-    fun fetchWaitingChecklist(onResult: (List<ChecklistItem>) -> Unit) {
+    fun fetchWaitingChecklist(userRole: String, onResult: (List<ChecklistItem>) -> Unit) {
+        val checklistType = if (userRole == "waiting")  "waiting" else "born"
         val userId = auth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
         val docRef = userId?.let {
             db.collection("users").document(it)
-                .collection("checklists").document("waiting")
+                .collection("checklists").document(checklistType)
         }
 
         if (docRef != null) {
@@ -137,11 +137,11 @@ class UserDataViewModel : ViewModel() {
         }
     }
 
-    fun updateCheckedState(itemId: Int, isChecked: Boolean) {
+    fun updateCheckedState(itemId: Int, isChecked: Boolean, userRole: String) {
         val userId = auth.currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
         val docRef = db.collection("users").document(userId)
-            .collection("checklists").document("waiting")
+            .collection("checklists").document(userRole)
 
         docRef.update(FieldPath.of(itemId.toString(), "checked"), isChecked)
             .addOnSuccessListener { println("Checkbox updated successfully!") }
