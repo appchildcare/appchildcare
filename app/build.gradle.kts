@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.material.components)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.media)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
