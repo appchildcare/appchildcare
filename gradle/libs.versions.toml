@@ -23,6 +23,7 @@ material3 = "1.0.1"
 firebaseFirestoreKtx = "25.1.1"
 compose = "1.5.4"
 androidMedia = "1.6.0"
+androidBilling = "7.1.1"
 
 [libraries]
 androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
@@ -55,6 +56,7 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 androidx-media = { module = "androidx.media:media", version.ref = "androidMedia" }
+android-billingclient = { group="android.billingclient", name = "androi-billing-client",  module = "com.android.billingclient:billing-ktx", version.ref = "androidBilling" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

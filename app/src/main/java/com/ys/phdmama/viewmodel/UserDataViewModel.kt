@@ -65,35 +65,52 @@ class UserDataViewModel : ViewModel() {
         if (userRef != null) {
             userRef.collection("checklists").get()
                 .addOnSuccessListener { documents ->
-                    if (documents.isEmpty) { // Check if there are no checklists
-                        when (userRole) {
-                            "waiting" -> {
+                    val checklistNames = documents.documents.map { it.id } // Get existing checklist names
+
+                    when (userRole) {
+                        "waiting" -> {
+                            if (!checklistNames.contains("waiting")) { // Create "waiting" checklist only if it doesn't exist
                                 val waitingChecklist = mapOf(
-                                    "1" to ChecklistItem(1, "Empezar a tomar suplemento de ácido fólico", false),
-                                    "2" to ChecklistItem(2, "Historial médico completo (personal y familiar)", false),
-                                    "3" to ChecklistItem(3, "Limitar el consumo de cafeína", false)
+                                    "1" to ChecklistItem(1, "Documentos personales o copias", false),
+                                    "2" to ChecklistItem(2, "Seguros médicos", false),
+                                    "3" to ChecklistItem(3, "Permiso de maternidad", false),
+                                    "4" to ChecklistItem(4, "Vacaciones acumuladas", false),
+                                    "5" to ChecklistItem(5, "Visita al hospital en donde nacerá tu bebé", false),
+                                    "6" to ChecklistItem(6, "Consulta prenatal con el pediatra (Si el ginecólogo tiene a alguien en su equipo, pídele que te lo presente antes)", false)
                                 )
                                 userRef.collection("checklists").document("waiting").set(waitingChecklist)
                                     .addOnSuccessListener { Log.d("Firestore", "Waiting checklist created") }
-                                    .addOnFailureListener { e -> Log.e("Checklist", "Error creating checklist", e) }
+                                    .addOnFailureListener { e -> Log.e("Checklist", "Error creating waiting checklist", e) }
+                            } else {
+                                Log.d("Firestore", "Waiting checklist already exists, skipping creation")
                             }
+                        }
 
-                            "born" -> {
+                        "born" -> {
+                            if (!checklistNames.contains("born")) { // Create "born" checklist only if it doesn't exist
                                 val bornChecklist = mapOf(
-                                    "4" to ChecklistItem(4, "Llevar al bebé a sus vacunas", false),
-                                    "5" to ChecklistItem(5, "Recordar darle su medicina de la noche", false),
-                                    "6" to ChecklistItem(6, "Ejercicios de estimulación", false)
+                                    "4" to ChecklistItem(4, "Alcohol en spray (para quien cargue al bebé, prefiere siempre el lavado de manos).", false),
+                                    "5" to ChecklistItem(5, "Pañales para recién nacido", false),
+                                    "6" to ChecklistItem(6, "Toallitas húmedas para recién nacido, en agua.", false),
+                                    "7" to ChecklistItem(7, "Lima de uñas (de preferencia de vidrio).", false),
+                                    "8" to ChecklistItem(8, "3 Conjuntos de mangas largas: Botones delanteros.", false),
+                                    "9" to ChecklistItem(9, "2 Mantas.", false),
+                                    "10" to ChecklistItem(10, "3 gorritos.", false),
+                                    "11" to ChecklistItem(11, "Cambiador (protector).", false),
+                                    "12" to ChecklistItem(12, "Regalo para herman@ o sobrin@.", false)
                                 )
                                 userRef.collection("checklists").document("born").set(bornChecklist)
                                     .addOnSuccessListener { Log.d("Firestore", "Born checklist created") }
-                                    .addOnFailureListener { e -> Log.e("Checklist", "Error creating checklist", e) }
+                                    .addOnFailureListener { e -> Log.e("Checklist", "Error creating born checklist", e) }
+                            } else {
+                                Log.d("Firestore", "Born checklist already exists, skipping creation")
                             }
                         }
-                    } else {
-                        Log.d("Firestore", "Checklist already exists, skipping creation")
                     }
                 }
-                .addOnFailureListener { e -> Log.e("Firestore", "Error checking checklists", e) }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Error checking existing checklists", e)
+                }
         }
     }
 
@@ -146,5 +163,18 @@ class UserDataViewModel : ViewModel() {
         docRef.update(FieldPath.of(itemId.toString(), "checked"), isChecked)
             .addOnSuccessListener { println("Checkbox updated successfully!") }
             .addOnFailureListener { e -> println("Error updating checkbox: $e") }
+    }
+
+    fun updateUserRole(newRole: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = auth.currentUser?.uid ?: return
+        FirebaseFirestore.getInstance().collection("users")
+            .document(userId)
+            .update("role", newRole)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
     }
 }

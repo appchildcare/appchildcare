@@ -13,8 +13,8 @@ android {
         applicationId = "com.ys.phdmama"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 6
+        versionName = "6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -71,4 +71,6 @@ dependencies {
 
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
+
+    implementation(libs.android.billingclient)
 }

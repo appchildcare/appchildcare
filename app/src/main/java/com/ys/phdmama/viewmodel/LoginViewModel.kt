@@ -14,6 +14,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.Source
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import kotlinx.coroutines.Dispatchers
@@ -48,8 +50,12 @@ class LoginViewModel(
     fun fetchUserRole() {
         val uid = firebaseAuth.currentUser?.uid ?: return
         viewModelScope.launch {
+            _userRole.value = null
             try {
-                val document = firestore.collection("users").document(uid).get().await()
+                val document = firestore.collection("users")
+                    .document(uid)
+                    .get()
+                    .await()
                 _userRole.value = document.getString("role")
             } catch (e: Exception) {
                 _userRole.value = null

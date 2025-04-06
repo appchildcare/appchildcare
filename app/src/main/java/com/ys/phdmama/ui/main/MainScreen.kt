@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ys.phdmama.viewmodel.LoginViewModel
 
 data class NavBarItem(val route: String, val label: String, val icon: ImageVector,
@@ -99,7 +100,20 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel, closeDrawer: () -> Unit) {
+fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel = viewModel(), closeDrawer: () -> Unit) {
+    val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
+    var showPremiumOption by remember { mutableStateOf(true) }
+
+    LaunchedEffect(userRole) {
+        userRole?.let {
+            showPremiumOption = when (userRole) {
+                "born" -> false
+                "waiting" -> true
+                else -> true
+            }
+        }
+    }
+
     ModalDrawerSheet {
         Text("Menú de Navegación", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
         HorizontalDivider()
@@ -108,7 +122,7 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
             NavigationDrawerItem(
                 label = { Text(item.label) },
                 icon = {
-                    if (item.isPremium) {
+                    if (item.isPremium && showPremiumOption) {
                         BadgedBox(
                             badge = {
                                 Box(

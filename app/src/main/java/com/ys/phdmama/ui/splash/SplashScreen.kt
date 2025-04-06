@@ -14,7 +14,6 @@ import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
@@ -67,7 +66,7 @@ fun handleNavigation(
             }
         )
     } else {
-        navigateSafely(navController, NavRoutes.LOGIN)
+        navigateSafely(navController, NavRoutes.WELCOME_SCREEN)
     }
 }
 

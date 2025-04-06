@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
@@ -21,6 +22,11 @@
             android:name=".services.CounterService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false"/>
+        <service
+            android:name="com.android.billingclient.api.ProxyBillingActivity"
+            android:permission="android.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
+            android:exported="false"
+            tools:ignore="Instantiatable" />
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"

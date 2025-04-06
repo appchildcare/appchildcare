@@ -42,11 +42,13 @@ import com.ys.phdmama.ui.screens.wizard.prebirth.BirthWaitingScreen
 import com.ys.phdmama.ui.screens.wizard.prebirth.HappyWaitingScreen
 import com.ys.phdmama.ui.screens.wizard.prebirth.RoughDateOfBirthScreen
 import com.ys.phdmama.ui.splash.SplashScreen
+import com.ys.phdmama.ui.welcome.WelcomeScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 
 object NavRoutes {
+    const val WELCOME_SCREEN = "welcomeScreen"
     const val BORN_DASHBOARD = "bornDashboard"
     const val BORN_COUNTERS = "bornCounters"
     const val BORN_RESOURCES = "bornResources"
@@ -80,7 +82,6 @@ object NavRoutes {
     const val SIDEBAR_POLICIES = "policies"
     const val SIDEBAR_LINK1 = "link1"
     const val SIDEBAR_LINK2 = "link2"
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -120,10 +121,13 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     Log.d("NavGraph", "userRole = $userRole, isUserLoggedIn = $isUserLoggedIn, wizardFinished = $wizardFinished")
 
     // Construcción del NavHost
-    NavHost(navController = navController, startDestination = if (isUserLoggedIn) startDestination else NavRoutes.LOGIN) {
+    NavHost(navController = navController, startDestination = if (isUserLoggedIn) startDestination else NavRoutes.WELCOME_SCREEN) {
 
         composable(NavRoutes.SPLASH) {
             SplashScreen(navController = navController, loginViewModel, wizardViewModel)
+        }
+        composable(NavRoutes.WELCOME_SCREEN) {
+            WelcomeScreen(navController = navController)
         }
         composable(NavRoutes.LOGIN) {
             LoginScreen(navController = navController)

@@ -71,8 +71,8 @@ fun Resources(navController: NavController, openDrawer: () -> Unit) {
 fun ChecklistScreen(loginViewModel: LoginViewModel = viewModel(), userViewModel: UserDataViewModel = viewModel()) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     val textTitle = when (userRole) {
-        "born" -> "Checklist del bebé"
-        "waiting" -> "Checklist del parto"
+        "born" -> "BEBÉ POSPARTO"
+        "waiting" -> "LOGÍSTICA PARA EL GRAN DÍA"
         else -> ""
     }
     var checklistItems by remember { mutableStateOf<List<ChecklistItem>>(emptyList()) }
