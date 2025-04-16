@@ -64,22 +64,6 @@ fun BabySummary(
                 wizardViewModel.setWizardFinished(true)
                 babyStatusViewModel.addBabyToUser(
                     babyData = babyData,
-                    onSuccess = {
-                        Log.d("BabySummary", "Baby data saved successfully. Updating user role.")
-                        babyStatusViewModel.updateUserRole("born", onSuccess = {
-                            Log.d("BabySummary", "User role updated successfully. Navigating to BORN_DASHBOARD.")
-                            try {
-                                navController.popBackStack() // Limpia la pila actual
-                                navController.navigate("born") // Navega al subgrafo "born"
-                            } catch (e: Exception) {
-                                Log.e("NavigationError", "Failed to switch graph: ${e.message}")
-                            }
-                        }, onError = { errorMessage ->
-                            Log.e("BabySummary", "Failed to update user role: $errorMessage")
-                            babyStatusViewModel.setLoadingRoleUpdate(false)
-                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                        })
-                    },
                     onError = { errorMessage ->
                         Log.e("BabySummary", "Failed to save baby data: $errorMessage")
                         babyStatusViewModel.setLoadingRoleUpdate(false)

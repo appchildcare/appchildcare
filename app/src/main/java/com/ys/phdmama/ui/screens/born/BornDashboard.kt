@@ -1,7 +1,9 @@
 package com.ys.phdmama.ui.screens.born
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,9 +16,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.ys.phdmama.R
+import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.BottomNavigationBar
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
@@ -28,6 +35,7 @@ fun BornDashboardScreen(
     navController: NavHostController,
     userViewModel: UserDataViewModel = viewModel(),
     dashboardViewModel: BabyDataViewModel = viewModel(),
+    babyDataViewModel: BabyDataViewModel = viewModel(),
     openDrawer: () -> Unit
 ) {
     Scaffold(
@@ -49,10 +57,19 @@ fun BornDashboardScreen(
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val babyProfile by babyDataViewModel.babyData.collectAsStateWithLifecycle()
+            var babyName by remember { mutableStateOf("") }
+            LaunchedEffect(babyProfile) {
+                babyProfile?.let {
+                    babyName = it.name
+                }
+            }
             userViewModel.createUserChecklists("born")
-            BabyInfoCard(name = "Pepito", ageInMonths = 8)
+            BabyInfoCard(name = babyName, ageInMonths = 8)
             Spacer(modifier = Modifier.height(16.dp))
             GrowthChartCard()
+            Spacer(modifier = Modifier.height(16.dp))
+            MotherScreen(navController)
         }
     }
 }
@@ -249,4 +266,51 @@ fun generateIncrementalValues(min: Int, max: Int, size: Int): List<Int> {
         values.add((previousValue + increment).coerceAtMost(max))
     }
     return values
+}
+
+@Composable
+fun MotherScreen(navController: NavController) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        ClickableCard(
+            title = "Perfil de mamá",
+            description = "",
+            onClick = { navController.navigate(NavRoutes.MOTHER_PROFILE) }
+        )
+    }
+}
+
+@Composable
+fun ClickableCard(
+    title: String,
+    description: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Image(
+                painter = painterResource(id = R.mipmap.mother_image),
+                contentDescription = "Auth image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp, 4.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
 }

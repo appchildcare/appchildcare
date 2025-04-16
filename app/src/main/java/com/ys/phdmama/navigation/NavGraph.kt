@@ -19,6 +19,7 @@ import com.ys.phdmama.ui.login.LoginScreen
 import com.ys.phdmama.ui.main.MainScreen
 import com.ys.phdmama.ui.register.RegisterScreen
 import com.ys.phdmama.ui.screens.BabyProfileScreen
+import com.ys.phdmama.ui.screens.MotherProfileScreen
 import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.born.Addbaby
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
@@ -45,6 +46,7 @@ import com.ys.phdmama.ui.splash.SplashScreen
 import com.ys.phdmama.ui.welcome.WelcomeScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
+import com.ys.phdmama.viewmodel.MotherProfileViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 
 object NavRoutes {
@@ -82,6 +84,7 @@ object NavRoutes {
     const val SIDEBAR_POLICIES = "policies"
     const val SIDEBAR_LINK1 = "link1"
     const val SIDEBAR_LINK2 = "link2"
+    const val MOTHER_PROFILE = "mother_profile"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -92,6 +95,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val babyDataViewModel: BabyDataViewModel = viewModel(viewModelStoreOwner!!)
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
+    val motherProfileViewModel: MotherProfileViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var isUserLoggedIn by remember { mutableStateOf(false) }
@@ -196,6 +200,10 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         composable(NavRoutes.SIDEBAR_ADD_BABY) {
             Addbaby(navController = navController, openDrawer = openDrawer)
+        }
+
+        composable(NavRoutes.MOTHER_PROFILE) {
+            MotherProfileScreen(navController = navController, motherProfileViewModel, openDrawer = openDrawer)
         }
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {

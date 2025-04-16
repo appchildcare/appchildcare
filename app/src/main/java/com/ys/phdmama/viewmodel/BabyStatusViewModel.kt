@@ -9,8 +9,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -23,6 +26,9 @@ class BabyStatusViewModel(
     // DataStore
     val Context.dataStore by preferencesDataStore(name = "user_prefs")
     private val BABY_UID_KEY = stringPreferencesKey("default_baby_uid")
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     // Función para guardar el UID del bebé
     suspend fun saveDefaultBabyUid(context: Context, babyUid: String) {
@@ -66,7 +72,6 @@ class BabyStatusViewModel(
 
     fun addBabyToUser(
         babyData: Map<String, Any>,
-        onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         val uid = firebaseAuth.currentUser?.uid
@@ -75,7 +80,9 @@ class BabyStatusViewModel(
                 try {
                     val babyRef = firestore.collection("users").document(uid).collection("babies")
                     babyRef.add(babyData).await()
-                    onSuccess()
+
+                    sendSnackbar("Información agregada correctamente!")
+
                 } catch (e: Exception) {
                     onError(e.localizedMessage ?: "Error al añadir bebé")
                 }
@@ -85,5 +92,15 @@ class BabyStatusViewModel(
         }
     }
 
+    sealed class UiEvent {
+        data class ShowSnackbar(val message: String) : UiEvent()
+    }
+
+    fun sendSnackbar(message: String) {
+        viewModelScope.launch {
+            _uiEvent.send(UiEvent.ShowSnackbar(message))
+            delay(100)
+        }
+    }
 }
 
