@@ -8,10 +8,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.viewmodel.BabyDataViewModel.UiEvent.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -29,10 +34,19 @@ data class BabyProfile(
 //    val birthDate: Date? = null // TODO: REVISAR
 )
 
+data class Vaccine(
+    val id: String? = "",
+    val vaccineName: String = "",
+
+)
+
 class BabyDataViewModel (
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : ViewModel() {
+    private val _uiEvent = Channel<BabyDataViewModel.UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     private val _babyAttributes = MutableStateFlow(mapOf<String, String>())
     private val _babyData = MutableStateFlow<BabyProfile?>(null)
     val babyData: StateFlow<BabyProfile?> = _babyData.asStateFlow()
@@ -41,6 +55,11 @@ class BabyDataViewModel (
 
     var locale = Locale("es", "ES")
         private set
+
+    private val _vaccineAttributes = MutableStateFlow(mapOf<String, String>())
+    private val _vaccineData = MutableStateFlow<Vaccine?>(null)
+    val vaccineData: StateFlow<Vaccine?> = _vaccineData.asStateFlow()
+
 
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
@@ -54,6 +73,16 @@ class BabyDataViewModel (
 
     init {
         fetchBabyProfile()
+    }
+
+    fun setVaccineAttribute(attribute: String, value: String) {
+        _vaccineAttributes.value = _vaccineAttributes.value.toMutableMap().apply {
+            this[attribute] = value
+        }
+    }
+
+    fun getVaccineAttribute(attribute: String): String? {
+        return _vaccineAttributes.value[attribute]
     }
 
     fun onDateSelected(date: Date) {
@@ -88,6 +117,39 @@ class BabyDataViewModel (
                 .addOnFailureListener { exception ->
                     Log.e("BabyViewModel", "Error fetching baby: ", exception)
                 }
+        }
+    }
+
+    fun addVaccines(
+        vaccineData: Map<String, Any>,
+        onError: (String) -> Unit
+    ){
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    val vaccinesRef = firestore.collection("users").document(uid).collection("vaccines")
+                    vaccinesRef.add(vaccineData).await()
+
+                    sendSnackbar("Información agregada correctamente!")
+
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al añadir vacuna")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
+        }
+    }
+
+    sealed class UiEvent {
+        data class ShowSnackbar(val message: String) : UiEvent()
+    }
+
+    fun sendSnackbar(message: String) {
+        viewModelScope.launch {
+            _uiEvent.send(ShowSnackbar(message))
+            delay(100)
         }
     }
 }

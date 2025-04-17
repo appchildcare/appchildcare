@@ -25,6 +25,7 @@ import com.ys.phdmama.ui.screens.born.Addbaby
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
+import com.ys.phdmama.ui.screens.born.Vaccines
 import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
@@ -204,6 +205,10 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         composable(NavRoutes.MOTHER_PROFILE) {
             MotherProfileScreen(navController = navController, motherProfileViewModel, openDrawer = openDrawer)
+        }
+
+        composable(NavRoutes.BORN_VACCINES) {
+            Vaccines (navController = navController, babyDataViewModel, openDrawer = openDrawer)
         }
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
