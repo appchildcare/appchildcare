@@ -6,11 +6,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun PhdTitle(subtitle: String){
-    Text(subtitle, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+fun PhdMediumText(text: String){
+    Text(text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
 }
 
 @Composable
-fun PhdSubtitle(subtitle: String){
-    Text(subtitle, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+fun PhdNormalText(text: String){
+    Text(text, fontSize = 16.sp, fontWeight = FontWeight.Normal)
 }

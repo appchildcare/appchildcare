@@ -6,8 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,12 +22,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
-import com.ys.phdmama.ui.components.BottomNavigationBar
+import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import kotlin.random.Random
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BornDashboardScreen(
     navController: NavHostController,
@@ -38,23 +35,14 @@ fun BornDashboardScreen(
     babyDataViewModel: BabyDataViewModel = viewModel(),
     openDrawer: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Panel") },
-                navigationIcon = {
-                    IconButton(onClick = openDrawer) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                }
-            )
-        },
-        bottomBar = { BottomNavigationBar(navController) }
-    ) { innerPadding ->
+    PhdLayoutMenu(
+        title = "Panel",
+        navController = navController,
+        openDrawer = openDrawer
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val babyProfile by babyDataViewModel.babyData.collectAsStateWithLifecycle()

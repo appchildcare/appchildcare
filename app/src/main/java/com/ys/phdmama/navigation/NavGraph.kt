@@ -21,7 +21,7 @@ import com.ys.phdmama.ui.register.RegisterScreen
 import com.ys.phdmama.ui.screens.BabyProfileScreen
 import com.ys.phdmama.ui.screens.MotherProfileScreen
 import com.ys.phdmama.ui.screens.Resources
-import com.ys.phdmama.ui.screens.born.Addbaby
+import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
@@ -200,7 +200,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
 
         composable(NavRoutes.SIDEBAR_ADD_BABY) {
-            Addbaby(navController = navController, openDrawer = openDrawer)
+            AddBabyDataScreen(navController = navController, openDrawer = openDrawer)
         }
 
         composable(NavRoutes.MOTHER_PROFILE) {

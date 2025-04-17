@@ -44,22 +44,23 @@ class BabyDataViewModel (
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : ViewModel() {
+
     private val _uiEvent = Channel<BabyDataViewModel.UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _babyAttributes = MutableStateFlow(mapOf<String, String>())
     private val _babyData = MutableStateFlow<BabyProfile?>(null)
+
     val babyData: StateFlow<BabyProfile?> = _babyData.asStateFlow()
+
     var calculatedDate by mutableStateOf<String?>(null)
         private set
-
     var locale = Locale("es", "ES")
         private set
 
     private val _vaccineAttributes = MutableStateFlow(mapOf<String, String>())
     private val _vaccineData = MutableStateFlow<Vaccine?>(null)
     val vaccineData: StateFlow<Vaccine?> = _vaccineData.asStateFlow()
-
 
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
@@ -93,7 +94,7 @@ class BabyDataViewModel (
         calculatedDate = SimpleDateFormat("yyyy-MM-dd", locale).format(calendar.time)
     }
 
-    fun fetchBabyProfile() {
+    private fun fetchBabyProfile() {
         viewModelScope.launch {
             // Get the current user's UID
             val currentUserId = firebaseAuth.currentUser?.uid
@@ -117,6 +118,26 @@ class BabyDataViewModel (
                 .addOnFailureListener { exception ->
                     Log.e("BabyViewModel", "Error fetching baby: ", exception)
                 }
+        }
+    }
+
+    fun addBabyToUser(
+        babyData: Map<String, Any>,
+        onError: (String) -> Unit
+    ) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    val babyRef = firestore.collection("users").document(uid).collection("babies")
+                    babyRef.add(babyData).await()
+                    sendSnackbar("Información agregada correctamente!")
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al añadir bebé")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
         }
     }
 
@@ -146,7 +167,7 @@ class BabyDataViewModel (
         data class ShowSnackbar(val message: String) : UiEvent()
     }
 
-    fun sendSnackbar(message: String) {
+    private fun sendSnackbar(message: String) {
         viewModelScope.launch {
             _uiEvent.send(ShowSnackbar(message))
             delay(100)

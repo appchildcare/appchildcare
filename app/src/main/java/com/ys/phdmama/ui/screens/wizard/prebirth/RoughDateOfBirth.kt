@@ -54,7 +54,7 @@ fun RoughDateOfBirthScreen(
         )
 
         Button(onClick = {
-            DatePickerDialog(
+            val datePicker = DatePickerDialog(
                 context,
                 { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                     calendar.set(year, month, dayOfMonth)
@@ -64,10 +64,14 @@ fun RoughDateOfBirthScreen(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+            )
+
+            datePicker.datePicker.minDate = System.currentTimeMillis()
+
+            datePicker.show()
         }) {
             Icon(imageVector = Icons.Default.DateRange, contentDescription = "Abrir calendario")
-            Spacer(modifier = Modifier.width(8.dp)) // Ad
+            Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Seleccionar Fecha")
         }
 

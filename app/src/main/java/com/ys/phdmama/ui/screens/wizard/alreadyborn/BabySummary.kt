@@ -62,7 +62,7 @@ fun BabySummary(
         Button(
             onClick = {
                 wizardViewModel.setWizardFinished(true)
-                babyStatusViewModel.addBabyToUser(
+                viewModel.addBabyToUser(
                     babyData = babyData,
                     onError = { errorMessage ->
                         Log.e("BabySummary", "Failed to save baby data: $errorMessage")
@@ -82,7 +82,6 @@ fun BabySummary(
                 Text(text = "Iniciemos la aventura")
             }
         }
-
 
         Button(
             onClick = {

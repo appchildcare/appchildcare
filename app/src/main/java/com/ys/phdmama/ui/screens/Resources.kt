@@ -8,16 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.ys.phdmama.ui.components.BottomNavigationBar
+import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
 
@@ -41,26 +34,16 @@ data class ChecklistItem(
     var checked: Boolean
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Resources(navController: NavController, openDrawer: () -> Unit) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Recursos") },
-                navigationIcon = {
-                    IconButton(onClick = openDrawer) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                }
-            )
-        },
-        bottomBar = { BottomNavigationBar(navController) }
-    ) { innerPadding ->
+    PhdLayoutMenu(
+        title = "Recursos",
+        navController = navController,
+        openDrawer = openDrawer
+    ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .fillMaxSize(),
         ) {
             ChecklistScreen()
         }
@@ -114,24 +97,3 @@ fun ChecklistScreen(loginViewModel: LoginViewModel = viewModel(), userViewModel:
     }
 }
 
-@Composable
-fun ChecklistItemRow(item: ChecklistItem, onCheckedChange: (ChecklistItem) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = item.checked,
-            onCheckedChange = { isChecked ->
-                onCheckedChange(item.copy(checked = isChecked))
-            }
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text( text = item.text,
-            style = MaterialTheme.typography.bodyLarge,
-            textDecoration = if (item.checked) {
-                TextDecoration.LineThrough} else {TextDecoration.None})
-    }
-}

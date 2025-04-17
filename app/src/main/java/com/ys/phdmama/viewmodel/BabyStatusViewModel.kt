@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class BabyStatusViewModel(
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -67,29 +66,6 @@ class BabyStatusViewModel(
 
     fun setLoadingRoleUpdate(isLoading: Boolean) {
         isLoadingRoleUpdate.value = isLoading
-    }
-
-
-    fun addBabyToUser(
-        babyData: Map<String, Any>,
-        onError: (String) -> Unit
-    ) {
-        val uid = firebaseAuth.currentUser?.uid
-        if (uid != null) {
-            viewModelScope.launch {
-                try {
-                    val babyRef = firestore.collection("users").document(uid).collection("babies")
-                    babyRef.add(babyData).await()
-
-                    sendSnackbar("Información agregada correctamente!")
-
-                } catch (e: Exception) {
-                    onError(e.localizedMessage ?: "Error al añadir bebé")
-                }
-            }
-        } else {
-            onError("UID de usuario no encontrado")
-        }
     }
 
     sealed class UiEvent {

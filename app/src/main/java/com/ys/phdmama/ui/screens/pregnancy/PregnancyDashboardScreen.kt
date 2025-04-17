@@ -10,15 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,14 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
-import com.ys.phdmama.ui.components.BottomNavigationBar
+import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PregnancyDashboardScreen (
     navController: NavHostController,
@@ -62,18 +54,10 @@ fun PregnancyDashboardScreen (
         pregnancyTrackingViewModel.fetchPregnancyTracking()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Panel") },
-                navigationIcon = {
-                    IconButton(onClick = openDrawer) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                }
-            )
-        },
-        bottomBar = { BottomNavigationBar(navController) }
+    PhdLayoutMenu(
+        title = "Panel",
+        navController = navController,
+        openDrawer = openDrawer
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -126,9 +110,7 @@ fun PregnancyDashboardScreen (
 
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
         }
     }
 }
