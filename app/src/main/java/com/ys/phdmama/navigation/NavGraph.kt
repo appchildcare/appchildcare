@@ -1,11 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.ys.phdmama.navigation
 
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -23,6 +20,7 @@ import com.ys.phdmama.ui.screens.MotherProfileScreen
 import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
+import com.ys.phdmama.ui.screens.born.BabySelectionScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
 import com.ys.phdmama.ui.screens.born.Vaccines
@@ -58,6 +56,7 @@ object NavRoutes {
     const val BORN_MENU = "bornMenu"
     const val BORN_VACCINES = "BornVaccines"
     const val BORN_GROWTHMILESTONES = "bornGrowthMilestones"
+    const val BORN_BABY_SELECTION = "bornBabySelection"
     const val WAITING_DASHBOARD = "waitingDashboard"
     const val SPLASH = "splash"
     const val LOGIN = "login"
@@ -220,6 +219,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.BORN_GROWTHMILESTONES) {
                 GrowthMilestonesScreen(navController = navController)
+            }
+            composable(NavRoutes.BORN_BABY_SELECTION) {
+                BabySelectionScreen(navController = navController, openDrawer = openDrawer)
             }
         }
 

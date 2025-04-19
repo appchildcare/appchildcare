@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,6 +30,12 @@ val menuItems = listOf(
         description = "Verifica el crecimiento del bebé",
         icon = Icons.Default.Create,
         route = NavRoutes.BORN_GROWTHMILESTONES
+    ),
+    MenuItemData(
+        label = "Bebé",
+        description = "Selección de mi bebé",
+        icon = Icons.Default.Face,
+        route = NavRoutes.BORN_BABY_SELECTION
     )
 )
 

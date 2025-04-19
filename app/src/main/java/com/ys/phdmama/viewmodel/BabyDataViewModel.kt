@@ -1,6 +1,7 @@
 package com.ys.phdmama.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -61,6 +62,10 @@ class BabyDataViewModel (
     private val _vaccineAttributes = MutableStateFlow(mapOf<String, String>())
     private val _vaccineData = MutableStateFlow<Vaccine?>(null)
     val vaccineData: StateFlow<Vaccine?> = _vaccineData.asStateFlow()
+
+    private val _babyListAttributes = MutableStateFlow(mapOf<String, String>())
+    private val _babyListData = mutableStateOf<List<BabyProfile>>(emptyList())
+    val babyListData: State<List<BabyProfile>> = _babyListData
 
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
@@ -160,6 +165,31 @@ class BabyDataViewModel (
             }
         } else {
             onError("UID de usuario no encontrado")
+        }
+    }
+
+    fun fetchBabyList() {
+        viewModelScope.launch {
+            val currentUserId = firebaseAuth.currentUser?.uid
+            if (currentUserId == null) {
+                Log.e("FirestoreError", "No user is currently signed in")
+                return@launch
+            }
+
+            firestore.collection("users")
+                .document(currentUserId)
+                .collection("babies")
+                .get()
+                .addOnSuccessListener { result ->
+                    val babies = result.map { document ->
+                        document.toObject(BabyProfile::class.java)
+                            .copy(id = document.id)
+                    }
+                    _babyListData.value = babies
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("MotherViewModel", "Error fetching babies: ", exception)
+                }
         }
     }
 

@@ -57,3 +57,49 @@ fun PhdDropdown(label: String, options: List<String>, selectedOption: String, on
         }
     }
 }
+
+@Composable
+fun <T> PhdDropdownType(
+    label: String,
+    options: List<T>,
+    selectedOption: T?,
+    onOptionSelected: (T) -> Unit,
+    optionLabel: (T) -> String
+) {
+    Column {
+        Text(label, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        var expanded by remember { mutableStateOf(false) }
+
+        Box {
+            TextField(
+                value = selectedOption?.let { optionLabel(it) } ?: "",
+                onValueChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFADD8E6), shape = RoundedCornerShape(8.dp)),
+                readOnly = true,
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        modifier = Modifier.clickable { expanded = true }
+                    )
+                }
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(optionLabel(item)) },
+                        onClick = {
+                            onOptionSelected(item)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
