@@ -43,7 +43,9 @@ import com.ys.phdmama.ui.screens.wizard.prebirth.HappyWaitingScreen
 import com.ys.phdmama.ui.screens.wizard.prebirth.RoughDateOfBirthScreen
 import com.ys.phdmama.ui.splash.SplashScreen
 import com.ys.phdmama.ui.welcome.WelcomeScreen
+import com.ys.phdmama.viewmodel.AppStateViewModel
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.BabyProfile
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.MotherProfileViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
@@ -96,6 +98,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
     val motherProfileViewModel: MotherProfileViewModel = viewModel()
+    val appStateViewModel: AppStateViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var isUserLoggedIn by remember { mutableStateOf(false) }
@@ -120,6 +123,20 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             wizardViewModel.checkWizardFinished()
             wizardFinished = wizardViewModel.wizardFinished.value
         }
+    }
+
+    val babyList by babyDataViewModel.babyListData
+    var selectedBaby by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        babyDataViewModel.fetchBabyList()
+    }
+
+    LaunchedEffect(babyList) {
+        if (babyList.isNotEmpty() && selectedBaby == null && appStateViewModel.currentBabyId.value == null) {
+            selectedBaby = babyList.first().id
+        }
+        selectedBaby?.let { Log.d("NALA", it) }
     }
 
     Log.d("NavGraph", "userRole = $userRole, isUserLoggedIn = $isUserLoggedIn, wizardFinished = $wizardFinished")
@@ -212,7 +229,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
             composable(NavRoutes.BORN_DASHBOARD) {
-                BornDashboardScreen(navController = navController, openDrawer = openDrawer)
+                BornDashboardScreen(selectedBaby = selectedBaby, navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.BORN_MENU) {
                 BabyMenuScreen(navController = navController)
@@ -242,15 +259,15 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         // Definir bornNavGraph y waitingNavGraph
         when {
-            userRole == "born" -> bornNavGraph(navController, babyDataViewModel, openDrawer)
+            userRole == "born" -> bornNavGraph(selectedBaby, navController, babyDataViewModel, openDrawer)
             userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, openDrawer)
         }
     }
 }
 
-fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit) {
+fun NavGraphBuilder.bornNavGraph(selectedBaby: String?, navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit) {
     composable(NavRoutes.BORN_DASHBOARD) {
-        BornDashboardScreen(navController = navController, openDrawer = openDrawer)
+        BornDashboardScreen(selectedBaby = selectedBaby, navController = navController, openDrawer = openDrawer)
     }
     composable(NavRoutes.BORN_MENU) {
         BabyMenuScreen(navController = navController)

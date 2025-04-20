@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.screens.born
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,17 +26,22 @@ import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.BabyProfile
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import kotlin.random.Random
 
 @Composable
 fun BornDashboardScreen(
+    selectedBaby: String?,
     navController: NavHostController,
     userViewModel: UserDataViewModel = viewModel(),
-    dashboardViewModel: BabyDataViewModel = viewModel(),
     babyDataViewModel: BabyDataViewModel = viewModel(),
     openDrawer: () -> Unit
 ) {
+    if (selectedBaby != null) {
+        Log.d("GINGER", selectedBaby)
+    }
+
     PhdLayoutMenu(
         title = "Panel",
         navController = navController,
@@ -52,8 +59,27 @@ fun BornDashboardScreen(
                     babyName = it.name
                 }
             }
+
+            var babyProfileData by rememberSaveable { mutableStateOf<BabyProfile?>(null) }
+            LaunchedEffect(Unit) {
+                babyDataViewModel.fetchBabyProfile(
+                    selectedBaby = selectedBaby,
+                    onSuccess = { baby ->
+                        Log.d("BabyProfile", "Fetched ${baby} profile")
+                        babyProfileData = baby
+                        // Do something with the baby list if needed
+                    },
+//                    onSkip = {
+//                        Log.w("BabyList", "Skipped fetching babies due to no user logged in")
+//                    },
+//                    onError = { error ->
+//                        Log.e("BabyList", "Error occurred: ${error.message}")
+//                    }
+                )
+            }
+
             userViewModel.createUserChecklists("born")
-            BabyInfoCard(name = babyName, ageInMonths = 8)
+            babyProfileData?.name?.let { profileData -> BabyInfoCard(name = profileData, ageInMonths = 8) }
             Spacer(modifier = Modifier.height(16.dp))
             GrowthChartCard()
             Spacer(modifier = Modifier.height(16.dp))

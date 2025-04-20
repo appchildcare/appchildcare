@@ -14,11 +14,11 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 
 
 @Composable
-fun BornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,
+fun BornNavGraph(selectedBaby: String?, navController: NavHostController, babyDataViewModel: BabyDataViewModel,
                  openDrawer: () -> Unit,) {
     NavHost(navController = navController, startDestination = NavRoutes.BORN_DASHBOARD) {
         composable(NavRoutes.BORN_DASHBOARD) {
-            BornDashboardScreen(navController = navController, openDrawer = openDrawer)
+            BornDashboardScreen(selectedBaby = selectedBaby, navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_MENU) {
             BabyMenuScreen(navController = navController)
