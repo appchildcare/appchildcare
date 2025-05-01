@@ -18,10 +18,10 @@ import androidx.navigation.navigation
 import com.ys.phdmama.ui.login.LoginScreen
 import com.ys.phdmama.ui.main.MainScreen
 import com.ys.phdmama.ui.register.RegisterScreen
-import com.ys.phdmama.ui.screens.BabyProfileScreen
 import com.ys.phdmama.ui.screens.MotherProfileScreen
 import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
+import com.ys.phdmama.ui.screens.born.BabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesMenuScreen
@@ -31,6 +31,7 @@ import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
+import com.ys.phdmama.ui.screens.questionsanswers.QuestionScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -89,7 +90,7 @@ object NavRoutes {
     const val SIDEBAR_POLICIES = "policies"
     const val SIDEBAR_LINK1 = "link1"
     const val SIDEBAR_LINK2 = "link2"
-    const val MOTHER_PROFILE = "mother_profile"
+    const val QUESTIONS_ANSWERS = "questions_answers"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -151,7 +152,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabyStatusScreen(navController = navController)
         }
         composable(NavRoutes.BABY_PROFILE) {
-            BabyProfileScreen(navController = navController)
+            BabyDataScreen(navController = navController)
         }
         composable(NavRoutes.BABY_ALREADY_BORN) {
             BabyAlreadyBornScreen(navController = navController)
@@ -213,8 +214,8 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             AddBabyDataScreen(navController = navController, openDrawer = openDrawer)
         }
 
-        composable(NavRoutes.MOTHER_PROFILE) {
-            MotherProfileScreen(navController = navController, motherProfileViewModel, openDrawer = openDrawer)
+        composable(NavRoutes.QUESTIONS_ANSWERS) {
+            QuestionScreen(navController = navController, openDrawer = openDrawer)
         }
 
         composable(NavRoutes.BORN_VACCINES) {

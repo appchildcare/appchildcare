@@ -57,7 +57,7 @@ fun BornDashboardScreen(
             Spacer(modifier = Modifier.height(16.dp))
             GrowthChartCard()
             Spacer(modifier = Modifier.height(16.dp))
-            MotherScreen(navController)
+            PediatricianQuestionsScreen(navController)
         }
     }
 }
@@ -257,12 +257,12 @@ fun generateIncrementalValues(min: Int, max: Int, size: Int): List<Int> {
 }
 
 @Composable
-fun MotherScreen(navController: NavController) {
+fun PediatricianQuestionsScreen(navController: NavController) {
     Column(modifier = Modifier.padding(16.dp)) {
         ClickableCard(
-            title = "Perfil de mamá",
+            title = "Preguntas al pediatra",
             description = "",
-            onClick = { navController.navigate(NavRoutes.MOTHER_PROFILE) }
+            onClick = { navController.navigate(NavRoutes.QUESTIONS_ANSWERS) }
         )
     }
 }
@@ -288,7 +288,7 @@ fun ClickableCard(
                 style = MaterialTheme.typography.headlineSmall
             )
             Image(
-                painter = painterResource(id = R.mipmap.mother_image),
+                painter = painterResource(id = R.mipmap.pediatra_image),
                 contentDescription = "Auth image",
                 modifier = Modifier
                     .fillMaxWidth()
