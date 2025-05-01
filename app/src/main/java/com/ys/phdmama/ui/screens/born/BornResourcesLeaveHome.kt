@@ -1,4 +1,4 @@
-package com.ys.phdmama.ui.screens
+package com.ys.phdmama.ui.screens.born
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -32,9 +32,8 @@ import com.ys.phdmama.viewmodel.ChecklistItem
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
 
-
 @Composable
-fun Resources(navController: NavController, openDrawer: () -> Unit) {
+fun BornResourcesLeaveHome(navController: NavController, openDrawer: () -> Unit) {
     PhdLayoutMenu(
         title = "Recursos",
         navController = navController,
@@ -60,18 +59,12 @@ fun ChecklistScreen(
     userViewModel: UserDataViewModel = viewModel()
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
-    val textTitle = when (userRole) {
-        "born" -> "BEBÉ POSPARTO"
-        "waiting" -> "LOGÍSTICA PARA EL GRAN DÍA"
-        else -> ""
-    }
+    val textTitle = "Checklist del viaje"
     var checklistItems by remember { mutableStateOf<List<ChecklistItem>>(emptyList()) }
 
     LaunchedEffect(userRole) {
-        userRole?.let {
-            userViewModel.fetchWaitingChecklist(it) { items ->
-                checklistItems = items
-            }
+        userViewModel.fetchLeaveHomeChecklist { items ->
+            checklistItems = items
         }
     }
 
@@ -129,7 +122,7 @@ fun ChecklistScreen(
                         Checkbox(
                             checked = item.checked,
                             onCheckedChange = { checked ->
-                                userViewModel.updateCheckedState(item.id, checked, userRole.toString())
+                                userViewModel.updateCheckedStateBornLeave(item.id, checked)
                                 checklistItems = checklistItems.map {
                                     if (it.id == item.id && it.topic == item.topic) it.copy(checked = checked) else it
                                 }

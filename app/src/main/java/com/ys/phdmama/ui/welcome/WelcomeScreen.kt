@@ -49,13 +49,12 @@ fun WelcomeScreen(navController: NavHostController,) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "¡Felicidades, futuros padres!\n\n" +
-                                "La dulce espera ha comenzado, un viaje lleno de emociones y transformaciones. Sabemos que este camino puede ser tan emocionante como desafiante, y queremos acompañarlos en cada paso.\n\n" +
-                                "Esta aplicación es tu refugio sano y científico, un espacio donde encontrarás:\n\n" +
-                                "- Apoyo integral: Información médica confiable, consejos prácticos y herramientas para navegar cada etapa del embarazo.\n" +
-                                "- Conexión y comunidad: Un lugar para compartir experiencias y resolver dudas.\n" +
-                                "- Bienestar emocional: Recursos para gestionar el estrés, la ansiedad y las emociones cambiantes que acompañan la gestación y el parto.\n" +
-                                "- Preparación para el futuro: Guías y consejos para el parto, el cuidado del recién nacido y la crianza, que no siempre es como nos la cuentan.\n\n" +
-                                "Recuerden, no están solos. Su ginecólogo, pediatra y esta comunidad están aquí para apoyarlos. Juntos, haremos de esta experiencia un viaje inolvidable.\n\n" +
+                                "La dulce espera ha comenzado, un viaje lleno de nuevas emociones y\n\n" +
+                                "transformaciones. Sabemos que este camino puede ser tan emocionante como\n\n" +
+                                "desafiante, es por eso que queremos acompañarlos en cada paso.\n" +
+                                "Queremos ser parte de tu refugio sano y científico, un espacio en donde no te\n" +
+                                "sientas sol@. Tu equipo médico y esta comunidad, estamos para apoyarlos. \n" +
+                                "Juntos, haremos de esta experiencia un viaje inolvidable.\n\n" +
                                 "¡Bienvenidos a ChildCare, cuidaremos de ustedes!",
                         fontSize = 12.sp,
                         textAlign = TextAlign.Justify,

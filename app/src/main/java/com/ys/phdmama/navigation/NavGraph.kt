@@ -24,11 +24,13 @@ import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
+import com.ys.phdmama.ui.screens.born.BornResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
 import com.ys.phdmama.ui.screens.born.Vaccines
 import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
+import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -55,6 +57,8 @@ object NavRoutes {
     const val BORN_DASHBOARD = "bornDashboard"
     const val BORN_COUNTERS = "bornCounters"
     const val BORN_RESOURCES = "bornResources"
+    const val BORN_RESOURCES_CHECKLIST = "bornResourcesChecklist"
+    const val BORN_RESOURCES_LEAVE_HOME = "bornResourcesLeaveHome"
     const val BORN_MENU = "bornMenu"
     const val BORN_VACCINES = "BornVaccines"
     const val BORN_GROWTHMILESTONES = "bornGrowthMilestones"
@@ -186,7 +190,13 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             CounterHome(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_RESOURCES) {
+            BornResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.BORN_RESOURCES_CHECKLIST) {
             Resources(navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.BORN_RESOURCES_LEAVE_HOME) {
+            BornResourcesLeaveHome(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.PREGNANCY_RESOURCES) {
             PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
