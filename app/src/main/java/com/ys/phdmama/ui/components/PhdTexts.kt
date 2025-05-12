@@ -14,3 +14,8 @@ fun PhdMediumText(text: String){
 fun PhdNormalText(text: String){
     Text(text, fontSize = 16.sp, fontWeight = FontWeight.Normal)
 }
+
+@Composable
+fun PhdBoldText(text: String){
+    Text(text, fontWeight = FontWeight.Bold)
+}

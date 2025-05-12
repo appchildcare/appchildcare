@@ -6,14 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.model.Question
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
-
-data class Question(
-    val id: String = "",
-    val text: String = "",
-    val answer: String? = null,
-    val type: String = ""
-)
 
 class QuestionsAndAnswersViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
@@ -22,16 +19,20 @@ class QuestionsAndAnswersViewModel : ViewModel() {
     var questionText by mutableStateOf("")
     var answerText by mutableStateOf("")
     var savedQuestion by mutableStateOf<Question?>(null)
+    var questionList by mutableStateOf<List<Question>>(emptyList())
+        private set
 
     fun saveQuestion() {
         val questionId = UUID.randomUUID().toString()
-        val question = Question(id = questionId, text = questionText, type = "pediatrician")
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val currentDate = formatter.format(Date())
+        val question = Question(id = questionId, text = questionText,  date = currentDate)
 
         val userId = auth.currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
         db.collection("users").document(userId)
-            .collection("questions").document(questionId)
+            .collection("pediatrician_questions").document(questionId)
             .set(question)
             .addOnSuccessListener {
                 savedQuestion = question
@@ -45,7 +46,7 @@ class QuestionsAndAnswersViewModel : ViewModel() {
 
         savedQuestion?.let { question ->
             db.collection("users").document(userId)
-                .collection("questions").document(question.id)
+                .collection("pediatrician_questions").document(question.id)
                 .update("answer", answerText)
                 .addOnSuccessListener {
                     savedQuestion = question.copy(answer = answerText)
@@ -53,4 +54,26 @@ class QuestionsAndAnswersViewModel : ViewModel() {
                 }
         }
     }
+
+    fun loadQuestions() {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("users").document(userId)
+            .collection("pediatrician_questions")
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null && !snapshot.isEmpty) {
+                    questionList = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(Question::class.java)?.copy(id = doc.id)
+                    }
+                }
+            }
+    }
+
+    fun updateQuestion(question: Question) {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("users").document(userId)
+            .collection("pediatrician_questions").document(question.id)
+            .set(question)
+    }
+
 }
