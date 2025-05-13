@@ -31,6 +31,7 @@ import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
+import com.ys.phdmama.ui.screens.peditrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.questionsanswers.QuestionScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
@@ -91,6 +92,7 @@ object NavRoutes {
     const val SIDEBAR_LINK1 = "link1"
     const val SIDEBAR_LINK2 = "link2"
     const val QUESTIONS_ANSWERS = "questions_answers"
+    const val PEDIATRICIAN_VISIT_QUESTIONS = "pediatrician_visit_questions"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -216,6 +218,10 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         composable(NavRoutes.QUESTIONS_ANSWERS) {
             QuestionScreen(navController = navController, openDrawer = openDrawer)
+        }
+
+        composable(NavRoutes.PEDIATRICIAN_VISIT_QUESTIONS) {
+            PediatricVisitScreen(navController = navController, openDrawer = openDrawer)
         }
 
         composable(NavRoutes.BORN_VACCINES) {

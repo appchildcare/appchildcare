@@ -54,10 +54,9 @@ fun BornDashboardScreen(
             }
             userViewModel.createUserChecklists("born")
             BabyInfoCard(name = babyName, ageInMonths = 8)
-            Spacer(modifier = Modifier.height(16.dp))
             GrowthChartCard()
-            Spacer(modifier = Modifier.height(16.dp))
             PediatricianQuestionsScreen(navController)
+            PediatricianVisitQuestionsScreen(navController)
         }
     }
 }
@@ -268,6 +267,17 @@ fun PediatricianQuestionsScreen(navController: NavController) {
 }
 
 @Composable
+fun PediatricianVisitQuestionsScreen(navController: NavController) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        ClickableCard(
+            title = "Visitas al pediatra",
+            description = "",
+            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISIT_QUESTIONS) }
+        )
+    }
+}
+
+@Composable
 fun ClickableCard(
     title: String,
     description: String,
@@ -281,7 +291,7 @@ fun ClickableCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             Text(
                 text = title,

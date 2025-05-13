@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.Question
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -59,6 +60,7 @@ class QuestionsAndAnswersViewModel : ViewModel() {
         val userId = auth.currentUser?.uid ?: return
         firestore.collection("users").document(userId)
             .collection("pediatrician_questions")
+            .orderBy("date", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && !snapshot.isEmpty) {
                     questionList = snapshot.documents.mapNotNull { doc ->
