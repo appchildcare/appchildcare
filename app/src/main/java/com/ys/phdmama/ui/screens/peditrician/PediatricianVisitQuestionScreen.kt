@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
@@ -116,6 +116,7 @@ fun PediatricVisitScreen(navController: NavHostController,
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .background(Color(0xFFF1F1F1))
                 .padding(16.dp)
         ) {
@@ -208,90 +209,84 @@ fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: Ped
     var editedNotes by remember { mutableStateOf("") }
     var editWeight by remember { mutableStateOf("") }
 
-    Column {
-        Spacer(modifier = Modifier.height(32.dp))
-        Text("Registro de visitas al pediatra", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(32.dp))
+    Text("Registro de visitas al pediatra", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    Spacer(modifier = Modifier.height(8.dp))
 
-        LazyColumn {
-            items(questionList) { question ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFDDE1F5))
+    // Replacing LazyColumn with Column
+    questionList.forEach { question ->
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFDDE1F5))
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column {
-                                PhdBoldText("Fecha Visita:")
-                                Text(question.date)
-                            }
-                            IconButton(onClick = {
-                                editingPediatricianVisit = question
-                                editedNotes = question.notes
-                                editWeight = question.weight
-                            }) {
-                                Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar")
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        PhdBoldText("Notas:")
-                        Text(question.notes)
-                        PhdBoldText("Peso (kg):")
-                        Text(question.weight)
-                        PhdBoldText("Talla (cm):")
-                        Text(question.height)
-                        PhdBoldText("Perímetro cefálico (cm):")
-                        Text(question.headCircumference)
+                    Column {
+                        PhdBoldText("Fecha Visita:")
+                        Text(question.date)
+                    }
+                    IconButton(onClick = {
+                        editingPediatricianVisit = question
+                        editedNotes = question.notes
+                        editWeight = question.weight
+                    }) {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar")
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+                PhdBoldText("Notas:")
+                Text(question.notes)
+                PhdBoldText("Peso (kg):")
+                Text(question.weight)
+                PhdBoldText("Talla (cm):")
+                Text(question.height)
+                PhdBoldText("Perímetro cefálico (cm):")
+                Text(question.headCircumference)
             }
         }
+    }
 
-        // Diálogo de edición
-        if (editingPediatricianVisit != null) {
-            AlertDialog(
-                onDismissRequest = { editingPediatricianVisit = null },
-                title = { Text("Editar visita") },
-                text = {
-                    Column {
-                        OutlinedTextField(
-                            value = editedNotes,
-                            onValueChange = { editedNotes = it },
-                            label = { Text("Fecha Visita") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        OutlinedTextField(
-                            value = editWeight,
-                            onValueChange = { editWeight = it },
-                            label = { Text("Notas") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-//                        val updated = editingPediatricianVisit!!.copy(
-//                            text = editedNotes,
-//                            answer = editWeight
-//                        )
-//                        viewModel.updateQuestion(updated)
-//                        editingPediatricianVisit = null
-                    }) {
-                        Text("Guardar")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { editingPediatricianVisit = null }) {
-                        Text("Cancelar")
-                    }
+    // Dialog code remains the same
+    if (editingPediatricianVisit != null) {
+        AlertDialog(
+            onDismissRequest = { editingPediatricianVisit = null },
+            title = { Text("Editar visita") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = editedNotes,
+                        onValueChange = { editedNotes = it },
+                        label = { Text("Fecha Visita") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = editWeight,
+                        onValueChange = { editWeight = it },
+                        label = { Text("Notas") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-            )
-        }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    // Handle save
+                    editingPediatricianVisit = null
+                }) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingPediatricianVisit = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
+
