@@ -38,10 +38,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ys.phdmama.model.Vaccine
+import com.ys.phdmama.ui.components.EditableField
+import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdButtons
+import com.ys.phdmama.ui.components.PhdEditItemDialog
+import com.ys.phdmama.ui.components.PhdGenericCardList
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.components.PhdSubtitle
 import com.ys.phdmama.ui.components.PhdTextField
@@ -51,9 +55,9 @@ import java.util.Calendar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun Vaccines(navController: NavController,
-             babyDataViewModel: BabyDataViewModel = viewModel(),
-             openDrawer: () -> Unit) {
+fun VaccineScreen(navController: NavController,
+                  babyDataViewModel: BabyDataViewModel = viewModel(),
+                  openDrawer: () -> Unit) {
     val context = LocalContext.current
     var vaccineName by remember { mutableStateOf("") }
     val calendar = Calendar.getInstance()
@@ -61,9 +65,9 @@ fun Vaccines(navController: NavController,
     val snackbarHostState = remember { SnackbarHostState() }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    val vaccineData by babyDataViewModel.vaccineData.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
+        babyDataViewModel.loadVaccines()
         babyDataViewModel.uiEvent.collect { event ->
             when (event) {
                 is BabyDataViewModel.UiEvent.ShowSnackbar -> {
@@ -73,13 +77,6 @@ fun Vaccines(navController: NavController,
 
                 }
             }
-        }
-    }
-
-    LaunchedEffect(vaccineData) {
-        vaccineData?.let {
-            vaccineName = it.vaccineName
-//            motherField1 = it.motherField1
         }
     }
 
@@ -145,16 +142,9 @@ fun Vaccines(navController: NavController,
                 PhdButtons(
                     "Guardar", enabled = isFormValid,
                 ) {
-                    babyDataViewModel.setVaccineAttribute("vaccineName", vaccineName)
-                    babyDataViewModel.setVaccineAttribute("vaccineDate", formattedDate)
-
-                    val vaccineData = mapOf(
-                        "vaccineName" to (babyDataViewModel.getVaccineAttribute("vaccineName") ?: ""),
-                        "vaccineDate" to (babyDataViewModel.getVaccineAttribute("vaccineDate") ?: ""),
-                    )
-
+                    babyDataViewModel.vaccineText = vaccineName
+                    babyDataViewModel.vaccineDate = formattedDate
                     babyDataViewModel.addVaccines(
-                        vaccineData = vaccineData,
                         onError = { errorMessage ->
                             Log.e("Vaccine Summary", "Failed to save vaccine data: $errorMessage")
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
@@ -166,6 +156,56 @@ fun Vaccines(navController: NavController,
                     navController.navigate("bornDashboard")
                 }
             }
+
+            ListVaccines(vaccineList = babyDataViewModel.vaccineList, viewModel = babyDataViewModel)
         }
+    }
+}
+
+@Composable
+fun ListVaccines(vaccineList: List<Vaccine>, viewModel: BabyDataViewModel) {
+    var editingVaccine by remember { mutableStateOf<Vaccine?>(null) }
+    var editedVaccineName by remember { mutableStateOf("") }
+    var editedVaccineDate by remember { mutableStateOf("") }
+
+    Spacer(modifier = Modifier.height(32.dp))
+    Text("Lista de vacunas", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    Spacer(modifier = Modifier.height(8.dp))
+
+    PhdGenericCardList(
+        items = vaccineList,
+        onEditClick = { editedVaccine ->
+            editingVaccine = editedVaccine
+            editedVaccineName = editedVaccine.vaccineName
+            editedVaccineDate = editedVaccine.vaccineDate
+        }
+    ) { vaccine ->
+        Column {
+            PhdBoldText("Vacuna:")
+            Text(vaccine.vaccineName)
+            Spacer(modifier = Modifier.height(8.dp))
+            PhdBoldText("Fecha Vacuna:")
+            Text(vaccine.vaccineDate)
+        }
+    }
+
+    if (editingVaccine != null) {
+        PhdEditItemDialog(
+            title = "Editar vacuna",
+            fields = listOf(
+                EditableField("Nombre", editedVaccineName) { editedVaccineName = it },
+                EditableField("Fecha", editedVaccineDate) { editedVaccineDate = it },
+            ),
+            onDismiss = { editingVaccine = null },
+            onSave = {
+                // Save logic
+                val updated = editingVaccine!!.copy(
+                    vaccineName = editedVaccineName,
+                    vaccineDate = editedVaccineDate
+                )
+                viewModel.updateVaccine(updated)
+                editingVaccine = null
+            }
+        )
     }
 }

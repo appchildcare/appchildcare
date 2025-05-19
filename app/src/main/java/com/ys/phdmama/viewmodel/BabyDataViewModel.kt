@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.ys.phdmama.model.Vaccine
 import com.ys.phdmama.viewmodel.BabyDataViewModel.UiEvent.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -21,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 data class BabyProfile(
     val id: String? = "",
@@ -34,12 +37,6 @@ data class BabyProfile(
 //    val birthDate: Date? = null // TODO: REVISAR
 )
 
-data class Vaccine(
-    val id: String? = "",
-    val vaccineName: String = "",
-
-)
-
 class BabyDataViewModel (
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -51,6 +48,9 @@ class BabyDataViewModel (
     private val _babyAttributes = MutableStateFlow(mapOf<String, String>())
     private val _babyData = MutableStateFlow<BabyProfile?>(null)
 
+    var vaccineText by mutableStateOf("")
+    var vaccineDate by mutableStateOf("")
+
     val babyData: StateFlow<BabyProfile?> = _babyData.asStateFlow()
 
     var calculatedDate by mutableStateOf<String?>(null)
@@ -58,9 +58,8 @@ class BabyDataViewModel (
     var locale = Locale("es", "ES")
         private set
 
-    private val _vaccineAttributes = MutableStateFlow(mapOf<String, String>())
-    private val _vaccineData = MutableStateFlow<Vaccine?>(null)
-    val vaccineData: StateFlow<Vaccine?> = _vaccineData.asStateFlow()
+    var vaccineList by mutableStateOf<List<Vaccine>>(emptyList())
+        private set
 
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
@@ -74,16 +73,6 @@ class BabyDataViewModel (
 
     init {
         fetchBabyProfile()
-    }
-
-    fun setVaccineAttribute(attribute: String, value: String) {
-        _vaccineAttributes.value = _vaccineAttributes.value.toMutableMap().apply {
-            this[attribute] = value
-        }
-    }
-
-    fun getVaccineAttribute(attribute: String): String? {
-        return _vaccineAttributes.value[attribute]
     }
 
     fun onDateSelected(date: Date) {
@@ -142,24 +131,57 @@ class BabyDataViewModel (
     }
 
     fun addVaccines(
-        vaccineData: Map<String, Any>,
         onError: (String) -> Unit
     ){
         val uid = firebaseAuth.currentUser?.uid
         if (uid != null) {
             viewModelScope.launch {
                 try {
+                    val vaccineId = UUID.randomUUID().toString()
+                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    val currentDate = formatter.format(Date())
+                    val vaccineToSave = Vaccine(id = vaccineId, vaccineName = vaccineText, vaccineDate = vaccineDate,  timestamp = currentDate)
                     val vaccinesRef = firestore.collection("users").document(uid).collection("vaccines")
-                    vaccinesRef.add(vaccineData).await()
+                    vaccinesRef.add(vaccineToSave).await()
 
                     sendSnackbar("Información agregada correctamente!")
 
                 } catch (e: Exception) {
-                    onError(e.localizedMessage ?: "Error al añadir vacuna")
+                    onError(e.localizedMessage ?: "Error al agregar vacuna")
                 }
             }
         } else {
             onError("UID de usuario no encontrado")
+        }
+    }
+
+    fun loadVaccines() {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if(userId !=null) {
+            firestore.collection("users").document(userId)
+                .collection("vaccines")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && !snapshot.isEmpty) {
+                        vaccineList = snapshot.documents.mapNotNull { doc ->
+                            doc.toObject(Vaccine::class.java)?.copy(id = doc.id)
+                        }
+                    }
+                }
+        }
+
+    }
+
+    fun updateVaccine(vaccine: Vaccine) {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if(userId != null) {
+            vaccine.id?.let {
+                firestore.collection("users").document(userId)
+                    .collection("vaccines").document(it)
+                    .set(vaccine)
+            }
         }
     }
 
