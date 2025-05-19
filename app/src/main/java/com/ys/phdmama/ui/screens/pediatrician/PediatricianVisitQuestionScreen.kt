@@ -1,11 +1,9 @@
-package com.ys.phdmama.ui.screens.peditrician
+package com.ys.phdmama.ui.screens.pediatrician
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,17 +16,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.model.PediatricianVisit
+import com.ys.phdmama.ui.components.EditableField
+import com.ys.phdmama.ui.components.PhdGenericCardList
 import com.ys.phdmama.ui.components.PhdBoldText
+import com.ys.phdmama.ui.components.PhdEditItemDialog
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.components.PhdSubtitle
 import com.ys.phdmama.viewmodel.PediatricVisitViewModel
@@ -208,83 +203,49 @@ fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: Ped
     var editingPediatricianVisit by remember { mutableStateOf<PediatricianVisit?>(null) }
     var editedNotes by remember { mutableStateOf("") }
     var editWeight by remember { mutableStateOf("") }
+    var editHeight by remember { mutableStateOf("") }
+    var editHeadCircumference by remember { mutableStateOf("") }
 
     Spacer(modifier = Modifier.height(32.dp))
     Text("Registro de visitas al pediatra", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     Spacer(modifier = Modifier.height(8.dp))
 
-    // Replacing LazyColumn with Column
-    questionList.forEach { question ->
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFDDE1F5))
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        PhdBoldText("Fecha Visita:")
-                        Text(question.date)
-                    }
-                    IconButton(onClick = {
-                        editingPediatricianVisit = question
-                        editedNotes = question.notes
-                        editWeight = question.weight
-                    }) {
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar")
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                PhdBoldText("Notas:")
-                Text(question.notes)
-                PhdBoldText("Peso (kg):")
-                Text(question.weight)
-                PhdBoldText("Talla (cm):")
-                Text(question.height)
-                PhdBoldText("Perímetro cefálico (cm):")
-                Text(question.headCircumference)
-            }
+    PhdGenericCardList(
+        items = questionList,
+        onEditClick = { visit ->
+            editingPediatricianVisit = visit
+            editedNotes = visit.notes
+            editWeight = visit.weight
+        }
+    ) { visit ->
+        Column {
+            PhdBoldText("Fecha Visita:")
+            Text(visit.date)
+            Spacer(modifier = Modifier.height(8.dp))
+            PhdBoldText("Notas:")
+            Text(visit.notes)
+            PhdBoldText("Peso (kg):")
+            Text(visit.weight)
+            PhdBoldText("Talla (cm):")
+            Text(visit.height)
+            PhdBoldText("Perímetro cefálico (cm):")
+            Text(visit.headCircumference)
         }
     }
 
-    // Dialog code remains the same
     if (editingPediatricianVisit != null) {
-        AlertDialog(
-            onDismissRequest = { editingPediatricianVisit = null },
-            title = { Text("Editar visita") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = editedNotes,
-                        onValueChange = { editedNotes = it },
-                        label = { Text("Fecha Visita") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = editWeight,
-                        onValueChange = { editWeight = it },
-                        label = { Text("Notas") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    // Handle save
-                    editingPediatricianVisit = null
-                }) {
-                    Text("Guardar")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { editingPediatricianVisit = null }) {
-                    Text("Cancelar")
-                }
+        PhdEditItemDialog(
+            title = "Editar visita",
+            fields = listOf(
+                EditableField("Notas", editedNotes) { editedNotes = it },
+                EditableField("Peso (kg)", editWeight) { editWeight = it },
+                EditableField("Talla (cm)", editHeight) { editHeight = it },
+                EditableField("Perímetro cefálico (cm)", editHeadCircumference) { editHeadCircumference = it }
+            ),
+            onDismiss = { editingPediatricianVisit = null },
+            onSave = {
+                // Save logic
+                editingPediatricianVisit = null
             }
         )
     }

@@ -18,7 +18,6 @@ import androidx.navigation.navigation
 import com.ys.phdmama.ui.login.LoginScreen
 import com.ys.phdmama.ui.main.MainScreen
 import com.ys.phdmama.ui.register.RegisterScreen
-import com.ys.phdmama.ui.screens.MotherProfileScreen
 import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyDataScreen
@@ -31,8 +30,8 @@ import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
-import com.ys.phdmama.ui.screens.peditrician.PediatricVisitScreen
-import com.ys.phdmama.ui.screens.questionsanswers.QuestionScreen
+import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
+import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -91,8 +90,8 @@ object NavRoutes {
     const val SIDEBAR_POLICIES = "policies"
     const val SIDEBAR_LINK1 = "link1"
     const val SIDEBAR_LINK2 = "link2"
-    const val QUESTIONS_ANSWERS = "questions_answers"
-    const val PEDIATRICIAN_VISIT_QUESTIONS = "pediatrician_visit_questions"
+    const val PEDIATRICIAN_QUESTIONS = "pediatrician_questions"
+    const val PEDIATRICIAN_VISITS = "pediatrician_visits"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -216,11 +215,11 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             AddBabyDataScreen(navController = navController, openDrawer = openDrawer)
         }
 
-        composable(NavRoutes.QUESTIONS_ANSWERS) {
-            QuestionScreen(navController = navController, openDrawer = openDrawer)
+        composable(NavRoutes.PEDIATRICIAN_QUESTIONS) {
+            PediatricianQuestionsScreen(navController = navController, openDrawer = openDrawer)
         }
 
-        composable(NavRoutes.PEDIATRICIAN_VISIT_QUESTIONS) {
+        composable(NavRoutes.PEDIATRICIAN_VISITS) {
             PediatricVisitScreen(navController = navController, openDrawer = openDrawer)
         }
 

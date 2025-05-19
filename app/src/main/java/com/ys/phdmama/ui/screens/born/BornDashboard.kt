@@ -264,7 +264,7 @@ fun PediatricianQuestionsScreen(navController: NavController) {
         ClickableCard(
             title = "Preguntas al pediatra",
             description = "",
-            onClick = { navController.navigate(NavRoutes.QUESTIONS_ANSWERS) }
+            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) }
         )
     }
 }
@@ -275,7 +275,7 @@ fun PediatricianVisitQuestionsScreen(navController: NavController) {
         ClickableCard(
             title = "Visitas al pediatra",
             description = "",
-            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISIT_QUESTIONS) }
+            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) }
         )
     }
 }
