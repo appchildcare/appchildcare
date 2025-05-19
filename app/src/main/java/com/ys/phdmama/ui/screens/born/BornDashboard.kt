@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.screens.born
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,8 +36,12 @@ fun BornDashboardScreen(
     userViewModel: UserDataViewModel = viewModel(),
     dashboardViewModel: BabyDataViewModel = viewModel(),
     babyDataViewModel: BabyDataViewModel = viewModel(),
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    babyId: String?
 ) {
+    if (babyId != null) {
+        Log.d("BABY ID received", babyId)
+    }
     PhdLayoutMenu(
         title = "Panel",
         navController = navController,
@@ -260,7 +265,7 @@ fun generateIncrementalValues(min: Int, max: Int, size: Int): List<Int> {
 
 @Composable
 fun PediatricianQuestionsScreen(navController: NavController) {
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f)) {
         ClickableCard(
             title = "Preguntas al pediatra",
             description = "",
@@ -271,7 +276,7 @@ fun PediatricianQuestionsScreen(navController: NavController) {
 
 @Composable
 fun PediatricianVisitQuestionsScreen(navController: NavController) {
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f)) {
         ClickableCard(
             title = "Visitas al pediatra",
             description = "",
@@ -289,7 +294,6 @@ fun ClickableCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {

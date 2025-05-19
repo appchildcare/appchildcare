@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -60,6 +62,9 @@ class BabyDataViewModel (
 
     var vaccineList by mutableStateOf<List<Vaccine>>(emptyList())
         private set
+
+    private val _babyDocumentIds = MutableLiveData<List<String>>()
+    val babyDocumentIds: LiveData<List<String>> = _babyDocumentIds
 
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
@@ -182,6 +187,24 @@ class BabyDataViewModel (
                     .collection("vaccines").document(it)
                     .set(vaccine)
             }
+        }
+    }
+
+    fun loadBabyIds(onSuccess: (String?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    val userRef = firestore.collection("babies").document(uid)
+                    val document = userRef.get().await()
+                    val babyId = document.id
+                    onSuccess(babyId)
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al obtener detalles del bebe")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
         }
     }
 
