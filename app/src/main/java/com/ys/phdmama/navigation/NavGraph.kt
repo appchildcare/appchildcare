@@ -235,7 +235,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 BabyMenuScreen(navController = navController)
             }
             composable(NavRoutes.BORN_GROWTHMILESTONES) {
-                GrowthMilestonesScreen(navController = navController)
+                GrowthMilestonesScreen(navController = navController,  openDrawer = openDrawer)
             }
         }
 
@@ -270,7 +270,7 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
         BabyMenuScreen(navController = navController)
     }
     composable(NavRoutes.BORN_GROWTHMILESTONES) {
-        GrowthMilestonesScreen(navController = navController)
+        GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer)
     }
 }
 
