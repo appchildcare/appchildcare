@@ -1,6 +1,7 @@
 package com.ys.phdmama.ui.screens.born
 
 import android.util.Log
+import android.widget.NumberPicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,18 +16,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
-import java.util.UUID
 
 @Composable
 fun GrowthMilestonesScreen(
     navController: NavHostController,
     viewModel: GrowthMilestonesViewModel = viewModel(),
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    babyId: String?
 ) {
     // Variables para los campos de texto
     var weight by remember { mutableStateOf("") }
@@ -35,6 +36,11 @@ fun GrowthMilestonesScreen(
 
     // Estado para controlar la visibilidad de la alerta
     var showAlert by remember { mutableStateOf(false) }
+
+    var selectedNumber by remember { mutableStateOf(1) }
+    if (babyId != null) {
+        viewModel.setBabyId(babyId)
+    }
 
     PhdLayoutMenu(
         title = "Hitos del crecimiento",
@@ -79,13 +85,23 @@ fun GrowthMilestonesScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            LabeledAndroidNumberPicker(
+                label = "Seleccionar edad del bebé en meses:",
+                value = selectedNumber,
+                range = 1..60,
+                onValueChange = { selectedNumber = it }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Button(onClick = {
                 if (weight.isNotEmpty() && height.isNotEmpty() && headCircumference.isNotEmpty()) {
                     val milestoneData = mapOf(
                         "weight" to weight,
                         "height" to height,
                         "headCircumference" to headCircumference,
-                        "timestamp" to System.currentTimeMillis()
+                        "timestamp" to System.currentTimeMillis(),
+                        "ageInMonths" to selectedNumber,
                     )
                     viewModel.saveGrowthMilestone(
                         milestoneData = milestoneData,
@@ -120,5 +136,40 @@ fun GrowthMilestonesScreen(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun LabeledAndroidNumberPicker(
+    label: String,
+    value: Int,
+    range: IntRange,
+    onValueChange: (Int) -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+
+        AndroidView(
+            modifier = Modifier.wrapContentSize(),
+            factory = { context ->
+                NumberPicker(context).apply {
+                    minValue = range.first
+                    maxValue = range.last
+                    setOnValueChangedListener { _, _, newVal ->
+                        onValueChange(newVal)
+                    }
+                }
+            },
+            update = { picker ->
+                picker.value = value
+            }
+        )
     }
 }

@@ -245,6 +245,13 @@ fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: Ped
             onDismiss = { editingPediatricianVisit = null },
             onSave = {
                 // Save logic
+                val updated = editingPediatricianVisit!!.copy(
+                    notes = editedNotes,
+                    weight = editWeight,
+                    height = editHeight,
+                    headCircumference = editHeadCircumference
+                )
+                viewModel.update(updated)
                 editingPediatricianVisit = null
             }
         )

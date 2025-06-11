@@ -198,6 +198,7 @@ class BabyDataViewModel (
                     val userRef = firestore.collection("babies").document(uid)
                     val document = userRef.get().await()
                     val babyId = document.id
+                    Log.d("BabyData ViewModel", babyId)
                     onSuccess(babyId)
                 } catch (e: Exception) {
                     onError(e.localizedMessage ?: "Error al obtener detalles del bebe")
@@ -207,6 +208,27 @@ class BabyDataViewModel (
             onError("UID de usuario no encontrado")
         }
     }
+
+    fun fetchBabiesForUser(
+        onResult: (List<String>) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if (userId != null) {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .collection("babies")
+                .get()
+                .addOnSuccessListener { result ->
+                    val babyIds = result.map { it.id }
+                    onResult(babyIds)
+                }
+                .addOnFailureListener { onError(it) }
+        }
+    }
+
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()

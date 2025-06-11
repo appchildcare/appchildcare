@@ -49,6 +49,7 @@ import com.ys.phdmama.ui.screens.wizard.prebirth.RoughDateOfBirthScreen
 import com.ys.phdmama.ui.splash.SplashScreen
 import com.ys.phdmama.ui.welcome.WelcomeScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.MotherProfileViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
@@ -102,6 +103,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val babyDataViewModel: BabyDataViewModel = viewModel(viewModelStoreOwner!!)
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
+    val growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var babyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -244,13 +246,13 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         navigation(startDestination = NavRoutes.BORN_DASHBOARD, route = "born") {
             composable(NavRoutes.BORN_DASHBOARD) {
-                BornDashboardScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
+                BornDashboardScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
             }
             composable(NavRoutes.BORN_MENU) {
                 BabyMenuScreen(navController = navController)
             }
             composable(NavRoutes.BORN_GROWTHMILESTONES) {
-                GrowthMilestonesScreen(navController = navController,  openDrawer = openDrawer)
+                GrowthMilestonesScreen(navController = navController,  openDrawer = openDrawer, babyId = babyId)
             }
         }
 
@@ -271,21 +273,22 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
 
         // Definir bornNavGraph y waitingNavGraph
         when {
-            userRole == "born" -> bornNavGraph(navController, babyDataViewModel, openDrawer, babyId)
+            userRole == "born" -> bornNavGraph(navController, babyDataViewModel, openDrawer, babyId, growthMilestonesViewModel)
             userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, openDrawer)
         }
     }
 }
 
-fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,  openDrawer: () -> Unit, babyId: String?) {
+fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,
+                                 openDrawer: () -> Unit, babyId: String?, growthMilestonesViewModel: GrowthMilestonesViewModel) {
     composable(NavRoutes.BORN_DASHBOARD) {
-        BornDashboardScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
+        BornDashboardScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
     }
     composable(NavRoutes.BORN_MENU) {
         BabyMenuScreen(navController = navController)
     }
     composable(NavRoutes.BORN_GROWTHMILESTONES) {
-        GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer)
+        GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
     }
 }
 

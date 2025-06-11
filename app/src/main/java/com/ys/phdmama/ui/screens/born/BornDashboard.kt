@@ -27,12 +27,16 @@ import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.ChecklistItem
+import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
+import com.ys.phdmama.viewmodel.GrowthRecord
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import kotlin.random.Random
 
 @Composable
 fun BornDashboardScreen(
     navController: NavHostController,
+    growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(),
     userViewModel: UserDataViewModel = viewModel(),
     dashboardViewModel: BabyDataViewModel = viewModel(),
     babyDataViewModel: BabyDataViewModel = viewModel(),
@@ -62,7 +66,7 @@ fun BornDashboardScreen(
             }
             userViewModel.createUserChecklists("born")
             BabyInfoCard(name = babyName, ageInMonths = 8)
-            GrowthChartCard()
+            GrowthChartCard(growthMilestonesViewModel, babyId)
             PediatricianQuestionsScreen(navController)
             PediatricianVisitQuestionsScreen(navController)
         }
@@ -114,7 +118,32 @@ fun BabyInfoCard(name: String, ageInMonths: Int) {
 }
 
 @Composable
-fun GrowthChartCard() {
+fun GrowthChartCard(growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(), babyId: String?) {
+    var testId by remember { mutableStateOf("") }
+//    var records by remember { mutableStateOf(List<GrowthRecord>(null)) }
+//    var testId by remember { mutableStateOf<List<String>?>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+//        growthMilestonesViewModel.fetchBabyId()
+        growthMilestonesViewModel.fetchBabyId(
+            onSuccess = { baby ->
+                if (!baby.isNullOrEmpty()) {
+                    testId = baby.first()
+                    Log.d("NINO testID", testId)
+//                    records = growthMilestonesViewModel.loadGrowthData(testId)
+                    growthMilestonesViewModel.loadGrowthData(testId)
+                }
+            },
+            onSkip = {
+                testId = ""
+            },
+            onError = {
+                testId = ""
+            }
+        )
+
+    }
+//    val records = growthMilestonesViewModel.growthRecords.value
     Card(
         modifier = Modifier
             .fillMaxWidth(0.8f) // Ocupa 80% del ancho
@@ -134,18 +163,38 @@ fun GrowthChartCard() {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
+            val records = growthMilestonesViewModel.growthRecords.value
 
-            GrowthChartWithGrid()
+            if (records.isNotEmpty()) {
+                val months = records.map { it.ageInMonths }
+                val weights = records.map { it.weight }
+                val heights = records.map { it.height }
+                val circumferences = records.map { it.headCircumference }
+
+                GrowthChartWithGrid(
+                    months = months,
+                    weightValues = weights,
+                    heightValues = heights,
+                    headCircumferenceValues = circumferences
+                )
+            } else {
+                Text("Aún no se han ingresado datos de crecimiento...")
+            }
+
+//            GrowthChartWithGrid()
         }
     }
 }
 
 @Composable
-fun GrowthChartWithGrid() {
-    val months = (0..12).toList() // Meses de 0 a 24
-    val weightValues = generateIncrementalValues(2, 10, months.size)
-    val heightValues = generateIncrementalValues(50, 100, months.size)
-    val headCircumferenceValues = generateIncrementalValues(30, 40, months.size)
+fun GrowthChartWithGrid( months: List<Int>,
+                         weightValues: List<Double>,
+                         heightValues: List<Double>,
+                         headCircumferenceValues: List<Double>) {
+//    val months = (0..12).toList() // Meses de 0 a 24
+//    val weightValues = generateIncrementalValues(2, 10, months.size)
+//    val heightValues = generateIncrementalValues(50, 100, months.size)
+//    val headCircumferenceValues = generateIncrementalValues(30, 40, months.size)
 
     // Curva de referencia "normal"
     val normalGrowthCurve = List(months.size) { index ->
@@ -186,11 +235,13 @@ fun GrowthChartWithGrid() {
 
         // Dibujar curva de peso
         val weightPath = Path().apply {
-            moveTo(0f, size.height - (weightValues[0] / maxWeight.toFloat()) * maxBarHeight)
+            moveTo(0f,
+                (size.height - (weightValues[0] / maxWeight.toFloat()) * maxBarHeight).toFloat()
+            )
             months.forEachIndexed { index, _ ->
                 lineTo(
                     x = index * size.width / months.size,
-                    y = size.height - (weightValues[index] / maxWeight.toFloat()) * maxBarHeight
+                    y = (size.height - (weightValues[index] / maxWeight.toFloat()) * maxBarHeight).toFloat()
                 )
             }
         }
@@ -202,11 +253,13 @@ fun GrowthChartWithGrid() {
 
         // Dibujar curva de talla
         val heightPath = Path().apply {
-            moveTo(0f, size.height - (heightValues[0] / maxHeight.toFloat()) * maxBarHeight)
+            moveTo(0f,
+                (size.height - (heightValues[0] / maxHeight.toFloat()) * maxBarHeight).toFloat()
+            )
             months.forEachIndexed { index, _ ->
                 lineTo(
                     x = index * size.width / months.size,
-                    y = size.height - (heightValues[index] / maxHeight.toFloat()) * maxBarHeight
+                    y = (size.height - (heightValues[index] / maxHeight.toFloat()) * maxBarHeight).toFloat()
                 )
             }
         }
@@ -218,11 +271,13 @@ fun GrowthChartWithGrid() {
 
         // Dibujar curva de perímetro cefálico
         val circumferencePath = Path().apply {
-            moveTo(0f, size.height - (headCircumferenceValues[0] / maxCircumference.toFloat()) * maxBarHeight)
+            moveTo(0f,
+                (size.height - (headCircumferenceValues[0] / maxCircumference.toFloat()) * maxBarHeight).toFloat()
+            )
             months.forEachIndexed { index, _ ->
                 lineTo(
                     x = index * size.width / months.size,
-                    y = size.height - (headCircumferenceValues[index] / maxCircumference.toFloat()) * maxBarHeight
+                    y = (size.height - (headCircumferenceValues[index] / maxCircumference.toFloat()) * maxBarHeight).toFloat()
                 )
             }
         }

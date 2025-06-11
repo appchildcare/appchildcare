@@ -146,12 +146,12 @@ fun BabyDataScreen(
             PhdTextField("APGAR", apgarScore) { apgarScore = it }
             Spacer(modifier = Modifier.width(16.dp))
 
-            PhdTextField("Peso", weight) { weight = it }
-            PhdTextField("Talla", height) { height = it }
+            PhdTextField("Peso (kg)", weight) { weight = it }
+            PhdTextField("Talla (cm)", height) { height = it }
             Spacer(modifier = Modifier.width(16.dp))
 
             PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
-            PhdTextField("Perímetro cefálico", headCircumference) { headCircumference = it }
+            PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
 
             Spacer(modifier = Modifier.width(16.dp))
 

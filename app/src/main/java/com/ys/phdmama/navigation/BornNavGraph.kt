@@ -12,7 +12,7 @@ import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.*
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 
-
+// TODO: remove unused nav graph
 @Composable
 fun BornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,
                  openDrawer: () -> Unit,) {
@@ -24,7 +24,7 @@ fun BornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataVi
             BabyMenuScreen(navController = navController)
         }
         composable(NavRoutes.BORN_GROWTHMILESTONES) {
-            GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer)
+//            GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer)
         }
     }
 }

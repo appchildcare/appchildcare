@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.PediatricianVisit
@@ -67,5 +66,13 @@ class PediatricVisitViewModel : ViewModel() {
                 }
 
             }
+    }
+
+    fun update(pediatrician: PediatricianVisit) {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("users").document(userId)
+            .collection("pediatrician_visit_questions").document(pediatrician.id)
+            .set(pediatrician)
     }
 }

@@ -66,7 +66,7 @@ fun RoughDateOfBirthScreen(
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
 
-            datePicker.datePicker.minDate = System.currentTimeMillis()
+//            datePicker.datePicker.minDate = System.currentTimeMillis()
 
             datePicker.show()
         }) {
