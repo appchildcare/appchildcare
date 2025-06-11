@@ -26,7 +26,8 @@ import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 fun GrowthMilestonesScreen(
     navController: NavHostController,
     viewModel: GrowthMilestonesViewModel = viewModel(),
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    babyId: String?
 ) {
     // Variables para los campos de texto
     var weight by remember { mutableStateOf("") }
@@ -37,6 +38,9 @@ fun GrowthMilestonesScreen(
     var showAlert by remember { mutableStateOf(false) }
 
     var selectedNumber by remember { mutableStateOf(1) }
+    if (babyId != null) {
+        viewModel.setBabyId(babyId)
+    }
 
     PhdLayoutMenu(
         title = "Hitos del crecimiento",
@@ -96,7 +100,8 @@ fun GrowthMilestonesScreen(
                         "weight" to weight,
                         "height" to height,
                         "headCircumference" to headCircumference,
-                        "timestamp" to System.currentTimeMillis()
+                        "timestamp" to System.currentTimeMillis(),
+                        "ageInMonths" to selectedNumber,
                     )
                     viewModel.saveGrowthMilestone(
                         milestoneData = milestoneData,
