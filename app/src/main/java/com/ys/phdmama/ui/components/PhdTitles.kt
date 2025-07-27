@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.components
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
@@ -12,5 +13,5 @@ fun PhdTitle(subtitle: String){
 
 @Composable
 fun PhdSubtitle(subtitle: String){
-    Text(subtitle, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    Text(subtitle, style = MaterialTheme.typography.titleMedium)
 }

@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.main
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
@@ -18,7 +19,10 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ys.phdmama.R
+import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.viewmodel.LoginViewModel
 
 data class NavBarItem(val route: String, val label: String, val icon: ImageVector,
@@ -115,12 +119,12 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
     }
 
     ModalDrawerSheet {
-        Text("Menú de Navegación", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
+        Text("Menú de Navegación", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
         HorizontalDivider()
         val Gold = Color(0xFFA28834)
         sideNavItems.forEach { item ->
             NavigationDrawerItem(
-                label = { Text(item.label) },
+                label = { Text(item.label, style = MaterialTheme.typography.labelMedium) },
                 icon = {
                     if (item.isPremium && showPremiumOption) {
                         BadgedBox(
@@ -129,13 +133,12 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                                     modifier = Modifier
                                         .padding(start = 150.dp)
                                 ) {
-                                    Text(
-                                        text = "Premium",
-                                        color = Color.White,
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_premium),
+                                        contentDescription = "Pregnant women",
                                         modifier = Modifier
-                                            .size(100.dp)
-                                            .background(Gold, shape = CircleShape)
-                                            .wrapContentSize(Alignment.Center)
+                                            .fillMaxWidth()
+                                            .padding(16.dp, 4.dp)
                                     )
                                 }
                             }
@@ -162,7 +165,7 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                 loginViewModel.logout(navController, loginViewModel)
                 closeDrawer()
             }) {
-                Text("Logout")
+                PhdBoldText("Logout")
             }
         }
     }

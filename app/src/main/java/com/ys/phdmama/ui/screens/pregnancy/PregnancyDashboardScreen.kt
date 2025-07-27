@@ -58,40 +58,40 @@ fun PregnancyDashboardScreen (
         title = "Panel",
         navController = navController,
         openDrawer = openDrawer
-    ) { innerPadding ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Image(
-                painter = painterResource(id = R.mipmap.pregnant_woman),
-                contentDescription = "Auth image",
+                painter = painterResource(id = R.mipmap.ilustraciones_childcare_embarazada),
+                contentDescription = "Pregnant women",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp, 4.dp)
             )
 
             if (currentUser == null) {
-                Text("Loading...")
+                Text("No se encuentra la data, intente en otro momento...")
             } else {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "${currentUser?.displayName}, tu fecha de parto aproximada es:",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
 
                 if(currentPregnancyTracking == null) {
-                    Text("Loading...")
+                    Text("Cargando...")
                 } else {
                     val formattedDate = remember(currentPregnancyTracking?.birthProximateDate) {
                         android.text.format.DateFormat.format("dd MMMM yyyy", currentPregnancyTracking?.birthProximateDate).toString()
                     }
                     Text(text = formattedDate,
-                        style = MaterialTheme.typography.bodyLarge)
+                        style = MaterialTheme.typography.titleMedium)
 
                     val fechaFinal = currentPregnancyTracking?.birthProximateDate
                         ?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate()
@@ -101,11 +101,11 @@ fun PregnancyDashboardScreen (
                     Spacer(modifier = Modifier.height(32.dp))
                     Text(
                         text = "Días para tu fecha de parto",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = "$diasEntreFechas",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
 
                 }

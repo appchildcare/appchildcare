@@ -1,12 +1,13 @@
 package com.ys.phdmama.ui.register
 
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -14,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ys.phdmama.navigation.NavRoutes
+import com.ys.phdmama.ui.theme.primaryGray
+import com.ys.phdmama.ui.theme.secondaryCream
+import com.ys.phdmama.ui.theme.secondaryLightGray
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.RegisterViewModel
 
@@ -26,7 +30,7 @@ fun RegisterScreen(
     var password by remember { mutableStateOf("") }
     var repeatPassword by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
-    var modifier: Modifier = Modifier
+    val modifier: Modifier = Modifier
     val context = LocalContext.current
     val registerViewModel: RegisterViewModel = viewModel()
 
@@ -34,17 +38,24 @@ fun RegisterScreen(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .background(secondaryCream)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
 
         OutlinedTextField(
             value = displayName,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = primaryGray,
+                unfocusedBorderColor = primaryGray,
+                disabledBorderColor = secondaryLightGray,
+                errorBorderColor = Color.Red
+            ),
             onValueChange = {
                 displayName = it
                 registerViewModel.updateUserField("displayName", it)
             },
-            label = { Text("Display Name") },
+            label = { Text("Nombres") },
             singleLine = true,
             modifier = modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
@@ -72,7 +83,7 @@ fun RegisterScreen(
                 password = it
                 registerViewModel.updateUserField("password", it)
             },
-            label = { Text("Password") },
+            label = { Text("Contraseña") },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             modifier = modifier.fillMaxWidth(),
@@ -87,7 +98,7 @@ fun RegisterScreen(
                 repeatPassword = it
                 registerViewModel.updateUserField("repeatPassword", it)
             },
-            label = { Text("Repeat Password") },
+            label = { Text("Repetir Contraseña") },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             modifier = modifier.fillMaxWidth(),
@@ -95,6 +106,11 @@ fun RegisterScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        val isFormValid = displayName.isNotBlank() &&
+                email.isNotBlank() &&
+                password.isNotBlank() &&
+                repeatPassword.isNotBlank()
 
         Button(
             onClick = {
@@ -114,10 +130,10 @@ fun RegisterScreen(
                     }
                 )
             },
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth(),
+            enabled = isFormValid
         ) {
-            Text(text = "Sign Up")
+            Text(text = "Registrase")
         }
     }
-
 }

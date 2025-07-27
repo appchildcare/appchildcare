@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.model.PediatricianVisit
@@ -41,8 +40,11 @@ import com.ys.phdmama.ui.components.EditableField
 import com.ys.phdmama.ui.components.PhdGenericCardList
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdEditItemDialog
+import com.ys.phdmama.ui.components.PhdErrorText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.components.PhdNormalText
 import com.ys.phdmama.ui.components.PhdSubtitle
+import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.PediatricVisitViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -112,10 +114,9 @@ fun PediatricVisitScreen(navController: NavHostController,
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(Color(0xFFF1F1F1))
+                .background(secondaryCream)
                 .padding(16.dp)
         ) {
-            PhdSubtitle("Registro de Visitas al pediatra")
             Button(onClick = {
                 showDatePicker.value = true
             }) {
@@ -157,6 +158,8 @@ fun PediatricVisitScreen(navController: NavHostController,
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
+
             Button(
                 onClick = {
                     if (dateTime.isBlank() || notes.isBlank() || weight.isBlank() || height.isBlank() || headCircumference.isBlank()) {
@@ -186,10 +189,10 @@ fun PediatricVisitScreen(navController: NavHostController,
             }
 
             if (errorMessage.isNotEmpty()) {
-                Text(errorMessage, color = Color.Red)
+                PhdErrorText(errorMessage)
             }
             if (successMessage.isNotEmpty()) {
-                Text(successMessage, color = Color.Green)
+                PhdBoldText(successMessage)
             }
 
             ListPediatricianVisits(questionList = viewModel.visitDataList, viewModel = viewModel)
@@ -207,7 +210,7 @@ fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: Ped
     var editHeadCircumference by remember { mutableStateOf("") }
 
     Spacer(modifier = Modifier.height(32.dp))
-    Text("Registro de visitas al pediatra", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    PhdSubtitle("Registro de visitas al pediatra")
     Spacer(modifier = Modifier.height(8.dp))
 
     PhdGenericCardList(
@@ -220,16 +223,16 @@ fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: Ped
     ) { visit ->
         Column {
             PhdBoldText("Fecha Visita:")
-            Text(visit.date)
+            PhdNormalText(visit.date)
             Spacer(modifier = Modifier.height(8.dp))
             PhdBoldText("Notas:")
-            Text(visit.notes)
+            PhdNormalText(visit.notes)
             PhdBoldText("Peso (kg):")
-            Text(visit.weight)
+            PhdNormalText(visit.weight)
             PhdBoldText("Talla (cm):")
-            Text(visit.height)
+            PhdNormalText(visit.height)
             PhdBoldText("Perímetro cefálico (cm):")
-            Text(visit.headCircumference)
+            PhdNormalText(visit.headCircumference)
         }
     }
 

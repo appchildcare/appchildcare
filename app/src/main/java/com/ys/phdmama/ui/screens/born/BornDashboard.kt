@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,6 +27,11 @@ import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.theme.primaryGray
+import com.ys.phdmama.ui.theme.secondaryAqua
+import com.ys.phdmama.ui.theme.secondaryCream
+import com.ys.phdmama.ui.theme.secondaryLightGray
+import com.ys.phdmama.ui.theme.secondaryYellow
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.ChecklistItem
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
@@ -68,6 +74,7 @@ fun BornDashboardScreen(
             BabyInfoCard(name = babyName, ageInMonths = 8)
             GrowthChartCard(growthMilestonesViewModel, babyId)
             PediatricianQuestionsScreen(navController)
+            Spacer(modifier = Modifier.height(16.dp))
             PediatricianVisitQuestionsScreen(navController)
         }
     }
@@ -85,6 +92,7 @@ fun BabyInfoCard(name: String, ageInMonths: Int) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(secondaryAqua)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -92,7 +100,7 @@ fun BabyInfoCard(name: String, ageInMonths: Int) {
             Box(
                 modifier = Modifier
                     .size(64.dp)
-                    .background(Color.LightGray, shape = RoundedCornerShape(32.dp)),
+                    .background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "P", style = MaterialTheme.typography.titleMedium, color = Color.White)
@@ -104,13 +112,12 @@ fun BabyInfoCard(name: String, ageInMonths: Int) {
             Column {
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.titleMedium,
+                    color = primaryGray
                 )
                 Text(
                     text = "$ageInMonths meses",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -159,7 +166,7 @@ fun GrowthChartCard(growthMilestonesViewModel: GrowthMilestonesViewModel = viewM
             Text(
                 text = "Hitos del crecimiento",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = primaryGray
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -320,22 +327,24 @@ fun generateIncrementalValues(min: Int, max: Int, size: Int): List<Int> {
 
 @Composable
 fun PediatricianQuestionsScreen(navController: NavController) {
-    Column(modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f)) {
+    Column(modifier = Modifier.fillMaxWidth(0.75f)) {
         ClickableCard(
             title = "Preguntas al pediatra",
             description = "",
-            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) }
+            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) },
+            color = secondaryLightGray
         )
     }
 }
 
 @Composable
 fun PediatricianVisitQuestionsScreen(navController: NavController) {
-    Column(modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f)) {
+    Column(modifier = Modifier.fillMaxWidth(0.75f)) {
         ClickableCard(
             title = "Visitas al pediatra",
             description = "",
-            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) }
+            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) },
+            color = secondaryAqua
         )
     }
 }
@@ -344,27 +353,34 @@ fun PediatricianVisitQuestionsScreen(navController: NavController) {
 fun ClickableCard(
     title: String,
     description: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    color: Color = MaterialTheme.colorScheme.surface,
 ) {
+    val cardShape = RoundedCornerShape(16.dp)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color // This sets background within rounded shape
+        )
+
     ) {
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
             Image(
-                painter = painterResource(id = R.mipmap.pediatra_image),
+                painter = painterResource(id = R.mipmap.pediatra),
                 contentDescription = "Auth image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp, 4.dp)
+                    .height(180.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(

@@ -249,7 +249,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 BornDashboardScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
             }
             composable(NavRoutes.BORN_MENU) {
-                BabyMenuScreen(navController = navController)
+                BabyMenuScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.BORN_GROWTHMILESTONES) {
                 GrowthMilestonesScreen(navController = navController,  openDrawer = openDrawer, babyId = babyId)
@@ -285,7 +285,7 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
         BornDashboardScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
     }
     composable(NavRoutes.BORN_MENU) {
-        BabyMenuScreen(navController = navController)
+        BabyMenuScreen(navController = navController, openDrawer = openDrawer)
     }
     composable(NavRoutes.BORN_GROWTHMILESTONES) {
         GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)

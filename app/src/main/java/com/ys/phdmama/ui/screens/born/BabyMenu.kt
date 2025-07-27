@@ -1,5 +1,7 @@
 package com.ys.phdmama.ui.screens.born
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,43 +12,48 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
-import com.ys.phdmama.ui.components.BottomNavigationBar
+import com.ys.phdmama.ui.components.PhdLayoutMenu
 
-data class MenuItemData(val label: String, val description: String, val icon: ImageVector, val route: String)
+data class MenuItemData(val label: String, val description: String, val icon: ImageVector, val route: String, @DrawableRes val image: Int)
 
 val menuItems = listOf(
     MenuItemData(
         label = "Vacunas",
         description = "Controla las vacunas del bebé",
         icon = Icons.Default.Build,
-        route = NavRoutes.BORN_VACCINES
+        route = NavRoutes.BORN_VACCINES,
+        image = R.drawable.ic_vacunas
     ),
     MenuItemData(
         label = "Crecimiento",
         description = "Verifica el crecimiento del bebé",
         icon = Icons.Default.Create,
-        route = NavRoutes.BORN_GROWTHMILESTONES
+        route = NavRoutes.BORN_GROWTHMILESTONES,
+        image = R.drawable.crecimiento
     )
 )
 
 @Composable
-fun BabyMenuScreen(navController: NavController) {
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
-    ) { innerPadding ->
+fun BabyMenuScreen(navController: NavController, openDrawer: () -> Unit,) {
+    PhdLayoutMenu(
+        title = "Bebé",
+        navController = navController,
+        openDrawer = openDrawer
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
             menuItems.forEach { item ->
-                MenuListItem(item, navController)
+                MenuListItem(item, navController, item.image)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -54,12 +61,17 @@ fun BabyMenuScreen(navController: NavController) {
 }
 
 @Composable
-fun MenuListItem(item: MenuItemData, navController: NavController) {
+fun MenuListItem(item: MenuItemData, navController: NavController, @DrawableRes imageResId: Int) {
     ListItem(
         headlineContent = { Text(item.label) },
         supportingContent = { Text(item.description) },
         leadingContent = {
-            Icon(item.icon, contentDescription = item.label)
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = "Baby icon",
+                modifier = Modifier
+                    .size(40.dp)
+            )
         },
         modifier = Modifier
             .fillMaxWidth()

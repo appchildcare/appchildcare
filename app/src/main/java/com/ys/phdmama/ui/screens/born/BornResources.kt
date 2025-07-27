@@ -1,42 +1,48 @@
 package com.ys.phdmama.ui.screens.born
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 
 
-data class MenuBornItem(val label: String, val description: String, val icon: ImageVector, val route: String)
+data class MenuBornItem(val label: String, val description: String, val icon: ImageVector, val route: String,  @DrawableRes val image: Int)
 
 val menuBornItems = listOf(
     MenuBornItem(
         label = "Checklist recién nacido",
         description = "Información necesaria para el postparto",
         icon = Icons.Default.Edit,
-        route = NavRoutes.BORN_RESOURCES_CHECKLIST
+        route = NavRoutes.BORN_RESOURCES_CHECKLIST,
+        image = R.drawable.recien_nacido_check
     ),
     MenuBornItem(
         label = "Checklist de viaje",
         description = "Información necesaria lorem ipsum",
         icon = Icons.Default.Edit,
-        route = NavRoutes.BORN_RESOURCES_LEAVE_HOME
+        route = NavRoutes.BORN_RESOURCES_LEAVE_HOME,
+        image = R.drawable.viajes
     )
 )
 
@@ -56,7 +62,7 @@ fun BornResourcesMenuScreen(navController: NavController, openDrawer: () -> Unit
             horizontalAlignment = Alignment.Start
         ) {
             menuBornItems.forEach { item ->
-                MenuListItem(item, navController)
+                MenuListItem(item, navController, item.image)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -64,12 +70,17 @@ fun BornResourcesMenuScreen(navController: NavController, openDrawer: () -> Unit
 }
 
 @Composable
-fun MenuListItem(item: MenuBornItem, navController: NavController) {
+fun MenuListItem(item: MenuBornItem, navController: NavController, @DrawableRes imageResId: Int) {
     ListItem(
         headlineContent = { Text(item.label) },
         supportingContent = { Text(item.description) },
         leadingContent = {
-            Icon(item.icon, contentDescription = item.label)
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = "Baby icon",
+                modifier = Modifier
+                    .size(40.dp)
+            )
         },
         modifier = Modifier
             .fillMaxWidth()

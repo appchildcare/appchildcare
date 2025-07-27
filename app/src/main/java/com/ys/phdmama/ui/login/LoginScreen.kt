@@ -1,12 +1,12 @@
 package com.ys.phdmama.ui.login
 
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -30,6 +30,9 @@ import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
+import com.ys.phdmama.ui.theme.primaryGray
+import com.ys.phdmama.ui.theme.primaryTeal
+import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 import com.ys.phdmama.viewmodel.WizardViewModelFactory
@@ -92,9 +95,10 @@ fun LoginScreen(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .background(secondaryCream)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
             painter = painterResource(id = R.mipmap.auth_image),
@@ -123,7 +127,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
                 .border(
-                    BorderStroke(width = 2.dp, color = Color(0xFF6200EE)),
+                    BorderStroke(width = 2.dp, color = primaryGray),
                     shape = RoundedCornerShape(50)
                 ),
         )
@@ -135,7 +139,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
                 .border(
-                    BorderStroke(width = 2.dp, color = Color(0xFF6200EE)),
+                    BorderStroke(width = 2.dp, color = primaryGray),
                     shape = RoundedCornerShape(50)
                 ),
             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -200,7 +204,10 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(4.dp))
 
-        Text(text = "O", fontSize = 16.sp, color = Color(0xFF6200EE))
+        Text(text = "O",
+            style = MaterialTheme.typography.labelLarge,
+            color = primaryGray
+        )
 
         Spacer(modifier = Modifier
             .fillMaxWidth()
@@ -218,7 +225,7 @@ fun LoginScreen(
                     Toast.makeText(context, "Error al iniciar Google Sign-In", Toast.LENGTH_SHORT).show()
                 }
             },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4285F4)),
+            colors = ButtonDefaults.buttonColors(containerColor = primaryTeal),
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 0.dp),
@@ -240,7 +247,7 @@ fun LoginScreen(
         TextButton(onClick = {
             navController.navigate("register")
         }) {
-            Text(text = "No tienes cuenta? Regístrate aquí", fontSize = 16.sp, color = Color(0xFF6200EE))
+            Text(text = "No tienes cuenta? Regístrate aquí", style = MaterialTheme.typography.labelSmall)
         }
     }
 }

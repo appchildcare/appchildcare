@@ -2,12 +2,14 @@ package com.ys.phdmama.ui.screens.counters
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -18,8 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.ys.phdmama.R
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.CounterViewModel
 
@@ -50,6 +54,14 @@ fun CounterComponent(viewModel: CounterViewModel = androidx.lifecycle.viewmodel.
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
+        Image(
+            painter = painterResource(id = R.mipmap.contador_lactancia),
+            contentDescription = "Auth image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(180.dp)
+        )
+
         Text("Contador: $counter", style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(20.dp))
         Row {

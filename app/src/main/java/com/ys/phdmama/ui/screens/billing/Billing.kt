@@ -78,7 +78,7 @@ fun BillingScreen() {
 
     if (showMessage) {
         LaunchedEffect(Unit) {
-            snackbarHostState.showSnackbar("Purchase successful! Redirecting...")
+            snackbarHostState.showSnackbar("Pago exitoso! Redireccionando..")
             Handler(Looper.getMainLooper()).postDelayed({
                 val intent = Intent(context, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -174,13 +174,13 @@ fun BillingScreen() {
 
                     billingClientState.value?.launchBillingFlow(activity, billingFlowParams)
                 } ?: run {
-                    purchaseStatus = "Please select a product first"
+                    purchaseStatus = "Por favor seleccione una opción"
                 }
             },
             enabled = selectedProduct != null,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Purchase Selected Product")
+            Text("Pagar opción Premium")
         }
 
         if (purchaseStatus.isNotEmpty()) {
@@ -200,9 +200,9 @@ fun consumePurchase(purchase: Purchase, billingClient: BillingClient?) {
 
         it.consumeAsync(consumeParams) { billingResult, purchaseToken ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                println("Purchase consumed successfully: $purchaseToken")
+                println("Pago exitoso: $purchaseToken")
             } else {
-                println("Failed to consume purchase: ${billingResult.debugMessage}")
+                println("Error en el pago: ${billingResult.debugMessage}")
             }
         }
     }

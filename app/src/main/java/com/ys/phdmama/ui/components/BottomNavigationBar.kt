@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.compose.material3.NavigationBarItemDefaults
+import com.ys.phdmama.ui.theme.primaryTeal
 import com.ys.phdmama.viewmodel.LoginViewModel
 
 data class NavBarItem(val route: String, val label: String, val icon: ImageVector)
@@ -55,7 +57,10 @@ fun BottomNavigationBar(navController: NavController,
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = primaryTeal
+                )
             )
         }
     }

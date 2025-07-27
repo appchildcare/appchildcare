@@ -21,7 +21,7 @@ fun BornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataVi
 //            BornDashboardScreen(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_MENU) {
-            BabyMenuScreen(navController = navController)
+//            BabyMenuScreen(navController = navController)
         }
         composable(NavRoutes.BORN_GROWTHMILESTONES) {
 //            GrowthMilestonesScreen(navController = navController, openDrawer = openDrawer)

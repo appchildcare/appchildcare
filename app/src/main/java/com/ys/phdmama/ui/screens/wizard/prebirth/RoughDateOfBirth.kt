@@ -4,6 +4,7 @@ import PregnancyTrackerViewModel
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
+import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.BabyStatusViewModel
 import com.ys.phdmama.viewmodel.PregnancyTrackingViewModelFactory
 import com.ys.phdmama.viewmodel.RoughDateOfBirthViewModel
@@ -36,12 +38,13 @@ fun RoughDateOfBirthScreen(
     val calendar = Calendar.getInstance()
     var selectedDate by remember { mutableStateOf(calendar.time) }
     var isLoading by remember { mutableStateOf(false) }
-    var locale = Locale("es", "ES")
+    val locale = Locale("es", "ES")
     var formattedBirthDateWeek = ""
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(secondaryCream)
             .padding(16.dp)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
@@ -50,7 +53,7 @@ fun RoughDateOfBirthScreen(
 
         Text(
             text = "Ingresa tu fecha aproximada de última menstruación:",
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelMedium
         )
 
         Button(onClick = {
@@ -83,7 +86,7 @@ fun RoughDateOfBirthScreen(
 
         Text(
             text = "Fecha seleccionada: $formattedDate",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.labelLarge
         )
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.BottomNavigationBar
+import com.ys.phdmama.ui.components.PhdLayoutMenu
 
 data class MenuItemData(val label: String, val description: String, val icon: ImageVector, val route: String)
 
@@ -42,16 +43,16 @@ val menuItems = listOf(
 
 @Composable
 fun PregnancyResourcesMenuScreen(navController: NavController, openDrawer: () -> Unit) {
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
-    ) { innerPadding ->
+    PhdLayoutMenu(
+        title = "Panel",
+        navController = navController,
+        openDrawer = openDrawer
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             menuItems.forEach { item ->
                 MenuListItem(item, navController)
