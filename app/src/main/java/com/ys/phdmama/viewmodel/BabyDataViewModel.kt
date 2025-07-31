@@ -63,6 +63,9 @@ class BabyDataViewModel (
     var vaccineList by mutableStateOf<List<Vaccine>>(emptyList())
         private set
 
+    private val _babyList = MutableStateFlow<List<BabyProfile>>(emptyList())
+    val babyList: StateFlow<List<BabyProfile>> = _babyList
+
     private val _babyDocumentIds = MutableLiveData<List<String>>()
     val babyDocumentIds: LiveData<List<String>> = _babyDocumentIds
 
@@ -78,6 +81,20 @@ class BabyDataViewModel (
 
     init {
         fetchBabyProfile()
+    }
+
+    fun fetchBabies(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userId)
+            .collection("babies")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val babies = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(BabyProfile::class.java)?.copy(id = doc.id)
+                }
+                _babyList.value = babies
+            }
     }
 
     fun onDateSelected(date: Date) {

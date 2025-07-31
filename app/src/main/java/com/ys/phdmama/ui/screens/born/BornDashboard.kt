@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,13 +28,10 @@ import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.theme.primaryGray
 import com.ys.phdmama.ui.theme.secondaryAqua
-import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.ui.theme.secondaryLightGray
-import com.ys.phdmama.ui.theme.secondaryYellow
 import com.ys.phdmama.viewmodel.BabyDataViewModel
-import com.ys.phdmama.viewmodel.ChecklistItem
+import com.ys.phdmama.viewmodel.BabyProfile
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
-import com.ys.phdmama.viewmodel.GrowthRecord
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import kotlin.random.Random
 
@@ -52,6 +48,20 @@ fun BornDashboardScreen(
     if (babyId != null) {
         Log.d("BABY ID received", babyId)
     }
+    val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
+    var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
+
+    LaunchedEffect(Unit) {
+        babyId?.let { babyDataViewModel.fetchBabies(it) }
+    }
+
+    LaunchedEffect(babyList) {
+        if (selectedBaby == null && babyList.isNotEmpty()) {
+            selectedBaby = babyList.first()
+            growthMilestonesViewModel.loadGrowthData(babyList.first().id) // Load data immediately
+        }
+    }
+
     PhdLayoutMenu(
         title = "Panel",
         navController = navController,
@@ -63,16 +73,21 @@ fun BornDashboardScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val babyProfile by babyDataViewModel.babyData.collectAsStateWithLifecycle()
-            var babyName by remember { mutableStateOf("") }
-            LaunchedEffect(babyProfile) {
-                babyProfile?.let {
-                    babyName = it.name
+            BabySelectorCard(
+                babyId =  babyId,
+                babies = babyList,
+                selectedBaby = selectedBaby,
+                onBabySelected = {
+                    selectedBaby = it
+                    growthMilestonesViewModel.loadGrowthData(it.id) // Reemplaza testId logic
                 }
+            )
+
+            selectedBaby?.let {
+                GrowthChartCard(growthMilestonesViewModel, it.id)
             }
+
             userViewModel.createUserChecklists("born")
-            BabyInfoCard(name = babyName, ageInMonths = 8)
-            GrowthChartCard(growthMilestonesViewModel, babyId)
             PediatricianQuestionsScreen(navController)
             Spacer(modifier = Modifier.height(16.dp))
             PediatricianVisitQuestionsScreen(navController)
@@ -387,6 +402,73 @@ fun ClickableCard(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium
             )
+        }
+    }
+}
+
+@Composable
+fun BabySelectorCard(
+    babyId: String?,
+    babies: List<BabyProfile>,
+    selectedBaby: BabyProfile?,
+    onBabySelected: (BabyProfile) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(secondaryAqua)
+                .clickable { expanded = true }
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val initial = selectedBaby?.name?.firstOrNull()?.toString() ?: "?"
+                    Text(text = initial, style = MaterialTheme.typography.titleMedium, color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(
+                        text = selectedBaby?.name ?: "Seleccionar bebé",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = primaryGray
+                    )
+//                    Text(
+//                        text = "${selectedBaby?.age ?: "-"} meses",
+//                        style = MaterialTheme.typography.bodyMedium
+//                    )
+                }
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                babies.forEach { baby ->
+                    DropdownMenuItem(
+                        text = { Text(baby.name) },
+                        onClick = {
+                            onBabySelected(baby)
+                            expanded = false
+                        }
+                    )
+                }
+            }
         }
     }
 }

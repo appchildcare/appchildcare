@@ -112,7 +112,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     Log.d("NavGraph", "userRole = $userRole")
 
     LaunchedEffect(Unit) {
-        babyDataViewModel.loadBabyIds(
+        loginViewModel.getUserUid(
             onSuccess = { baby ->
                 babyId = baby
             },
@@ -229,7 +229,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
 
         composable(NavRoutes.SIDEBAR_ADD_BABY) {
-            AddBabyDataScreen(navController = navController, openDrawer = openDrawer)
+            AddBabyDataScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
 
         composable(NavRoutes.PEDIATRICIAN_QUESTIONS) {

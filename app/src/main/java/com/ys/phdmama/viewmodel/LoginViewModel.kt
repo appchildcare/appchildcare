@@ -228,6 +228,22 @@ class LoginViewModel(
         return firebaseAuth.currentUser != null
     }
 
+    fun getUserUid(onSuccess: (String?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    Log.d("BabyData ViewModel uid", uid)
+                    onSuccess(uid)
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al obtener detalles del bebe")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
+        }
+    }
+
     // Función para obtener el usuario desde Firestore en una coroutine
     fun fetchUserDetails(onSuccess: (String?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
         val uid = firebaseAuth.currentUser?.uid
