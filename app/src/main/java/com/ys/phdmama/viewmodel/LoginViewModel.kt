@@ -63,10 +63,11 @@ class LoginViewModel(
         }
     }
 
-    fun logout(navController: NavController, loginViewModel: LoginViewModel) {
+    fun logout(navController: NavController, loginViewModel: LoginViewModel,  babyDataViewModel: BabyDataViewModel) {
         FirebaseAuth.getInstance().signOut()
+        babyDataViewModel.clearUserData()
         navController.navigate(NavRoutes.LOGIN) {
-            popUpTo(NavRoutes.MAIN) { inclusive = true } // Clears backstack
+            popUpTo(0) { inclusive = true } // Clears backstack
         }
     }
 
@@ -91,7 +92,7 @@ class LoginViewModel(
         return firebaseAuth.currentUser?.displayName
     }
 
-    fun onUserLoggedIn(uid: String, email: String, displayName: String, onComplete: () -> Unit) {
+    fun onUserLoggedIn(uid: String, email: String, displayName: String, babyDataViewModel: BabyDataViewModel, onComplete: () -> Unit) {
         val user = hashMapOf(
             "uid" to uid,
             "email" to email,

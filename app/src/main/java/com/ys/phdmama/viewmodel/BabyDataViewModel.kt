@@ -1,6 +1,8 @@
 package com.ys.phdmama.viewmodel
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,6 +24,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -36,8 +41,10 @@ data class BabyProfile(
     val perimeter: String = "",
     val sex: String = "",
     val weight: String = "",
-//    val birthDate: Date? = null // TODO: REVISAR
+    val birthDate: String? = "" // TODO: REVISAR
 )
+
+data class BabyAge(val years: Int, val months: Int)
 
 class BabyDataViewModel (
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
@@ -103,6 +110,25 @@ class BabyDataViewModel (
             add(Calendar.WEEK_OF_YEAR, 40)
         }
         calculatedDate = SimpleDateFormat("yyyy-MM-dd", locale).format(calendar.time)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun calculateAgeInMonths(birthDate: String?): BabyAge {
+        if (birthDate.isNullOrBlank()) return BabyAge(0, 0)
+        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH)
+        val convertedBirthDate = LocalDate.parse(birthDate, formatter)
+        val today = LocalDate.now()
+        val timeLapse = Period.between(convertedBirthDate, today)
+        return BabyAge(timeLapse.years, timeLapse.months)
+    }
+
+    fun clearUserData() {
+        _babyList.value = emptyList()
+        _babyData.value = null
+        vaccineList = emptyList()
+        calculatedDate = null
+        vaccineText = ""
+        vaccineDate = ""
     }
 
     private fun fetchBabyProfile() {
