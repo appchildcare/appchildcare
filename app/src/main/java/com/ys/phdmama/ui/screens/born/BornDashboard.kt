@@ -1,6 +1,7 @@
 package com.ys.phdmama.ui.screens.born
 
 import HeadCircumferenceChartCard
+import HeightLengthChartCard
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -99,6 +100,7 @@ fun BornDashboardScreen(
             selectedBaby?.let {
                 GrowthChartCard(navController, growthMilestonesViewModel, it.id)
                 HeadCircumferenceChartCard(navController, growthMilestonesViewModel, it.id)
+                HeightLengthChartCard(navController, growthMilestonesViewModel, it.id)
             }
 
             userViewModel.createUserChecklists("born")
