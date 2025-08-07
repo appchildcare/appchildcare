@@ -18,3 +18,11 @@ data class LMS(
     val SD2: Double?,
     val SD3: Double?
 )
+
+data class LMSHeadCircumference(
+    val week: Int,
+    val sex: String, // puedes usar "girl" o "boy"
+    val L: Double,
+    val M: Double,
+    val S: Double
+)

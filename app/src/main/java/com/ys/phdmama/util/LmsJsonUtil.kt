@@ -1,5 +1,7 @@
 package com.ys.phdmama.util
 
+import com.ys.phdmama.model.LMSHeadCircumference
+
 object LmsJsonUtil {
     const val jsonString = "[\n" +
             "  {\n" +
@@ -185,4 +187,21 @@ object LmsJsonUtil {
             "    \"SD3\": 21.5\n" +
             "  }\n" +
             "]\n"
+
+    val lmsDataGirls = listOf(
+        LMSHeadCircumference(0, "girl", 1.0, 33.8787, 0.03496),
+        LMSHeadCircumference(1, "girl", 1.0, 34.5529, 0.03374),
+        LMSHeadCircumference(2, "girl", 1.0, 35.2272, 0.03251),
+        LMSHeadCircumference(3, "girl", 1.0, 35.843, 0.03231),
+        LMSHeadCircumference(4, "girl", 1.0, 36.3761, 0.03215),
+        LMSHeadCircumference(5, "girl", 1.0, 36.8472, 0.03202),
+        LMSHeadCircumference(6, "girl", 1.0, 37.2711, 0.03191),
+        LMSHeadCircumference(7, "girl", 1.0, 37.6584, 0.03182),
+        LMSHeadCircumference(8, "girl", 1.0, 38.0167, 0.03173),
+        LMSHeadCircumference(9, "girl", 1.0, 38.3516, 0.03166),
+        LMSHeadCircumference(10, "girl", 1.0, 38.6673, 0.03158),
+        LMSHeadCircumference(11, "girl", 1.0, 38.9661, 0.03152),
+        LMSHeadCircumference(12, "girl", 1.0, 39.2501, 0.03146),
+        LMSHeadCircumference(13, "girl", 1.0, 39.521, 0.0314)
+    )
 }

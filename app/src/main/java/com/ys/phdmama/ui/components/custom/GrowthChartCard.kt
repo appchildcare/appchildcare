@@ -94,11 +94,8 @@ fun GrowthChartCard(navController: NavHostController, growthMilestonesViewModel:
                     heightValues = heights,
                     headCircumferenceValues = circumferences,
                     onViewDetailClick = {
-                        navController.navigate(NavRoutes.BORN_GROW_CHART_DETAILS) {
-                            popUpTo(0) { inclusive = true }
-                        }
+                        navController.navigate(NavRoutes.BORN_GROW_CHART_DETAILS)
                     },
-//                    navController = TODO()
                 )
             } else {
                 Text("Aún no se han ingresado datos de crecimiento...")

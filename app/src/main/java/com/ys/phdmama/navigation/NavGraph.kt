@@ -31,6 +31,7 @@ import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
 import com.ys.phdmama.ui.screens.born.GrowthDetailScreen
+import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
@@ -94,6 +95,7 @@ object NavRoutes {
     const val PEDIATRICIAN_QUESTIONS = "pediatrician_questions"
     const val PEDIATRICIAN_VISITS = "pediatrician_visits"
     const val BORN_GROW_CHART_DETAILS = "born_grow_chart_details"
+    const val BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS = "born_head_circumference_chart_details"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -257,6 +259,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.BORN_GROW_CHART_DETAILS) {
                 GrowthDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
+            }
+            composable(NavRoutes.BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS) {
+                HeadCircumferenceDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
             }
         }
 

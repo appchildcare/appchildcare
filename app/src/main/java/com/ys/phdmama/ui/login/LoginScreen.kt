@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -101,11 +100,12 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.auth_image),
+            painter = painterResource(id = R.mipmap.ilustraciones_login),
             contentDescription = "Auth image",
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
+                .height(380.dp)
         )
 
         Spacer(modifier = Modifier
