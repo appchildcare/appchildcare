@@ -63,10 +63,11 @@ class LoginViewModel(
         }
     }
 
-    fun logout(navController: NavController, loginViewModel: LoginViewModel) {
+    fun logout(navController: NavController, loginViewModel: LoginViewModel,  babyDataViewModel: BabyDataViewModel) {
         FirebaseAuth.getInstance().signOut()
+        babyDataViewModel.clearUserData()
         navController.navigate(NavRoutes.LOGIN) {
-            popUpTo(NavRoutes.MAIN) { inclusive = true } // Clears backstack
+            popUpTo(0) { inclusive = true } // Clears backstack
         }
     }
 
@@ -91,7 +92,7 @@ class LoginViewModel(
         return firebaseAuth.currentUser?.displayName
     }
 
-    fun onUserLoggedIn(uid: String, email: String, displayName: String, onComplete: () -> Unit) {
+    fun onUserLoggedIn(uid: String, email: String, displayName: String, babyDataViewModel: BabyDataViewModel, onComplete: () -> Unit) {
         val user = hashMapOf(
             "uid" to uid,
             "email" to email,
@@ -226,6 +227,22 @@ class LoginViewModel(
 
     fun checkUserAuthState(): Boolean {
         return firebaseAuth.currentUser != null
+    }
+
+    fun getUserUid(onSuccess: (String?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    Log.d("BabyData ViewModel uid", uid)
+                    onSuccess(uid)
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al obtener detalles del bebe")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
+        }
     }
 
     // Función para obtener el usuario desde Firestore en una coroutine

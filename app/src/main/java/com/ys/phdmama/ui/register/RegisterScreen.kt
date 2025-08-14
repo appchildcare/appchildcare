@@ -18,6 +18,7 @@ import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.theme.primaryGray
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.ui.theme.secondaryLightGray
+import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.RegisterViewModel
 
@@ -25,6 +26,7 @@ import com.ys.phdmama.viewmodel.RegisterViewModel
 fun RegisterScreen(
     navController: NavController,
     loginViewModel: LoginViewModel = viewModel(),
+    babyDataViewModel: BabyDataViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -119,7 +121,7 @@ fun RegisterScreen(
                         val uid = loginViewModel.getCurrentUserUid().orEmpty()
                         val userEmail = loginViewModel.getCurrentUserEmail().orEmpty()
                         val userDisplayName = loginViewModel.getCurrentUserDisplayName().orEmpty()
-                        loginViewModel.onUserLoggedIn(uid, userEmail, userDisplayName) {
+                        loginViewModel.onUserLoggedIn(uid, userEmail, userDisplayName, babyDataViewModel) {
                             navController.navigate(NavRoutes.BABY_STATUS) {
                                 popUpTo(0) { inclusive = true }
                             }

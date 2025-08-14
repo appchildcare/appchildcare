@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.ys.phdmama.navigation.NavGraph
 import com.ys.phdmama.ui.theme.PhdmamaTheme
+import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 val loginViewModel: LoginViewModel = viewModel()
+                val babyDataViewModel: BabyDataViewModel = viewModel()
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
                         SideNavigationBar(
                             navController,
                             loginViewModel,
+                            babyDataViewModel,
                             closeDrawer = { scope.launch { drawerState.close() } })
                     }
                 ) {

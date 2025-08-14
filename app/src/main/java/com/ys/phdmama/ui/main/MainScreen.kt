@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ys.phdmama.R
 import com.ys.phdmama.ui.components.PhdBoldText
+import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 
 data class NavBarItem(val route: String, val label: String, val icon: ImageVector,
@@ -104,7 +105,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel = viewModel(), closeDrawer: () -> Unit) {
+fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel = viewModel(), babyDataViewModel: BabyDataViewModel = viewModel(), closeDrawer: () -> Unit) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     var showPremiumOption by remember { mutableStateOf(true) }
 
@@ -162,7 +163,7 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
             .fillMaxSize()
             .padding(16.dp)) {
             Button(onClick = {
-                loginViewModel.logout(navController, loginViewModel)
+                loginViewModel.logout(navController, loginViewModel, babyDataViewModel)
                 closeDrawer()
             }) {
                 PhdBoldText("Logout")

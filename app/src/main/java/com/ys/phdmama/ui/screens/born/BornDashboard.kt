@@ -1,7 +1,10 @@
 package com.ys.phdmama.ui.screens.born
 
+import HeadCircumferenceChartCard
+import HeightLengthChartCard
+import android.os.Build
 import android.util.Log
-import androidx.compose.foundation.Canvas
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,16 +12,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,18 +29,18 @@ import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.components.custom.GrowthChartCard
 import com.ys.phdmama.ui.theme.primaryGray
 import com.ys.phdmama.ui.theme.secondaryAqua
-import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.ui.theme.secondaryLightGray
-import com.ys.phdmama.ui.theme.secondaryYellow
+import com.ys.phdmama.viewmodel.BabyAge
 import com.ys.phdmama.viewmodel.BabyDataViewModel
-import com.ys.phdmama.viewmodel.ChecklistItem
+import com.ys.phdmama.viewmodel.BabyProfile
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
-import com.ys.phdmama.viewmodel.GrowthRecord
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import kotlin.random.Random
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BornDashboardScreen(
     navController: NavHostController,
@@ -52,6 +54,27 @@ fun BornDashboardScreen(
     if (babyId != null) {
         Log.d("BABY ID received", babyId)
     }
+    val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
+    var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
+    var babyAgeInMonths by remember { mutableStateOf<BabyAge?>(null) }
+
+    LaunchedEffect(Unit) {
+        babyId?.let { babyDataViewModel.fetchBabies(it) }
+    }
+
+    LaunchedEffect(babyList) {
+        if (selectedBaby == null && babyList.isNotEmpty()) {
+            selectedBaby = babyList.first()
+            growthMilestonesViewModel.loadGrowthData(babyList.first().id) // Load data immediately
+        }
+    }
+
+    LaunchedEffect(selectedBaby) {
+        selectedBaby?.birthDate?.let {
+            babyAgeInMonths = babyDataViewModel.calculateAgeInMonths(it)
+        }
+    }
+
     PhdLayoutMenu(
         title = "Panel",
         navController = navController,
@@ -63,254 +86,28 @@ fun BornDashboardScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val babyProfile by babyDataViewModel.babyData.collectAsStateWithLifecycle()
-            var babyName by remember { mutableStateOf("") }
-            LaunchedEffect(babyProfile) {
-                babyProfile?.let {
-                    babyName = it.name
-                }
+            BabySelectorCard(
+                babies = babyList,
+                selectedBaby = selectedBaby,
+                onBabySelected = {
+                    selectedBaby = it
+                    growthMilestonesViewModel.loadGrowthData(it.id) // Reemplaza testId logic
+                },
+                babyAgeInMonths = babyAgeInMonths
+
+            )
+
+            selectedBaby?.let {
+                GrowthChartCard(navController, growthMilestonesViewModel, it.id)
+                HeadCircumferenceChartCard(navController, growthMilestonesViewModel, it.id)
+                HeightLengthChartCard(navController, growthMilestonesViewModel, it.id)
             }
+
             userViewModel.createUserChecklists("born")
-            BabyInfoCard(name = babyName, ageInMonths = 8)
-            GrowthChartCard(growthMilestonesViewModel, babyId)
             PediatricianQuestionsScreen(navController)
             Spacer(modifier = Modifier.height(16.dp))
             PediatricianVisitQuestionsScreen(navController)
         }
-    }
-}
-
-@Composable
-fun BabyInfoCard(name: String, ageInMonths: Int) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(secondaryAqua)
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Avatar
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "P", style = MaterialTheme.typography.titleMedium, color = Color.White)
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Nombre y edad
-            Column {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = primaryGray
-                )
-                Text(
-                    text = "$ageInMonths meses",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun GrowthChartCard(growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(), babyId: String?) {
-    var testId by remember { mutableStateOf("") }
-//    var records by remember { mutableStateOf(List<GrowthRecord>(null)) }
-//    var testId by remember { mutableStateOf<List<String>?>(emptyList()) }
-
-    LaunchedEffect(Unit) {
-//        growthMilestonesViewModel.fetchBabyId()
-        growthMilestonesViewModel.fetchBabyId(
-            onSuccess = { baby ->
-                if (!baby.isNullOrEmpty()) {
-                    testId = baby.first()
-                    Log.d("NINO testID", testId)
-//                    records = growthMilestonesViewModel.loadGrowthData(testId)
-                    growthMilestonesViewModel.loadGrowthData(testId)
-                }
-            },
-            onSkip = {
-                testId = ""
-            },
-            onError = {
-                testId = ""
-            }
-        )
-
-    }
-//    val records = growthMilestonesViewModel.growthRecords.value
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.8f) // Ocupa 80% del ancho
-            .aspectRatio(1.3f) // Relación de aspecto para mantener proporción
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Hitos del crecimiento",
-                style = MaterialTheme.typography.titleMedium,
-                color = primaryGray
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            val records = growthMilestonesViewModel.growthRecords.value
-
-            if (records.isNotEmpty()) {
-                val months = records.map { it.ageInMonths }
-                val weights = records.map { it.weight }
-                val heights = records.map { it.height }
-                val circumferences = records.map { it.headCircumference }
-
-                GrowthChartWithGrid(
-                    months = months,
-                    weightValues = weights,
-                    heightValues = heights,
-                    headCircumferenceValues = circumferences
-                )
-            } else {
-                Text("Aún no se han ingresado datos de crecimiento...")
-            }
-
-//            GrowthChartWithGrid()
-        }
-    }
-}
-
-@Composable
-fun GrowthChartWithGrid( months: List<Int>,
-                         weightValues: List<Double>,
-                         heightValues: List<Double>,
-                         headCircumferenceValues: List<Double>) {
-//    val months = (0..12).toList() // Meses de 0 a 24
-//    val weightValues = generateIncrementalValues(2, 10, months.size)
-//    val heightValues = generateIncrementalValues(50, 100, months.size)
-//    val headCircumferenceValues = generateIncrementalValues(30, 40, months.size)
-
-    // Curva de referencia "normal"
-    val normalGrowthCurve = List(months.size) { index ->
-        6 + index * 0.2 // Simula un crecimiento incremental
-    }
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val cellSize = size.width / 12
-        val gridRows = 10
-        val gridCols = 12
-
-        // Dibujar cuadrícula
-        for (i in 0..gridRows) {
-            val y = i * cellSize
-            drawLine(
-                color = Color.LightGray,
-                start = Offset(0f, y),
-                end = Offset(size.width, y),
-                strokeWidth = 1.dp.toPx()
-            )
-        }
-
-        for (j in 0..gridCols) {
-            val x = j * cellSize
-            drawLine(
-                color = Color.LightGray,
-                start = Offset(x, 0f),
-                end = Offset(x, size.height),
-                strokeWidth = 1.dp.toPx()
-            )
-        }
-
-        // Dibujar líneas del gráfico para cada métrica
-        val maxWeight = weightValues.maxOrNull() ?: 1
-        val maxHeight = heightValues.maxOrNull() ?: 1
-        val maxCircumference = headCircumferenceValues.maxOrNull() ?: 1
-        val maxBarHeight = size.height
-
-        // Dibujar curva de peso
-        val weightPath = Path().apply {
-            moveTo(0f,
-                (size.height - (weightValues[0] / maxWeight.toFloat()) * maxBarHeight).toFloat()
-            )
-            months.forEachIndexed { index, _ ->
-                lineTo(
-                    x = index * size.width / months.size,
-                    y = (size.height - (weightValues[index] / maxWeight.toFloat()) * maxBarHeight).toFloat()
-                )
-            }
-        }
-        drawPath(
-            path = weightPath,
-            color = Color.Red,
-            style = Stroke(width = 3.dp.toPx())
-        )
-
-        // Dibujar curva de talla
-        val heightPath = Path().apply {
-            moveTo(0f,
-                (size.height - (heightValues[0] / maxHeight.toFloat()) * maxBarHeight).toFloat()
-            )
-            months.forEachIndexed { index, _ ->
-                lineTo(
-                    x = index * size.width / months.size,
-                    y = (size.height - (heightValues[index] / maxHeight.toFloat()) * maxBarHeight).toFloat()
-                )
-            }
-        }
-        drawPath(
-            path = heightPath,
-            color = Color.Blue,
-            style = Stroke(width = 3.dp.toPx())
-        )
-
-        // Dibujar curva de perímetro cefálico
-        val circumferencePath = Path().apply {
-            moveTo(0f,
-                (size.height - (headCircumferenceValues[0] / maxCircumference.toFloat()) * maxBarHeight).toFloat()
-            )
-            months.forEachIndexed { index, _ ->
-                lineTo(
-                    x = index * size.width / months.size,
-                    y = (size.height - (headCircumferenceValues[index] / maxCircumference.toFloat()) * maxBarHeight).toFloat()
-                )
-            }
-        }
-        drawPath(
-            path = circumferencePath,
-            color = Color.Green,
-            style = Stroke(width = 3.dp.toPx())
-        )
-
-        // Dibujar curva de crecimiento "normal"
-        val normalPath = Path().apply {
-            moveTo(0f,
-                (size.height - (normalGrowthCurve[0] / maxWeight.toFloat()) * maxBarHeight).toFloat()
-            )
-            months.forEachIndexed { index, _ ->
-                lineTo(
-                    x = index * size.width / months.size,
-                    y = (size.height - (normalGrowthCurve[index] / maxWeight.toFloat()) * maxBarHeight).toFloat()
-                )
-            }
-        }
-        drawPath(
-            path = normalPath,
-            color = Color.Gray,
-            style = Stroke(width = 2.dp.toPx())
-        )
     }
 }
 
@@ -387,6 +184,88 @@ fun ClickableCard(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium
             )
+        }
+    }
+}
+
+@Composable
+fun BabySelectorCard(
+    babies: List<BabyProfile>,
+    selectedBaby: BabyProfile?,
+    onBabySelected: (BabyProfile) -> Unit,
+    babyAgeInMonths: BabyAge?
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(secondaryAqua)
+                .padding(16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val initial = selectedBaby?.name?.firstOrNull()?.toString() ?: "?"
+                    Text(text = initial, style = MaterialTheme.typography.titleMedium, color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Dropdown anchor: name + age + arrow
+                Box {
+                    Column(
+                        modifier = Modifier
+                            .clickable { expanded = true }
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = selectedBaby?.name ?: "Seleccionar bebé",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = primaryGray
+                            )
+                            if (babies.size > 1) {
+                                Icon(
+                                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                    contentDescription = if (expanded) "Collapse dropdown" else "Expand dropdown",
+                                    tint = primaryGray
+                                )
+                            }
+                        }
+                        if (babyAgeInMonths != null) {
+                            Text(
+                                text = "${babyAgeInMonths.years} años y ${babyAgeInMonths.months} meses",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        babies.forEach { baby ->
+                            DropdownMenuItem(
+                                text = { Text(baby.name) },
+                                onClick = {
+                                    onBabySelected(baby)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
