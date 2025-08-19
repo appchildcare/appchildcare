@@ -2,6 +2,8 @@
 
 package com.ys.phdmama.navigation
 
+import SleepDiaryScreen
+import SleepDiaryViewModel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -98,6 +100,7 @@ object NavRoutes {
     const val BORN_GROW_CHART_DETAILS = "born_grow_chart_details"
     const val BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS = "born_head_circumference_chart_details"
     const val BORN_HEIGHT_WEIGHT_CHART_DETAILS = "born_height_weight_chart_details"
+    const val BORN_SNAP_COUNTER_REPORTS = "born_snap_counter_reports"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -109,6 +112,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
     val growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel()
+    val sleepDiaryViewModel: SleepDiaryViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var babyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -211,7 +215,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabySummary(navController = navController, viewModel = babyDataViewModel)
         }
         composable(NavRoutes.BORN_COUNTERS) {
-            CounterHome(navController = navController, openDrawer = openDrawer)
+            CounterHome(navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
         composable(NavRoutes.BORN_RESOURCES) {
             BornResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
@@ -267,6 +271,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS) {
                 HeightLengthDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
+            }
+            composable(NavRoutes.BORN_SNAP_COUNTER_REPORTS) {
+                SleepDiaryScreen(babyId = babyId, sleepDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
         }
 

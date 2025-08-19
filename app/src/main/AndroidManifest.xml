@@ -7,6 +7,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Notification permission - Required for Android 13+ (API 33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Required for Android 14+ -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:allowBackup="true"
@@ -17,16 +23,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Phdmama"
-        tools:targetApi="31">
+        tools:targetApi="34">
+
         <service
             android:name=".services.CounterService"
-            android:foregroundServiceType="mediaPlayback"
-            android:exported="false"/>
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="counter" />
+        </service>
+
         <service
             android:name="com.android.billingclient.api.ProxyBillingActivity"
             android:permission="android.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
             android:exported="false"
             tools:ignore="Instantiatable" />
+
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true"
