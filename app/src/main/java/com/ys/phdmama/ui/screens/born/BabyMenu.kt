@@ -34,7 +34,7 @@ val menuItems = listOf(
         description = "Verifica el crecimiento del bebé",
         icon = Icons.Default.Create,
         route = NavRoutes.BORN_GROWTHMILESTONES,
-        image = R.drawable.crecimiento
+        image = R.mipmap.crecimiento
     )
 )
 

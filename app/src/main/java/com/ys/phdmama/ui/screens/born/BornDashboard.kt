@@ -33,6 +33,7 @@ import com.ys.phdmama.ui.components.custom.GrowthChartCard
 import com.ys.phdmama.ui.theme.primaryGray
 import com.ys.phdmama.ui.theme.secondaryAqua
 import com.ys.phdmama.ui.theme.secondaryLightGray
+import com.ys.phdmama.ui.theme.secondaryYellow
 import com.ys.phdmama.viewmodel.BabyAge
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.BabyProfile
@@ -129,7 +130,8 @@ fun PediatricianQuestionsScreen(navController: NavController) {
             title = "Preguntas al pediatra",
             description = "",
             onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) },
-            color = secondaryLightGray
+            color = secondaryAqua,
+            type = "questions"
         )
     }
 }
@@ -141,7 +143,8 @@ fun PediatricianVisitQuestionsScreen(navController: NavController) {
             title = "Visitas al pediatra",
             description = "",
             onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) },
-            color = secondaryAqua
+            color = secondaryAqua,
+            type = "visit"
         )
     }
 }
@@ -152,6 +155,7 @@ fun ClickableCard(
     description: String,
     onClick: () -> Unit,
     color: Color = MaterialTheme.colorScheme.surface,
+    type: String? = "visit" // Default to null, can be "visit" or null for different images
 ) {
     val cardShape = RoundedCornerShape(16.dp)
     Card(
@@ -172,13 +176,23 @@ fun ClickableCard(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            Image(
-                painter = painterResource(id = R.mipmap.pediatra),
-                contentDescription = "Auth image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
+            if (type == "visit") {
+                Image(
+                    painter = painterResource(id = R.mipmap.visitas_pediatra),
+                    contentDescription = "image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.mipmap.pediatra),
+                    contentDescription = "image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = description,
