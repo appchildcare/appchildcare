@@ -99,7 +99,7 @@ fun BornDashboardScreen(
             )
 
             selectedBaby?.let {
-                GrowthChartCard(navController, growthMilestonesViewModel, it.id)
+                //GrowthChartCard(navController, growthMilestonesViewModel, it.id)
                 HeadCircumferenceChartCard(navController, growthMilestonesViewModel, it.id)
                 HeightLengthChartCard(navController, growthMilestonesViewModel, it.id)
             }
