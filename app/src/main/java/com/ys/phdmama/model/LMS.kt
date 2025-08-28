@@ -1,7 +1,5 @@
 package com.ys.phdmama.model
 
-import kotlinx.serialization.Serializable
-
 //@Serializable
 //data class LMS(
 //    val week: Int?,

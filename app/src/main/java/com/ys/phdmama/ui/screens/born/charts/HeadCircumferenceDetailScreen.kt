@@ -1,5 +1,8 @@
 package com.ys.phdmama.ui.screens.born.charts
 
+import android.content.ContentValues
+import android.content.Context
+import android.provider.MediaStore
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -10,8 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,8 +31,10 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
@@ -49,6 +60,7 @@ fun HeadCircumferenceDetailScreen(
     babyId: String?
 ) {
     val records = growthMilestonesViewModel.growthRecords.value
+    val context = LocalContext.current
 
     LaunchedEffect(babyId) {
         growthMilestonesViewModel.fetchBabyId(
@@ -73,6 +85,33 @@ fun HeadCircumferenceDetailScreen(
                 .padding(20.dp)
         ) {
             PhdBoldText("Perímetro Cefálico para la Edad")
+
+            Button(
+                onClick = {
+                    generateHeadCircumferencePDF(
+                        context = context,
+                        records = records,
+                        babyId = babyId ?: "unknown"
+                    )
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Descargar",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.padding(4.dp))
+                Text(
+                    text = "Descargar",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+
             Spacer(Modifier.height(16.dp))
 
             // Add the chart here
@@ -463,4 +502,185 @@ fun calcularRangoNormalPerimetroCefalico(
         min = String.format("%.2f", pcMin).toDouble(),
         max = String.format("%.2f", pcMax).toDouble()
     )
+}
+
+fun generateHeadCircumferencePDF(
+    context: android.content.Context,
+    records: List<Any>, // Replace with your actual record type
+    babyId: String
+) {
+    try {
+        // Create PDF document
+        val pdfDocument = android.graphics.pdf.PdfDocument()
+        val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+        val page = pdfDocument.startPage(pageInfo)
+        val canvas = page.canvas
+        val paint = android.graphics.Paint()
+
+        // Title
+        paint.textSize = 24f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+        paint.color = android.graphics.Color.BLACK
+        canvas.drawText("Reporte de Perímetro Cefálico", 50f, 80f, paint)
+
+        // Baby ID
+        paint.textSize = 16f
+        paint.typeface = android.graphics.Typeface.DEFAULT
+        canvas.drawText("ID del Bebé: $babyId", 50f, 120f, paint)
+
+        // Date
+        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        canvas.drawText("Fecha: $currentDate", 50f, 150f, paint)
+
+        // Chart area placeholder
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = android.graphics.Color.GRAY
+        canvas.drawRect(50f, 180f, 545f, 400f, paint)
+
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.textSize = 14f
+        canvas.drawText("Gráfico de Perímetro Cefálico vs Edad", 200f, 300f, paint)
+
+        // Data table
+        var yPosition = 450f
+        paint.textSize = 16f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+        canvas.drawText("Datos Registrados:", 50f, yPosition, paint)
+
+        yPosition += 30f
+        paint.textSize = 12f
+        paint.typeface = android.graphics.Typeface.DEFAULT
+
+        // Table headers
+        canvas.drawText("Mes", 50f, yPosition, paint)
+        canvas.drawText("Peso (kg)", 150f, yPosition, paint)
+        canvas.drawText("Talla (cm)", 250f, yPosition, paint)
+        canvas.drawText("P. Cefálico (cm)", 350f, yPosition, paint)
+        canvas.drawText("Diagnóstico", 470f, yPosition, paint)
+
+        yPosition += 5f
+        paint.strokeWidth = 1f
+        paint.style = android.graphics.Paint.Style.STROKE
+        canvas.drawLine(50f, yPosition, 545f, yPosition, paint)
+        paint.style = android.graphics.Paint.Style.FILL
+
+        // Data rows (you'll need to adapt this to your actual record structure)
+        val lmsTable = LmsUtils.lmsHeadCircumference
+        records.take(15).forEach { record -> // Limit to prevent overflow
+            yPosition += 20f
+
+            // You'll need to adapt these property accesses to your actual record type
+            /*
+            canvas.drawText("${record.ageInMonths}", 50f, yPosition, paint)
+            canvas.drawText("${record.weight}", 150f, yPosition, paint)
+            canvas.drawText("${record.height}", 250f, yPosition, paint)
+            canvas.drawText("${record.headCircumference}", 350f, yPosition, paint)
+
+            val zScore = record.headCircumference?.let {
+                calcularZScorePerimetroCefalico(
+                    headCircumference = it,
+                    edadMeses = record.ageInMonths,
+                    sexo = "girl",
+                    lmsList = lmsTable,
+                )
+            }
+
+            val diagnostico = zScore?.let {
+                when {
+                    it < -2 -> "Microcefalia"
+                    it <= 2 -> "Normal"
+                    else -> "Macrocefalia"
+                }
+            } ?: "N/A"
+
+            canvas.drawText(diagnostico, 470f, yPosition, paint)
+            */
+
+            // Placeholder data - replace with actual record data
+            canvas.drawText("N/A", 50f, yPosition, paint)
+            canvas.drawText("N/A", 150f, yPosition, paint)
+            canvas.drawText("N/A", 250f, yPosition, paint)
+            canvas.drawText("N/A", 350f, yPosition, paint)
+            canvas.drawText("N/A", 470f, yPosition, paint)
+        }
+
+        // Footer
+        yPosition = 750f
+        paint.textSize = 10f
+        paint.color = android.graphics.Color.GRAY
+        canvas.drawText("Generado por PhD Mama App", 50f, yPosition, paint)
+        canvas.drawText("Página 1 de 1", 450f, yPosition, paint)
+
+        pdfDocument.finishPage(page)
+
+        // Modern approach: Save to MediaStore (Android 10+)
+        val fileName = "reporte_perimetro_cefalico_${babyId}_${System.currentTimeMillis()}.pdf"
+        val mimeType = "application/pdf"
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            // Use MediaStore for Android 10+
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/") // Save to Download folder
+            }
+
+            val resolver = context.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+            uri?.let { pdfUri ->
+                resolver.openOutputStream(pdfUri)?.use { outputStream ->
+                    pdfDocument.writeTo(outputStream)
+                    pdfDocument.close()
+                    android.widget.Toast.makeText(
+                        context,
+                        "PDF guardado en Descargas: $fileName",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            } ?: run {
+                pdfDocument.close()
+                android.widget.Toast.makeText(
+                    context,
+                    "Error al crear el archivo PDF",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+            }
+        } else {
+            // Fallback for older Android versions (API < 29)
+            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
+                android.os.Environment.DIRECTORY_DOWNLOADS
+            )
+            val file = java.io.File(downloadsDir, fileName)
+
+            try {
+                val fileOutputStream = java.io.FileOutputStream(file)
+                pdfDocument.writeTo(fileOutputStream)
+                pdfDocument.close()
+                fileOutputStream.close()
+
+                android.widget.Toast.makeText(
+                    context,
+                    "PDF guardado en Descargas: $fileName",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+            } catch (e: Exception) {
+                pdfDocument.close()
+                android.widget.Toast.makeText(
+                    context,
+                    "Error al guardar PDF: ${e.message}",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+    } catch (e: Exception) {
+        android.widget.Toast.makeText(
+            context,
+            "Error al generar PDF: ${e.message}",
+            android.widget.Toast.LENGTH_LONG
+        ).show()
+        e.printStackTrace()
+    }
 }
