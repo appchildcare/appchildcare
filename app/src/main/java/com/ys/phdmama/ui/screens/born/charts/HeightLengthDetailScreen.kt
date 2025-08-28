@@ -22,7 +22,7 @@ import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.model.LMSHeightWeight
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.util.LmsJsonUtil
+import com.ys.phdmama.util.LmsUtils
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
@@ -67,7 +67,7 @@ fun HeightLengthDetailScreen(
 
             if (records.isNotEmpty()) {
                 val sexo = "girl" // O usa el valor real desde el ViewModel si está disponible
-                val lmsTable = LmsJsonUtil.lmsDataHeightWeightGirls
+                val lmsTable = LmsUtils.lmsDataHeightWeightGirls
 
                 LazyColumn {
                     items(records) { record ->

@@ -10,16 +10,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -29,12 +24,10 @@ import com.ys.phdmama.R
 import com.ys.phdmama.model.LMS
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.ui.components.custom.GrowthChartCard
-import com.ys.phdmama.util.LmsJsonUtil
+import com.ys.phdmama.util.LmsUtils
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
-import kotlinx.serialization.json.Json
 
 @Composable
 fun GrowthDetailScreen(navController: NavHostController,
@@ -128,7 +121,7 @@ fun calculateIMC(): String {
 
     val imc = calcularIMC(peso, talla) // e.g. 13.89
 
-    val lmsTable: List<LMS> = cargarLmsDesdeJson(LmsJsonUtil.jsonString)
+    val lmsTable: List<LMS> = LmsUtils.lmsGrowthData
 
     val zScore = calcularZScoreIMC(imc, edadMeses, sexo, lmsTable)
 
@@ -142,10 +135,6 @@ fun calculateIMC(): String {
             else -> "Obesidad"
         }
     } ?: "Sin datos suficientes"
-}
-
-fun cargarLmsDesdeJson(json: String): List<LMS> {
-    return Json.decodeFromString(json)
 }
 
 fun calcularZScoreIMC(imc: Double?, edadMeses: Int, sexo: String, lmsList: List<LMS>): Double? {
