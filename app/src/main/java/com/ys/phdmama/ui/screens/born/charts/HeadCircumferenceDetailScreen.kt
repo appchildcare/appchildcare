@@ -99,11 +99,11 @@ fun HeadCircumferenceDetailScreen(
                 ),
                 modifier = Modifier.padding(start = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Descargar",
-                    tint = Color.White
-                )
+//                Icon(
+//                    imageVector = Icons.Default.Favorite,
+//                    contentDescription = "Descargar",
+//                    tint = Color.White
+//                )
                 Spacer(modifier = Modifier.padding(4.dp))
                 Text(
                     text = "Descargar",
