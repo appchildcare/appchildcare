@@ -37,6 +37,7 @@ import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeightLengthDetailScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
+import com.ys.phdmama.ui.screens.poop.PoopRegistrationScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -56,6 +57,7 @@ import com.ys.phdmama.ui.welcome.WelcomeScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
+import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 
 object NavRoutes {
@@ -101,6 +103,7 @@ object NavRoutes {
     const val BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS = "born_head_circumference_chart_details"
     const val BORN_HEIGHT_WEIGHT_CHART_DETAILS = "born_height_weight_chart_details"
     const val BORN_SNAP_COUNTER_REPORTS = "born_snap_counter_reports"
+    const val POOP_REGISTER = "poop_register"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -112,6 +115,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
     val growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel()
+    val poopRegisterViewModel: PoopRegistrationViewModel = viewModel()
     val sleepDiaryViewModel: SleepDiaryViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
@@ -271,6 +275,17 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS) {
                 HeightLengthDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
+            }
+            composable(NavRoutes.POOP_REGISTER) {
+                babyId?.let { it1 ->
+                    PoopRegistrationScreen(
+                        navController = navController, openDrawer = openDrawer,
+                        userId = it1,
+                        babyId = it1,
+                        babyName = "",
+                        viewModel = poopRegisterViewModel
+                    )
+                }
             }
             composable(NavRoutes.BORN_SNAP_COUNTER_REPORTS) {
                 SleepDiaryScreen(babyId = babyId, sleepDiaryViewModel, navController = navController, openDrawer = openDrawer)
