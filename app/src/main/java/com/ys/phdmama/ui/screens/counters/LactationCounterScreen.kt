@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ys.phdmama.R
+import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.LactationViewModel
 
@@ -108,8 +109,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-//            onClick = { navController.navigate(NavRoutes.BORN_SNAP_COUNTER_REPORTS) },
-            onClick = {  },
+            onClick = { navController.navigate(NavRoutes.BORN_LACTATION_COUNTER_REPORTS) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
