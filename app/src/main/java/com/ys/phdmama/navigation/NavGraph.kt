@@ -2,6 +2,7 @@
 
 package com.ys.phdmama.navigation
 
+import BabyTrackingMainScreen
 import SleepDiaryScreen
 import SleepDiaryViewModel
 import android.os.Build
@@ -35,9 +36,11 @@ import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
 import com.ys.phdmama.ui.screens.born.GrowthDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeightLengthDetailScreen
+import com.ys.phdmama.ui.screens.counters.CounterComponent
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.poop.PoopRegistrationScreen
+import com.ys.phdmama.ui.screens.tracking.LactationScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -55,7 +58,9 @@ import com.ys.phdmama.ui.screens.wizard.prebirth.RoughDateOfBirthScreen
 import com.ys.phdmama.ui.splash.SplashScreen
 import com.ys.phdmama.ui.welcome.WelcomeScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.CounterViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
+import com.ys.phdmama.viewmodel.LactationViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
@@ -104,6 +109,8 @@ object NavRoutes {
     const val BORN_HEIGHT_WEIGHT_CHART_DETAILS = "born_height_weight_chart_details"
     const val BORN_SNAP_COUNTER_REPORTS = "born_snap_counter_reports"
     const val POOP_REGISTER = "poop_register"
+    const val SLEEP_TRACKING = "sleep_tracking"
+    const val LACTATION_TRACKING = "lactation_tracking"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -117,6 +124,8 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel()
     val poopRegisterViewModel: PoopRegistrationViewModel = viewModel()
     val sleepDiaryViewModel: SleepDiaryViewModel = viewModel()
+    val lactationViewModel: LactationViewModel = viewModel()
+    val counterViewModel: CounterViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var babyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -219,7 +228,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabySummary(navController = navController, viewModel = babyDataViewModel)
         }
         composable(NavRoutes.BORN_COUNTERS) {
-            CounterHome(navController = navController, openDrawer = openDrawer, babyId = babyId)
+            BabyTrackingMainScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
         composable(NavRoutes.BORN_RESOURCES) {
             BornResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
@@ -290,6 +299,15 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             composable(NavRoutes.BORN_SNAP_COUNTER_REPORTS) {
                 SleepDiaryScreen(babyId = babyId, sleepDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
+            composable(NavRoutes.BORN_COUNTERS) {
+                BabyTrackingMainScreen(babyId = babyId, navController = navController, openDrawer = openDrawer)
+            }
+            composable(NavRoutes.LACTATION_TRACKING) {
+                LactationScreen(babyId = babyId, navController = navController, lactationViewModel, openDrawer = openDrawer)
+            }
+            composable(NavRoutes.SLEEP_TRACKING) {
+                CounterComponent(babyId = babyId, navController = navController, counterViewModel)
+            }
         }
 
         navigation(startDestination = NavRoutes.WAITING_DASHBOARD, route = "waiting") {
@@ -315,6 +333,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel,
                                  openDrawer: () -> Unit, babyId: String?, growthMilestonesViewModel: GrowthMilestonesViewModel) {
     composable(NavRoutes.BORN_DASHBOARD) {
