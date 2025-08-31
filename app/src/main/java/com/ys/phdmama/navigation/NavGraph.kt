@@ -1,14 +1,11 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.ys.phdmama.navigation
 
-import BabyTrackingMainScreen
+import BabyCounterSelectionScreen
 import SleepDiaryScreen
 import SleepDiaryViewModel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -29,18 +26,17 @@ import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
 import com.ys.phdmama.ui.screens.born.VaccineScreen
-import com.ys.phdmama.ui.screens.counters.CounterHome
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
 import com.ys.phdmama.ui.screens.born.GrowthDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeightLengthDetailScreen
-import com.ys.phdmama.ui.screens.counters.CounterComponent
+import com.ys.phdmama.ui.screens.counters.SleepingCounterScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.poop.PoopRegistrationScreen
-import com.ys.phdmama.ui.screens.tracking.LactationScreen
+import com.ys.phdmama.ui.screens.counters.LactationCounterScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -228,7 +224,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabySummary(navController = navController, viewModel = babyDataViewModel)
         }
         composable(NavRoutes.BORN_COUNTERS) {
-            BabyTrackingMainScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
+            BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
         composable(NavRoutes.BORN_RESOURCES) {
             BornResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
@@ -300,13 +296,13 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 SleepDiaryScreen(babyId = babyId, sleepDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.BORN_COUNTERS) {
-                BabyTrackingMainScreen(babyId = babyId, navController = navController, openDrawer = openDrawer)
+                BabyCounterSelectionScreen(babyId = babyId, navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.LACTATION_TRACKING) {
-                LactationScreen(babyId = babyId, navController = navController, lactationViewModel, openDrawer = openDrawer)
+                LactationCounterScreen(babyId = babyId, navController = navController, lactationViewModel, openDrawer = openDrawer)
             }
             composable(NavRoutes.SLEEP_TRACKING) {
-                CounterComponent(babyId = babyId, navController = navController, counterViewModel)
+                SleepingCounterScreen(babyId = babyId, navController = navController, counterViewModel, openDrawer = openDrawer)
             }
         }
 

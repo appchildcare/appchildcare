@@ -1,25 +1,11 @@
 package com.ys.phdmama.ui.screens.counters
 
-import BabyTrackingMainScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,15 +14,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ys.phdmama.R
-import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.viewmodel.CounterViewModel
+import com.ys.phdmama.viewmodel.LactationViewModel
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CounterHome(navController: NavController, openDrawer: () -> Unit, babyId: String?) {
+fun LactationCounterScreen(babyId: String?, navController: NavController,
+                           viewModel: LactationViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+                           openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Contadores",
+        title = "Contador de Lactancia",
         navController = navController,
         openDrawer = openDrawer
     ) { innerPadding ->
@@ -45,14 +33,14 @@ fun CounterHome(navController: NavController, openDrawer: () -> Unit, babyId: St
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            BabyTrackingMainScreen(babyId, navController, openDrawer)
+            LactationComponent(babyId, navController, viewModel)
         }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CounterComponent(babyId: String?, navController: NavController, viewModel: CounterViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun LactationComponent(babyId: String?, navController: NavController, viewModel: LactationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val counter by viewModel.counter.collectAsState()
     val isRunning by viewModel.isRunning.collectAsState()
 
@@ -64,7 +52,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.contador_de_sueno),
+            painter = painterResource(id = R.mipmap.contador_lactancia),
             contentDescription = "Counter image",
             modifier = Modifier
                 .fillMaxWidth()
@@ -120,7 +108,8 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate(NavRoutes.BORN_SNAP_COUNTER_REPORTS) },
+//            onClick = { navController.navigate(NavRoutes.BORN_SNAP_COUNTER_REPORTS) },
+            onClick = {  },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -145,7 +134,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
     }
 }
 
-private fun formatTime(seconds: Int): String {
+private fun formatTime(seconds: Int): String { // TODO: Move to utils
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val remainingSeconds = seconds % 60

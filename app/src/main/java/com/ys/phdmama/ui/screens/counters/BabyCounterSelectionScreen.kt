@@ -16,14 +16,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.ys.phdmama.navigation.NavRoutes.BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS
 import com.ys.phdmama.navigation.NavRoutes.LACTATION_TRACKING
 import com.ys.phdmama.navigation.NavRoutes.SLEEP_TRACKING
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 
 @Composable
-fun BabyTrackingMainScreen(
+fun BabyCounterSelectionScreen(
     babyId: String?,
     navController: NavController,
     openDrawer: () -> Unit
@@ -101,45 +99,6 @@ fun BabyTrackingMainScreen(
             )
 
             Spacer(modifier = Modifier.height(48.dp))
-
-            // Quick Stats Section
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Resumen de hoy",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF424242)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        QuickStatItem(
-                            icon = "😴",
-                            title = "Sueño",
-                            value = "3 siestas"
-                        )
-
-                        QuickStatItem(
-                            icon = "🤱",
-                            title = "Lactancia",
-                            value = "6 sesiones"
-                        )
-                    }
-                }
-            }
         }
     }
 }
