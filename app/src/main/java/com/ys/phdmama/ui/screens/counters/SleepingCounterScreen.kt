@@ -33,9 +33,11 @@ import com.ys.phdmama.viewmodel.CounterViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CounterHome(navController: NavController, openDrawer: () -> Unit, babyId: String?) {
+fun SleepingCounterScreen( babyId: String?, navController: NavController,
+                           viewModel: CounterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+                          openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Contadores",
+        title = "Contador de Sueño",
         navController = navController,
         openDrawer = openDrawer
     ) { innerPadding ->
@@ -44,7 +46,7 @@ fun CounterHome(navController: NavController, openDrawer: () -> Unit, babyId: St
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            CounterComponent(babyId, navController)
+            CounterComponent(babyId, navController, viewModel)
         }
     }
 }
