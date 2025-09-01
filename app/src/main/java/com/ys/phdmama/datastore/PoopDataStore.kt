@@ -1,6 +1,9 @@
 package com.ys.phdmama.datastore
 
+import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.model.PoopRecord
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -11,35 +14,34 @@ import kotlinx.coroutines.tasks.await
 
 class PoopRepository {
     private val firestore = Firebase.firestore
+    private val auth = FirebaseAuth.getInstance()
 
     suspend fun savePoopRecord(
         userId: String,
         babyId: String,
         poopRecord: PoopRecord
-    ): Result<String> = try {
-        val documentId = firestore
-            .collection("users")
-            .document(userId)
-            .collection("babies")
-            .document(babyId)
-            .collection("poop")
-            .document().id
+    ): Result<String> {
+        return try {
+            val userId = auth.currentUser?.uid ?: return Result.failure(Exception("User not authenticated"))
 
-        val poopWithId = poopRecord.copy(id = documentId)
+            Log.d("PoopRepository", "User ID: $userId")
 
-        firestore
-            .collection("users")
-            .document(userId)
-            .collection("babies")
-            .document(babyId)
-            .collection("poop")
-            .document(documentId)
-            .set(poopWithId)
-            .await()
+            val documentReference = firestore
+                .collection("users")
+                .document(userId)
+                .collection("babies")
+                .document(babyId)
+                .collection("poop_records")
+                .add(poopRecord)
+                .await() // Wait for the operation to complete
 
-        Result.success(documentId)
-    } catch (e: Exception) {
-        Result.failure(e)
+            Log.d("PoopRepository", "Poop saved successfully with ID: ${documentReference.id}")
+            Result.success(documentReference.id)
+
+        } catch (e: Exception) {
+            Log.e("PoopRepository", "Error saving poop", e)
+            Result.failure(e)
+        }
     }
 
     suspend fun getPoopRecords(

@@ -2,6 +2,7 @@ package com.ys.phdmama.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.ys.phdmama.datastore.PoopRepository
 import com.ys.phdmama.model.PoopColor
 import com.ys.phdmama.model.PoopRecord
@@ -12,10 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// ViewModel
 class PoopRegistrationViewModel(
     private val repository: PoopRepository = PoopRepository()
 ) : ViewModel() {
+    private val auth = FirebaseAuth.getInstance()
 
     private val _uiState = MutableStateFlow(PoopRegistrationUiState())
     val uiState: StateFlow<PoopRegistrationUiState> = _uiState.asStateFlow()
