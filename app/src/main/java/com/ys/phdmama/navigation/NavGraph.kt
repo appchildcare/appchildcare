@@ -38,6 +38,7 @@ import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.poop.PoopRegistrationScreen
 import com.ys.phdmama.ui.screens.counters.LactationCounterScreen
 import com.ys.phdmama.ui.screens.counters.LactationDiaryScreen
+import com.ys.phdmama.ui.screens.poop.PoopMainScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
 import com.ys.phdmama.ui.screens.wizard.alreadyborn.BabyAPGARScreen
@@ -110,6 +111,8 @@ object NavRoutes {
     const val POOP_REGISTER = "poop_register"
     const val SLEEP_TRACKING = "sleep_tracking"
     const val LACTATION_TRACKING = "lactation_tracking"
+    const val POO_MAIN_SELECTION = "poop_main_screen"
+    const val POO_REPORT = "poop_report_screen"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -295,6 +298,11 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                         viewModel = poopRegisterViewModel
                     )
                 }
+            }
+            composable(NavRoutes.POO_MAIN_SELECTION) {
+                PoopMainScreen(
+                    navController = navController, openDrawer = openDrawer
+                )
             }
             composable(NavRoutes.BORN_SNAP_COUNTER_REPORTS) {
                 SleepDiaryScreen(babyId = babyId, sleepDiaryViewModel, navController = navController, openDrawer = openDrawer)

@@ -1,10 +1,8 @@
 package com.ys.phdmama.ui.main
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,8 +37,8 @@ val navItems = listOf(
 val sideNavItems = listOf(
     NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, "Perfil de bebé", Icons.Default.Edit),
     NavBarItem(NavRoutes.SIDEBAR_ADD_BABY, "Agregar bebé", Icons.Default.Face,  isPremium = true),
+    NavBarItem(NavRoutes.POO_MAIN_SELECTION, "Registro de cacas",Icons.Default.Add),
     NavBarItem(NavRoutes.SIDEBAR_POLICIES, "Políticas de uso", Icons.Default.Info),
-    NavBarItem(NavRoutes.POOP_REGISTER, "Registro de cacas", Icons.Default.Star),
     NavBarItem(NavRoutes.SIDEBAR_LINK2, "Link 2", Icons.Default.Star),
 )
 
