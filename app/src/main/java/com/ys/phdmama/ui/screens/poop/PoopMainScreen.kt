@@ -29,17 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.ys.phdmama.navigation.NavRoutes.LACTATION_TRACKING
 import com.ys.phdmama.navigation.NavRoutes.POOP_REGISTER
-import com.ys.phdmama.navigation.NavRoutes.SLEEP_TRACKING
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
-
-class PoopMainScreen {
-}
 
 
 @Composable
@@ -104,7 +96,6 @@ fun PoopMainScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Lactation Option
             TrackingOptionCard(
                 title = "Reportes",
                 subtitle = "Información detallada de cacas",
@@ -115,7 +106,7 @@ fun PoopMainScreen(
                 ),
                 emoji = "📝",
                 onClick = {
-                    navController.navigate(LACTATION_TRACKING)
+                    navController.navigate(POOP_REGISTER)
                 }
             )
 

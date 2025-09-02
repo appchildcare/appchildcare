@@ -38,6 +38,7 @@ import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.poop.PoopRegistrationScreen
 import com.ys.phdmama.ui.screens.counters.LactationCounterScreen
 import com.ys.phdmama.ui.screens.counters.LactationDiaryScreen
+import com.ys.phdmama.ui.screens.poop.PoopDiaryScreen
 import com.ys.phdmama.ui.screens.poop.PoopMainScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
 import com.ys.phdmama.ui.screens.wizard.BabyStatusScreen
@@ -61,6 +62,7 @@ import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
 import com.ys.phdmama.viewmodel.LactationViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
+import com.ys.phdmama.viewmodel.PoopDiaryViewModel
 import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 
@@ -112,7 +114,7 @@ object NavRoutes {
     const val SLEEP_TRACKING = "sleep_tracking"
     const val LACTATION_TRACKING = "lactation_tracking"
     const val POO_MAIN_SELECTION = "poop_main_screen"
-    const val POO_REPORT = "poop_report_screen"
+    const val POOP_TRACKING = "poop_tracking"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -129,6 +131,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val lactationDiaryViewModel: LactancyDiaryViewModel = viewModel()
     val lactationViewModel: LactationViewModel = viewModel()
     val counterViewModel: CounterViewModel = viewModel()
+    val poopDiaryViewModel: PoopDiaryViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var babyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -318,6 +321,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.SLEEP_TRACKING) {
                 SleepingCounterScreen(babyId = babyId, navController = navController, counterViewModel, openDrawer = openDrawer)
+            }
+            composable(NavRoutes.POOP_REGISTER) {
+                PoopDiaryScreen(babyId = babyId, poopDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
         }
 
