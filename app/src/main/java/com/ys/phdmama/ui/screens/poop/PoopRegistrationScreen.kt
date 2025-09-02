@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -43,7 +42,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,7 +75,7 @@ fun PoopRegistrationScreen(
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             Toast.makeText(context, "Registro guardado exitosamente", Toast.LENGTH_SHORT).show()
-            viewModel.clearSuccess()
+//            viewModel.clearSuccess()
 //            onNavigateBack()
         }
     }
@@ -105,9 +103,6 @@ fun PoopRegistrationScreen(
                 .padding(24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Baby Info
-//            BabyInfoSection(babyName = babyName)
-
             Spacer(modifier = Modifier.height(32.dp))
 
             // Time Selection
@@ -152,7 +147,10 @@ fun PoopRegistrationScreen(
 
             // Save Button
             Button(
-                onClick = { viewModel.savePoopRecord(userId, babyId) },
+                onClick = {
+                    viewModel.savePoopRecord(userId, babyId)
+                    // viewModel.updateQuestion(updated)
+                          },
                 enabled = !uiState.isLoading && uiState.isValid(),
                 modifier = Modifier
                     .fillMaxWidth()
