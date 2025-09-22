@@ -55,11 +55,6 @@ fun LactationDiaryScreen(
             val darkGreen = Color(0xFF4CAF50)
             val backgroundColor = Color(0xFFFCE4EC)
 
-
-
-//            val lightGreen = Color(0xFF8BC34A)
-//            val darkGreen = Color(0xFF4CAF50)
-//            val backgroundColor = Color(0xFFF1F8E9)
             // Header Section
             LactancyHeaderSection(
                 userName = "Héctor",
@@ -74,26 +69,26 @@ fun LactationDiaryScreen(
                     .weight(1f)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    lactancyEntries.forEach { dayEntry ->
-                        item {
-                            Text(
-                                text = dayEntry.dayName,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = darkGreen,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
-                        items(dayEntry.naps) { nap ->
-                            SleepRecordCard(
-                                nap = nap,
-                                backgroundColor = backgroundColor,
-                                darkGreen = darkGreen
-                            )
-                        }
+            ) {
+                lactancyEntries.forEach { dayEntry ->
+                    item {
+                        Text(
+                            text = dayEntry.dayName,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = darkGreen,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    items(dayEntry.naps) { nap ->
+                        LactancyRecordCard(
+                            session = nap,
+                            backgroundColor = backgroundColor,
+                            darkGreen = darkGreen
+                        )
                     }
                 }
+            }
         }
     }
 }
@@ -268,19 +263,16 @@ fun LactancyTimeScale() {
 
 @Composable
 fun LactancyRecordCard(
-    session: Nap,
+    session: Nap, // Note: You'll need to update this data class to include lactancy_type
     backgroundColor: Color,
     darkGreen: Color
 ) {
     val startTime = formatHourFraction(session.startHourFraction)
     val endTime = formatHourFraction(session.startHourFraction + (session.durationHours / 60f))
     val durationFormatted = formatLactancyDuration(session.durationHours)
-//    val isBottleFeeding = session.volume > 0
-//
-////    val startTime = formatHourFraction(nap.startHourFraction)
-//    val endTime = formatHourFraction(nap.startHourFraction + nap.durationHours)
-//    val durationFormatted = formatDuration(nap.durationHours)
-//    val isLongSleep = nap.durationHours > 4f // Consider sleep if longer than 4 h
+
+    // Get lactation type info
+    val lactationType = getLactationTypeInfo(session.lactancyType ?: "natural")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -302,17 +294,15 @@ fun LactancyRecordCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-//                    Icon(
-//                        imageVector = if (isBottleFeeding) Icons.Default.LocalDrink else Icons.Default.Favorite,
-//                        contentDescription = if (isBottleFeeding) "Bottle feeding" else "Breastfeeding",
-//                        tint = if (isBottleFeeding) Color(0xFF2196F3) else Color(0xFFE91E63),
-//                        modifier = Modifier.size(20.dp)
-//                    )
+                    // Lactation type icon and label
+                    Text(
+                        text = lactationType.emoji,
+                        fontSize = 16.sp
+                    )
 
                     Text(
-//                        text = if (isBottleFeeding) "Biberón 🍼" else "Lactancia 🤱",
-                        text = "Lactancia 🤱",
-                        color = darkGreen,
+                        text = lactationType.displayName,
+                        color = lactationType.color,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -334,22 +324,27 @@ fun LactancyRecordCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Volume information for bottle feeding
-//            if (isBottleFeeding) {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Text(
-//                        text = "Volumen: ${session.volume}ml",
-//                        color = Color(0xFF2196F3),
-//                        fontSize = 12.sp,
-//                        fontWeight = FontWeight.SemiBold
-//                    )
-//                }
-//                Spacer(modifier = Modifier.height(4.dp))
-//            }
+            // Lactation type badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = lactationType.color.copy(alpha = 0.1f)
+                    ),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Text(
+                        text = lactationType.displayName,
+                        color = lactationType.color,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -394,6 +389,34 @@ fun LactancyRecordCard(
     }
 }
 
+// Data class to hold lactation type display information
+data class LactationTypeInfo(
+    val displayName: String,
+    val emoji: String,
+    val color: Color
+)
+
+// Helper function to get lactation type display info
+fun getLactationTypeInfo(lactancyType: String): LactationTypeInfo {
+    return when (lactancyType.lowercase()) {
+        "natural" -> LactationTypeInfo(
+            displayName = "Leche natural",
+            emoji = "🤱",
+            color = Color(0xFF4CAF50) // Green for natural
+        )
+        "formula" -> LactationTypeInfo(
+            displayName = "Leche de fórmula",
+            emoji = "🍼",
+            color = Color(0xFF2196F3) // Blue for formula
+        )
+        else -> LactationTypeInfo(
+            displayName = "Leche natural",
+            emoji = "🤱",
+            color = Color(0xFF4CAF50)
+        )
+    }
+}
+
 fun getBreastText(breast: String): String {
     return when (breast.lowercase()) {
         "left" -> "Izquierdo"
@@ -404,8 +427,8 @@ fun getBreastText(breast: String): String {
 }
 
 fun formatLactancyDuration(durationMinutes: Float): String {
-    val hours = durationMinutes / 60
-    val minutes = durationMinutes % 60
+    val hours = (durationMinutes / 60).toInt()
+    val minutes = (durationMinutes % 60).toInt()
 
     return if (hours > 0) {
         String.format("%dh %02dmin", hours, minutes)

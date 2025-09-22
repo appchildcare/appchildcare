@@ -35,11 +35,9 @@ val navItems = listOf(
 )
 
 val sideNavItems = listOf(
-    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, "Perfil de bebé", Icons.Default.Edit),
-    NavBarItem(NavRoutes.SIDEBAR_ADD_BABY, "Agregar bebé", Icons.Default.Face,  isPremium = true),
+    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, "Perfil de bebé", Icons.Default.Edit, isPremium = true),
     NavBarItem(NavRoutes.POO_MAIN_SELECTION, "Registro de cacas",Icons.Default.Add),
-    NavBarItem(NavRoutes.SIDEBAR_POLICIES, "Políticas de uso", Icons.Default.Info),
-    NavBarItem(NavRoutes.SIDEBAR_LINK2, "Link 2", Icons.Default.Star),
+    NavBarItem(NavRoutes.TERMS_CONDITIONS, "Políticas de uso", Icons.Default.Info),
 )
 
 

@@ -2,19 +2,19 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.services) // Google Services plugin
+    alias(libs.plugins.google.services)
 }
 
 android {
     namespace = "com.ys.phdmama"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.ys.phdmama"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 6
-        versionName = "6.0"
+        targetSdk = 35
+        versionCode = 10
+        versionName = "10.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

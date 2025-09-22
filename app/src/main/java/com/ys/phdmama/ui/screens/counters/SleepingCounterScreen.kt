@@ -65,7 +65,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.contador_de_sueno),
+            painter = painterResource(id = R.mipmap.baby_sleeping),
             contentDescription = "Counter image",
             modifier = Modifier
                 .fillMaxWidth()

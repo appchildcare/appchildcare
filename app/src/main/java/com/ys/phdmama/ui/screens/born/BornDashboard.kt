@@ -221,7 +221,7 @@ fun ClickableCard(
             when (type) {
                 "visit" -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.visitas_pediatra),
+                        painter = painterResource(id = R.mipmap.peditrician_baby),
                         contentDescription = "image",
                         modifier = Modifier
                             .fillMaxWidth()
