@@ -8,7 +8,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import java.util.*
 
 class LactationViewModel (application: Application) : AndroidViewModel(application) {
     private val auth = FirebaseAuth.getInstance()
@@ -30,6 +28,11 @@ class LactationViewModel (application: Application) : AndroidViewModel(applicati
 
     private val _isRunning = MutableStateFlow(false)
     val isRunning: StateFlow<Boolean> = _isRunning
+
+    private val _selectedLactationType = MutableStateFlow(
+        sharedPreferences.getString("selected_lactation_type", "Leche natural") ?: "Leche natural"
+    )
+    val selectedLactationType: StateFlow<String> = _selectedLactationType
 
     init {
         observeCounterChanges()
@@ -60,6 +63,12 @@ class LactationViewModel (application: Application) : AndroidViewModel(applicati
                 Log.d("LactationViewModel", "Counter updated to: $newCounter")
             }
         }
+    }
+
+    fun setLactationType(type: String) {
+        _selectedLactationType.value = type
+        sharedPreferences.edit().putString("selected_lactation_type", type).apply()
+        Log.d("LactationViewModel", "Lactation type set to: $type")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -113,18 +122,25 @@ class LactationViewModel (application: Application) : AndroidViewModel(applicati
         Log.d("LactationViewModel", "ViewModel cleared")
     }
 
-
-    private fun saveCounterTime(counterSeconds: Int, babyId: String?,) {
+    private fun saveCounterTime(counterSeconds: Int, babyId: String?) {
         val formattedTime = formatTime(counterSeconds)
         val timestamp = Timestamp.now()
+
+        // Convert lactation type to the required format
+        val lactationType = when (_selectedLactationType.value) {
+            "Leche natural" -> "natural"
+            "Leche de fórmula" -> "formula"
+            else -> "natural" // default fallback
+        }
 
         val userId = auth.currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
         if (babyId != null) {
-            val napData = hashMapOf(
+            val lactationData = hashMapOf(
                 "time" to formattedTime,
-                "timestamp" to timestamp
+                "timestamp" to timestamp,
+                "lactancy_type" to lactationType
             )
 
             db.collection("users")
@@ -132,15 +148,15 @@ class LactationViewModel (application: Application) : AndroidViewModel(applicati
                 .collection("babies")
                 .document(babyId)
                 .collection("lactation_counter_time")
-                .add(napData)
+                .add(lactationData)
                 .addOnSuccessListener {
-                    Log.d("LactationViewModel", "Lactation counter saved successfully")
+                    Log.d("LactationViewModel", "Lactation counter saved successfully with type: $lactationType")
                 }
                 .addOnFailureListener { e ->
-                    Log.e("LactationViewModel", "Error saving nap counter", e)
+                    Log.e("LactationViewModel", "Error saving lactation counter", e)
                 }
         } else {
-            Log.e("LactationViewModel", "UserId or BabyId is null, cannot save nap data")
+            Log.e("LactationViewModel", "UserId or BabyId is null, cannot save lactation data")
         }
     }
 

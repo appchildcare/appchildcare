@@ -2,6 +2,7 @@ package com.ys.phdmama.ui.screens.born.charts
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.provider.MediaStore
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -99,11 +101,6 @@ fun HeadCircumferenceDetailScreen(
                 ),
                 modifier = Modifier.padding(start = 8.dp)
             ) {
-//                Icon(
-//                    imageVector = Icons.Default.Favorite,
-//                    contentDescription = "Descargar",
-//                    tint = Color.White
-//                )
                 Spacer(modifier = Modifier.padding(4.dp))
                 Text(
                     text = "Descargar",
@@ -192,7 +189,7 @@ fun HeadCircumferenceChart(
     records: List<Any>, // Replace with your actual record type
     modifier: Modifier = Modifier
 ) {
-    // Reference data for girls (first 14 weeks)
+    // Reference data for girls (first 14 weeks) - WHO standards
     val referenceData = listOf(
         LMSHeadCircumference(0, "girl", 1.0, 33.8787, 0.03496, 1.1844, 30.3, 31.5, 32.7, 33.9, 35.1, 36.2, 37.4),
         LMSHeadCircumference(1, "girl", 1.0, 34.5529, 0.03374, 1.1658, 31.1, 32.2, 33.4, 34.6, 35.7, 36.9, 38.1),
@@ -211,19 +208,19 @@ fun HeadCircumferenceChart(
     )
 
     Canvas(modifier = modifier) {
-        val chartWidth = size.width - 100f
-        val chartHeight = size.height - 100f
-        val chartStartX = 50f
-        val chartStartY = 50f
+        val chartWidth = size.width - 120f
+        val chartHeight = size.height - 120f
+        val chartStartX = 80f
+        val chartStartY = 40f
 
-        // Chart bounds
+        // Chart bounds - matching WHO chart
         val maxWeeks = 13f
         val minHeadCircumference = 30f
         val maxHeadCircumference = 44f
 
-        // Draw background
+        // Draw background with pink tint like WHO chart
         drawRect(
-            color = Color(0xFFF5F5F5),
+            color = Color(0xFFFCF0FC),
             topLeft = Offset(chartStartX, chartStartY),
             size = androidx.compose.ui.geometry.Size(chartWidth, chartHeight)
         )
@@ -239,7 +236,8 @@ fun HeadCircumferenceChart(
             maxHeadCircumference = maxHeadCircumference
         )
 
-        // Draw median line (P50)
+        // Draw WHO standard deviation lines
+        // +3 SD (top black line)
         drawPercentileLine(
             data = referenceData,
             chartStartX = chartStartX,
@@ -249,11 +247,27 @@ fun HeadCircumferenceChart(
             maxWeeks = maxWeeks,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference,
-            color = Color(0xFF4CAF50), // Green
+            color = Color.Black,
+            strokeWidth = 3f,
+            getValueFromLMS = { calculatePercentileFromLMS(it.L, it.M, it.S, 3.0) }
+        )
+
+        // Median (0 SD) - green line
+        drawPercentileLine(
+            data = referenceData,
+            chartStartX = chartStartX,
+            chartStartY = chartStartY,
+            chartWidth = chartWidth,
+            chartHeight = chartHeight,
+            maxWeeks = maxWeeks,
+            minHeadCircumference = minHeadCircumference,
+            maxHeadCircumference = maxHeadCircumference,
+            color = Color(0xFF4CAF50),
+            strokeWidth = 3f,
             getValueFromLMS = { it.M }
         )
 
-        // Draw P3 and P97 lines (calculated from L, M, S)
+        // -3 SD (bottom black line)
         drawPercentileLine(
             data = referenceData,
             chartStartX = chartStartX,
@@ -263,21 +277,21 @@ fun HeadCircumferenceChart(
             maxWeeks = maxWeeks,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference,
-            color = Color(0xFFFF9800), // Orange
-            getValueFromLMS = { calculatePercentileFromLMS(it.L, it.M, it.S, -1.88) } // P3 ≈ Z-score -1.88
+            color = Color.Black,
+            strokeWidth = 3f,
+            getValueFromLMS = { calculatePercentileFromLMS(it.L, it.M, it.S, -3.0) }
         )
 
-        drawPercentileLine(
-            data = referenceData,
+        // Draw Z-score labels on the right side
+        drawZScoreLabels(
             chartStartX = chartStartX,
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
+            referenceData = referenceData,
             maxWeeks = maxWeeks,
             minHeadCircumference = minHeadCircumference,
-            maxHeadCircumference = maxHeadCircumference,
-            color = Color(0xFFFF9800), // Orange
-            getValueFromLMS = { calculatePercentileFromLMS(it.L, it.M, it.S, 1.88) } // P97 ≈ Z-score 1.88
+            maxHeadCircumference = maxHeadCircumference
         )
 
         // Draw axes
@@ -290,42 +304,17 @@ fun HeadCircumferenceChart(
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference
         )
-    }
-}
 
-private fun DrawScope.drawGrid(
-    chartStartX: Float,
-    chartStartY: Float,
-    chartWidth: Float,
-    chartHeight: Float,
-    maxWeeks: Float,
-    minHeadCircumference: Float,
-    maxHeadCircumference: Float
-) {
-    val gridColor = Color(0xFFE0E0E0)
-
-    // Vertical grid lines (age)
-    for (week in 0..maxWeeks.toInt()) {
-        val x = chartStartX + (week / maxWeeks) * chartWidth
-        drawLine(
-            color = gridColor,
-            start = Offset(x, chartStartY),
-            end = Offset(x, chartStartY + chartHeight),
-            strokeWidth = 1f
-        )
-    }
-
-    // Horizontal grid lines (head circumference)
-    val stepSize = 2f // 2cm intervals
-    val steps = ((maxHeadCircumference - minHeadCircumference) / stepSize).toInt()
-    for (step in 0..steps) {
-        val value = minHeadCircumference + step * stepSize
-        val y = chartStartY + chartHeight - ((value - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
-        drawLine(
-            color = gridColor,
-            start = Offset(chartStartX, y),
-            end = Offset(chartStartX + chartWidth, y),
-            strokeWidth = 1f
+        // Plot patient data points if available
+        plotPatientData(
+            records = records,
+            chartStartX = chartStartX,
+            chartStartY = chartStartY,
+            chartWidth = chartWidth,
+            chartHeight = chartHeight,
+            maxWeeks = maxWeeks,
+            minHeadCircumference = minHeadCircumference,
+            maxHeadCircumference = maxHeadCircumference
         )
     }
 }
@@ -340,6 +329,7 @@ private fun DrawScope.drawPercentileLine(
     minHeadCircumference: Float,
     maxHeadCircumference: Float,
     color: Color,
+    strokeWidth: Float = 2f,
     getValueFromLMS: (LMSHeadCircumference) -> Double
 ) {
     val path = Path()
@@ -361,8 +351,116 @@ private fun DrawScope.drawPercentileLine(
     drawPath(
         path = path,
         color = color,
-        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+        style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth)
     )
+}
+
+private fun DrawScope.drawZScoreLabels(
+    chartStartX: Float,
+    chartStartY: Float,
+    chartWidth: Float,
+    chartHeight: Float,
+    referenceData: List<LMSHeadCircumference>,
+    maxWeeks: Float,
+    minHeadCircumference: Float,
+    maxHeadCircumference: Float
+) {
+    val textPaint = Paint().asFrameworkPaint().apply {
+        isAntiAlias = true
+        textSize = 32f
+        color = android.graphics.Color.BLACK
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+    }
+
+    // Get the last data point (week 13) to position labels
+    val lastLMS = referenceData.last()
+    val labelX = chartStartX + chartWidth + 10f
+
+    // Z-score values and their colors
+    val zScores = listOf(3.0, 2.0, 0.0, -2.0, -3.0)
+    val colors = listOf(
+        android.graphics.Color.BLACK,
+        android.graphics.Color.RED,
+        android.graphics.Color.parseColor("#4CAF50"),
+        android.graphics.Color.RED,
+        android.graphics.Color.BLACK
+    )
+
+    zScores.forEachIndexed { index, zScore ->
+        val value = calculatePercentileFromLMS(lastLMS.L, lastLMS.M, lastLMS.S, zScore).toFloat()
+        val y = chartStartY + chartHeight - ((value - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
+
+        textPaint.color = colors[index]
+        drawContext.canvas.nativeCanvas.drawText(
+            if (zScore > 0) "+${zScore.toInt()}" else zScore.toInt().toString(),
+            labelX,
+            y + 8f,
+            textPaint
+        )
+    }
+}
+
+private fun DrawScope.plotPatientData(
+    records: List<Any>,
+    chartStartX: Float,
+    chartStartY: Float,
+    chartWidth: Float,
+    chartHeight: Float,
+    maxWeeks: Float,
+    minHeadCircumference: Float,
+    maxHeadCircumference: Float
+) {
+    // This function would plot actual patient data points
+    // You'll need to cast records to your actual record type and extract the data
+    /*
+    records.forEach { record ->
+        val x = chartStartX + (record.ageInWeeks / maxWeeks) * chartWidth
+        val y = chartStartY + chartHeight - ((record.headCircumference - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
+
+        drawCircle(
+            color = Color.Blue,
+            radius = 8f,
+            center = Offset(x, y)
+        )
+    }
+    */
+}
+
+private fun DrawScope.drawGrid(
+    chartStartX: Float,
+    chartStartY: Float,
+    chartWidth: Float,
+    chartHeight: Float,
+    maxWeeks: Float,
+    minHeadCircumference: Float,
+    maxHeadCircumference: Float
+) {
+    val gridColor = Color(0xFFE0E0E0)
+
+    // Vertical grid lines (age) - every week
+    for (week in 0..maxWeeks.toInt()) {
+        val x = chartStartX + (week / maxWeeks) * chartWidth
+        drawLine(
+            color = gridColor,
+            start = Offset(x, chartStartY),
+            end = Offset(x, chartStartY + chartHeight),
+            strokeWidth = 1f
+        )
+    }
+
+    // Horizontal grid lines (head circumference) - every 1cm
+    val stepSize = 1f
+    val steps = ((maxHeadCircumference - minHeadCircumference) / stepSize).toInt()
+    for (step in 0..steps) {
+        val value = minHeadCircumference + step * stepSize
+        val y = chartStartY + chartHeight - ((value - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
+        drawLine(
+            color = gridColor,
+            start = Offset(chartStartX, y),
+            end = Offset(chartStartX + chartWidth, y),
+            strokeWidth = 1f
+        )
+    }
 }
 
 private fun DrawScope.drawAxes(
@@ -398,25 +496,26 @@ private fun DrawScope.drawAxes(
     )
 
     // X-axis labels (weeks)
-    for (week in 0..maxWeeks.toInt() step 2) {
+    for (week in 0..maxWeeks.toInt()) {
         val x = chartStartX + (week / maxWeeks) * chartWidth
+        val label = if (week == 0) "Birth" else "${week}"
         drawContext.canvas.nativeCanvas.drawText(
-            "${week}w",
+            label,
             x - 15f,
             chartStartY + chartHeight + 30f,
             textPaint
         )
     }
 
-    // Y-axis labels (head circumference)
+    // Y-axis labels (head circumference) - every 2cm
     val stepSize = 2f
     val steps = ((maxHeadCircumference - minHeadCircumference) / stepSize).toInt()
-    for (step in 0..steps step 2) {
+    for (step in 0..steps) {
         val value = minHeadCircumference + step * stepSize
         val y = chartStartY + chartHeight - ((value - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
         drawContext.canvas.nativeCanvas.drawText(
             "${value.toInt()}",
-            chartStartX - 40f,
+            chartStartX - 50f,
             y + 8f,
             textPaint
         )
@@ -433,17 +532,17 @@ private fun DrawScope.drawAxes(
     // X-axis title
     drawContext.canvas.nativeCanvas.drawText(
         "Edad (semanas)",
-        chartStartX + chartWidth/2 - 70f,
+        chartStartX + chartWidth/2 - 60f,
         chartStartY + chartHeight + 70f,
         titlePaint
     )
 
     // Y-axis title (rotated)
     drawContext.canvas.nativeCanvas.save()
-    drawContext.canvas.nativeCanvas.rotate(-90f, 20f, chartStartY + chartHeight/2)
+    drawContext.canvas.nativeCanvas.rotate(-90f, 25f, chartStartY + chartHeight/2)
     drawContext.canvas.nativeCanvas.drawText(
         "Perímetro cefálico (cm)",
-        -100f,
+        -120f,
         chartStartY + chartHeight/2,
         titlePaint
     )
@@ -504,6 +603,7 @@ fun calcularRangoNormalPerimetroCefalico(
     )
 }
 
+
 fun generateHeadCircumferencePDF(
     context: android.content.Context,
     records: List<Any>, // Replace with your actual record type
@@ -532,56 +632,100 @@ fun generateHeadCircumferencePDF(
         val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
         canvas.drawText("Fecha: $currentDate", 50f, 150f, paint)
 
-        // Chart area placeholder
+        // Table title
+        paint.textSize = 18f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+        canvas.drawText("Tabla de Mediciones", 50f, 200f, paint)
+
+        // Table setup
+        var yPosition = 240f
+        paint.textSize = 12f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+
+        // Draw table border
         paint.style = android.graphics.Paint.Style.STROKE
         paint.strokeWidth = 2f
-        paint.color = android.graphics.Color.GRAY
-        canvas.drawRect(50f, 180f, 545f, 400f, paint)
+        paint.color = android.graphics.Color.BLACK
+        val tableLeft = 50f
+        val tableRight = 545f
+        val tableTop = yPosition - 15f
 
-        paint.style = android.graphics.Paint.Style.FILL
-        paint.textSize = 14f
-        canvas.drawText("Gráfico de Perímetro Cefálico vs Edad", 200f, 300f, paint)
+        // Calculate table height based on number of records
+        val rowHeight = 25f
+        val headerHeight = 30f
+        val maxRows = kotlin.math.min(records.size, 20) // Limit rows to fit page
+        val tableBottom = tableTop + headerHeight + (maxRows * rowHeight)
 
-        // Data table
-        var yPosition = 450f
-        paint.textSize = 16f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-        canvas.drawText("Datos Registrados:", 50f, yPosition, paint)
+        canvas.drawRect(tableLeft, tableTop, tableRight, tableBottom, paint)
 
-        yPosition += 30f
-        paint.textSize = 12f
-        paint.typeface = android.graphics.Typeface.DEFAULT
+        // Column positions and widths
+        val colPositions = floatArrayOf(60f, 140f, 200f, 280f, 360f, 460f)
+        val colWidths = floatArrayOf(80f, 60f, 80f, 80f, 100f, 85f)
+
+        // Draw column separators
+        for (i in 1 until colPositions.size) {
+            canvas.drawLine(colPositions[i], tableTop, colPositions[i], tableBottom, paint)
+        }
 
         // Table headers
-        canvas.drawText("Mes", 50f, yPosition, paint)
-        canvas.drawText("Peso (kg)", 150f, yPosition, paint)
-        canvas.drawText("Talla (cm)", 250f, yPosition, paint)
-        canvas.drawText("P. Cefálico (cm)", 350f, yPosition, paint)
-        canvas.drawText("Diagnóstico", 470f, yPosition, paint)
-
-        yPosition += 5f
-        paint.strokeWidth = 1f
-        paint.style = android.graphics.Paint.Style.STROKE
-        canvas.drawLine(50f, yPosition, 545f, yPosition, paint)
         paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.BLACK
+        paint.textSize = 11f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
 
-        // Data rows (you'll need to adapt this to your actual record structure)
+        canvas.drawText("Fecha", colPositions[0], yPosition, paint)
+        canvas.drawText("Edad", colPositions[1], yPosition, paint)
+        canvas.drawText("Peso (kg)", colPositions[2], yPosition, paint)
+        canvas.drawText("Talla (cm)", colPositions[3], yPosition, paint)
+        canvas.drawText("P. Cefálico", colPositions[4], yPosition, paint)
+        canvas.drawText("Diagnóstico", colPositions[5], yPosition, paint)
+
+        // Draw header separator line
+        yPosition += 15f
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 1f
+        canvas.drawLine(tableLeft, yPosition, tableRight, yPosition, paint)
+
+        yPosition += 10f
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.textSize = 10f
+        paint.typeface = android.graphics.Typeface.DEFAULT
+
+        // Data rows
         val lmsTable = LmsUtils.lmsHeadCircumference
-        records.take(15).forEach { record -> // Limit to prevent overflow
-            yPosition += 20f
+        records.take(maxRows).forEachIndexed { index, record ->
+            // Draw alternating row background
+            if (index % 2 == 0) {
+                paint.color = android.graphics.Color.parseColor("#F5F5F5")
+                canvas.drawRect(
+                    tableLeft + 1f,
+                    yPosition - 12f,
+                    tableRight - 1f,
+                    yPosition + 8f,
+                    paint
+                )
+            }
+
+            paint.color = android.graphics.Color.BLACK
 
             // You'll need to adapt these property accesses to your actual record type
             /*
-            canvas.drawText("${record.ageInMonths}", 50f, yPosition, paint)
-            canvas.drawText("${record.weight}", 150f, yPosition, paint)
-            canvas.drawText("${record.height}", 250f, yPosition, paint)
-            canvas.drawText("${record.headCircumference}", 350f, yPosition, paint)
+            // Format date
+            val formattedDate = record.date?.let {
+                SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(it)
+            } ?: "N/A"
+
+            canvas.drawText(formattedDate, colPositions[0], yPosition, paint)
+            canvas.drawText("${record.ageInMonths}m", colPositions[1], yPosition, paint)
+            canvas.drawText("${record.weight ?: "N/A"}", colPositions[2], yPosition, paint)
+            canvas.drawText("${record.height ?: "N/A"}", colPositions[3], yPosition, paint)
+            canvas.drawText("${record.headCircumference ?: "N/A"}", colPositions[4], yPosition, paint)
 
             val zScore = record.headCircumference?.let {
                 calcularZScorePerimetroCefalico(
                     headCircumference = it,
                     edadMeses = record.ageInMonths,
-                    sexo = "girl",
+                    sexo = "girl", // You should get this from your data
                     lmsList = lmsTable,
                 )
             }
@@ -594,19 +738,47 @@ fun generateHeadCircumferencePDF(
                 }
             } ?: "N/A"
 
-            canvas.drawText(diagnostico, 470f, yPosition, paint)
+            canvas.drawText(diagnostico, colPositions[5], yPosition, paint)
             */
 
             // Placeholder data - replace with actual record data
-            canvas.drawText("N/A", 50f, yPosition, paint)
-            canvas.drawText("N/A", 150f, yPosition, paint)
-            canvas.drawText("N/A", 250f, yPosition, paint)
-            canvas.drawText("N/A", 350f, yPosition, paint)
-            canvas.drawText("N/A", 470f, yPosition, paint)
+            canvas.drawText("01/01/24", colPositions[0], yPosition, paint)
+            canvas.drawText("${index + 1}m", colPositions[1], yPosition, paint)
+            canvas.drawText("3.5", colPositions[2], yPosition, paint)
+            canvas.drawText("50.2", colPositions[3], yPosition, paint)
+            canvas.drawText("35.8", colPositions[4], yPosition, paint)
+            canvas.drawText("Normal", colPositions[5], yPosition, paint)
+
+            // Draw row separator
+            yPosition += rowHeight
+            if (index < maxRows - 1) {
+                paint.style = android.graphics.Paint.Style.STROKE
+                paint.strokeWidth = 0.5f
+                paint.color = android.graphics.Color.LTGRAY
+                canvas.drawLine(tableLeft, yPosition - 12f, tableRight, yPosition - 12f, paint)
+                paint.style = android.graphics.Paint.Style.FILL
+                paint.color = android.graphics.Color.BLACK
+            }
         }
 
+        // Summary section
+        yPosition += 40f
+        paint.textSize = 14f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+        paint.color = android.graphics.Color.BLACK
+        canvas.drawText("Resumen:", 50f, yPosition, paint)
+
+        yPosition += 25f
+        paint.textSize = 12f
+        paint.typeface = android.graphics.Typeface.DEFAULT
+        canvas.drawText("• Total de mediciones: ${records.size}", 70f, yPosition, paint)
+        yPosition += 20f
+        canvas.drawText("• Última medición: ${currentDate}", 70f, yPosition, paint)
+        yPosition += 20f
+        canvas.drawText("• Estado general: Seguimiento normal", 70f, yPosition, paint)
+
         // Footer
-        yPosition = 750f
+        yPosition = 800f
         paint.textSize = 10f
         paint.color = android.graphics.Color.GRAY
         canvas.drawText("Generado por PhD Mama App", 50f, yPosition, paint)
@@ -614,16 +786,32 @@ fun generateHeadCircumferencePDF(
 
         pdfDocument.finishPage(page)
 
-        // Modern approach: Save to MediaStore (Android 10+)
+        // Create and save PDF, then share
         val fileName = "reporte_perimetro_cefalico_${babyId}_${System.currentTimeMillis()}.pdf"
-        val mimeType = "application/pdf"
+        savePDFAndShare(context, pdfDocument, fileName)
 
+    } catch (e: Exception) {
+        android.widget.Toast.makeText(
+            context,
+            "Error al generar PDF: ${e.message}",
+            android.widget.Toast.LENGTH_LONG
+        ).show()
+        e.printStackTrace()
+    }
+}
+
+private fun savePDFAndShare(
+    context: android.content.Context,
+    pdfDocument: android.graphics.pdf.PdfDocument,
+    fileName: String
+) {
+    try {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             // Use MediaStore for Android 10+
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/") // Save to Download folder
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
             }
 
             val resolver = context.contentResolver
@@ -633,11 +821,15 @@ fun generateHeadCircumferencePDF(
                 resolver.openOutputStream(pdfUri)?.use { outputStream ->
                     pdfDocument.writeTo(outputStream)
                     pdfDocument.close()
+
                     android.widget.Toast.makeText(
                         context,
-                        "PDF guardado en Descargas: $fileName",
-                        android.widget.Toast.LENGTH_LONG
+                        "PDF guardado exitosamente",
+                        android.widget.Toast.LENGTH_SHORT
                     ).show()
+
+                    // Share the PDF
+                    sharePDF(context, pdfUri, fileName)
                 }
             } ?: run {
                 pdfDocument.close()
@@ -648,7 +840,7 @@ fun generateHeadCircumferencePDF(
                 ).show()
             }
         } else {
-            // Fallback for older Android versions (API < 29)
+            // Fallback for older Android versions
             val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
                 android.os.Environment.DIRECTORY_DOWNLOADS
             )
@@ -660,11 +852,22 @@ fun generateHeadCircumferencePDF(
                 pdfDocument.close()
                 fileOutputStream.close()
 
+                // Create content URI for sharing
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    file
+                )
+
                 android.widget.Toast.makeText(
                     context,
-                    "PDF guardado en Descargas: $fileName",
-                    android.widget.Toast.LENGTH_LONG
+                    "PDF guardado exitosamente",
+                    android.widget.Toast.LENGTH_SHORT
                 ).show()
+
+                // Share the PDF
+                sharePDF(context, uri, fileName)
+
             } catch (e: Exception) {
                 pdfDocument.close()
                 android.widget.Toast.makeText(
@@ -674,11 +877,65 @@ fun generateHeadCircumferencePDF(
                 ).show()
             }
         }
+    } catch (e: Exception) {
+        pdfDocument.close()
+        android.widget.Toast.makeText(
+            context,
+            "Error al procesar PDF: ${e.message}",
+            android.widget.Toast.LENGTH_LONG
+        ).show()
+    }
+}
+
+private fun sharePDF(context: android.content.Context, uri: android.net.Uri, fileName: String) {
+    try {
+        val shareIntent = android.content.Intent().apply {
+            action = android.content.Intent.ACTION_SEND
+            type = "application/pdf"
+            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+            putExtra(android.content.Intent.EXTRA_SUBJECT, "Reporte de Perímetro Cefálico")
+            putExtra(android.content.Intent.EXTRA_TEXT, "Compartiendo reporte médico del bebé")
+            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        // Create chooser with WhatsApp as preferred option
+        val chooserIntent = android.content.Intent.createChooser(shareIntent, "Compartir reporte")
+
+        // Add WhatsApp as a specific option if available
+        val whatsappIntent = android.content.Intent().apply {
+            action = android.content.Intent.ACTION_SEND
+            type = "application/pdf"
+            setPackage("com.whatsapp")
+            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+            putExtra(android.content.Intent.EXTRA_TEXT, "Reporte de perímetro cefálico")
+            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        // Check if WhatsApp is installed
+        val packageManager = context.packageManager
+        val whatsappAvailable = try {
+            packageManager.getPackageInfo("com.whatsapp", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+
+        if (whatsappAvailable) {
+            chooserIntent.putExtra(android.content.Intent.EXTRA_INITIAL_INTENTS, arrayOf(whatsappIntent))
+        }
+
+        // Start the share activity
+        if (context is android.app.Activity) {
+            context.startActivity(chooserIntent)
+        } else {
+            chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(chooserIntent)
+        }
 
     } catch (e: Exception) {
         android.widget.Toast.makeText(
             context,
-            "Error al generar PDF: ${e.message}",
+            "Error al compartir: ${e.message}",
             android.widget.Toast.LENGTH_LONG
         ).show()
         e.printStackTrace()

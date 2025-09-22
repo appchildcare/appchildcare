@@ -19,6 +19,8 @@ import androidx.navigation.NavController
 import com.ys.phdmama.navigation.NavRoutes.LACTATION_TRACKING
 import com.ys.phdmama.navigation.NavRoutes.SLEEP_TRACKING
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.theme.primaryTeal
+import com.ys.phdmama.ui.theme.secondaryAqua
 
 @Composable
 fun BabyCounterSelectionScreen(
@@ -50,10 +52,10 @@ fun BabyCounterSelectionScreen(
                 )
 
                 Text(
-                    text = "¿Qué quieres registrar?",
+                    text = "¿Qué quieres ?",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2E7D32),
+                    color =Color.Gray,
                     textAlign = TextAlign.Center
                 )
 
@@ -72,8 +74,8 @@ fun BabyCounterSelectionScreen(
                 subtitle = "Registrar siestas y tiempo de descanso",
                 icon = Icons.Default.Info,
                 gradientColors = listOf(
-                    Color(0xFF8BC34A),
-                    Color(0xFF4CAF50)
+                    primaryTeal,
+                    secondaryAqua
                 ),
                 emoji = "😴",
                 onClick = {
@@ -89,8 +91,8 @@ fun BabyCounterSelectionScreen(
                 subtitle = "Registrar sesiones de alimentación",
                 icon = Icons.Default.Favorite,
                 gradientColors = listOf(
-                    Color(0xFFE1BEE7),
-                    Color(0xFF9C27B0)
+                    primaryTeal,
+                    secondaryAqua
                 ),
                 emoji = "🤱",
                 onClick = {
@@ -146,7 +148,6 @@ fun TrackingOptionCard(
                     Text(
                         text = subtitle,
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.9f),
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }

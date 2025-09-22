@@ -19,7 +19,9 @@ import com.ys.phdmama.ui.login.LoginScreen
 import com.ys.phdmama.ui.main.MainScreen
 import com.ys.phdmama.ui.register.RegisterScreen
 import com.ys.phdmama.ui.screens.Resources
+import com.ys.phdmama.ui.screens.TermsConditions
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
+//import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
@@ -115,6 +117,7 @@ object NavRoutes {
     const val LACTATION_TRACKING = "lactation_tracking"
     const val POO_MAIN_SELECTION = "poop_main_screen"
     const val POOP_TRACKING = "poop_tracking"
+    const val TERMS_CONDITIONS = "terms_conditions"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -185,6 +188,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         composable(NavRoutes.WELCOME_SCREEN) {
             WelcomeScreen(navController = navController)
         }
+        composable(NavRoutes.TERMS_CONDITIONS) {
+            TermsConditions (navController = navController, openDrawer = openDrawer)
+        }
         composable(NavRoutes.LOGIN) {
             LoginScreen(navController = navController)
         }
@@ -198,7 +204,8 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabyStatusScreen(navController = navController)
         }
         composable(NavRoutes.BABY_PROFILE) {
-            BabyDataScreen(navController = navController)
+//            BabyDataScreen(navController = navController, openDrawer = openDrawer)
+            AddBabyDataScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
         composable(NavRoutes.BABY_ALREADY_BORN) {
             BabyAlreadyBornScreen(navController = navController)
@@ -257,7 +264,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
 
         composable(NavRoutes.SIDEBAR_ADD_BABY) {
-            AddBabyDataScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
+           // AddBabyDataScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
 
         composable(NavRoutes.PEDIATRICIAN_QUESTIONS) {
@@ -291,6 +298,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             composable(NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS) {
                 HeightLengthDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
             }
+            composable(NavRoutes.TERMS_CONDITIONS) {
+                TermsConditions (navController = navController, openDrawer = openDrawer)
+            }
             composable(NavRoutes.POOP_REGISTER) {
                 babyId?.let { it1 ->
                     PoopRegistrationScreen(
@@ -299,6 +309,20 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                         babyId = it1,
                         babyName = "",
                         viewModel = poopRegisterViewModel
+                    )
+                }
+            }
+//            babyId: String?,
+//            viewModel: PoopDiaryViewModel = viewModel(),
+//            navController: NavHostController,
+//            openDrawer: () -> Unit
+            composable(NavRoutes.POOP_TRACKING) {
+                babyId?.let { it1 ->
+                    PoopDiaryScreen (
+                        babyId = it1,
+                        viewModel = poopDiaryViewModel,
+                        navController = navController,
+                        openDrawer = openDrawer,
                     )
                 }
             }
@@ -323,7 +347,15 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 SleepingCounterScreen(babyId = babyId, navController = navController, counterViewModel, openDrawer = openDrawer)
             }
             composable(NavRoutes.POOP_REGISTER) {
-                PoopDiaryScreen(babyId = babyId, poopDiaryViewModel, navController = navController, openDrawer = openDrawer)
+                babyId?.let { it1 ->
+                    PoopRegistrationScreen(
+                        navController = navController, openDrawer = openDrawer,
+                        userId = it1,
+                        babyId = it1,
+                        babyName = "",
+                        viewModel = poopRegisterViewModel
+                    )
+                }
             }
         }
 

@@ -18,7 +18,6 @@ import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.LactationViewModel
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LactationCounterScreen(babyId: String?, navController: NavController,
@@ -39,11 +38,16 @@ fun LactationCounterScreen(babyId: String?, navController: NavController,
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LactationComponent(babyId: String?, navController: NavController, viewModel: LactationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val counter by viewModel.counter.collectAsState()
     val isRunning by viewModel.isRunning.collectAsState()
+    val selectedLactationType by viewModel.selectedLactationType.collectAsState()
+
+    var expanded by remember { mutableStateOf(false) }
+    val lactationTypes = listOf("Leche natural", "Leche de fórmula")
 
     Column(
         modifier = Modifier
@@ -53,14 +57,50 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.contador_lactancia),
-            contentDescription = "Counter image",
+            painter = painterResource(id = R.mipmap.lactancia_madre_bebe),
+            contentDescription = "lactancia image",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        // Lactation Type Dropdown
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            OutlinedTextField(
+                value = selectedLactationType,
+                onValueChange = { },
+                readOnly = true,
+                label = { Text("Tipo de Lactancia") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                lactationTypes.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type) },
+                        onClick = {
+                            viewModel.setLactationType(type)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Display counter with better formatting
         Text(

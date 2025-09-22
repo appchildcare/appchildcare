@@ -37,7 +37,8 @@ import com.ys.phdmama.ui.components.PhdLayoutMenu
 
 data class Nap(
     val startHourFraction: Float, // e.g. 14.5 means 14:30
-    val durationHours: Float
+    val durationHours: Float,
+    val lactancyType: String? = null
 )
 
 data class DayNapEntry(

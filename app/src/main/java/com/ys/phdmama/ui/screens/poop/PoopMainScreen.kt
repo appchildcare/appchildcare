@@ -31,7 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes.POOP_REGISTER
+import com.ys.phdmama.navigation.NavRoutes.POOP_TRACKING
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.theme.primaryTeal
+import com.ys.phdmama.ui.theme.secondaryAqua
 
 
 @Composable
@@ -85,8 +88,8 @@ fun PoopMainScreen(
                 subtitle = "Registrar detalles de las cacas",
                 icon = Icons.Default.Info,
                 gradientColors = listOf(
-                    Color(0xFF8BC34A),
-                    Color(0xFF4CAF50)
+                    primaryTeal,
+                    secondaryAqua
                 ),
                 emoji = "💩",
                 onClick = {
@@ -101,12 +104,12 @@ fun PoopMainScreen(
                 subtitle = "Información detallada de cacas",
                 icon = Icons.Default.Favorite,
                 gradientColors = listOf(
-                    Color(0xFFE1BEE7),
-                    Color(0xFF9C27B0)
+                    primaryTeal,
+                    secondaryAqua
                 ),
                 emoji = "📝",
                 onClick = {
-                    navController.navigate(POOP_REGISTER)
+                    navController.navigate(POOP_TRACKING)
                 }
             )
 
@@ -158,7 +161,6 @@ fun TrackingOptionCard(
                     Text(
                         text = subtitle,
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.9f),
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }

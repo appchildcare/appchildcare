@@ -272,6 +272,53 @@ class BabyDataViewModel (
         }
     }
 
+    fun updateBabyData(
+        babyId: String?,
+        babyData: Map<String, Any>,
+        onError: (String) -> Unit
+    ) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null && !babyId.isNullOrEmpty()) {
+            viewModelScope.launch {
+                try {
+                    val babyRef = firestore.collection("users")
+                        .document(uid)
+                        .collection("babies")
+                        .document(babyId)
+
+                    babyRef.update(babyData).await()
+                    sendSnackbar("Información actualizada correctamente!")
+
+                    // Refresh the baby list after updating
+                    fetchBabies(uid)
+
+                    // Update the current baby data if it's the one being edited
+                    if (_babyData.value?.id == babyId) {
+                        val updatedBaby = _babyData.value?.copy(
+                            name = babyData["name"] as? String ?: _babyData.value?.name ?: "",
+                            apgar = babyData["apgar"] as? String ?: _babyData.value?.apgar ?: "",
+                            height = babyData["height"] as? String ?: _babyData.value?.height ?: "",
+                            weight = babyData["weight"] as? String ?: _babyData.value?.weight ?: "",
+                            perimeter = babyData["perimeter"] as? String ?: _babyData.value?.perimeter ?: "",
+                            bloodType = babyData["bloodType"] as? String ?: _babyData.value?.bloodType ?: "",
+                            birthDate = babyData["birthDate"] as? String ?: _babyData.value?.birthDate ?: "",
+                            sex = babyData["sex"] as? String ?: _babyData.value?.sex ?: ""
+                        )
+                        _babyData.value = updatedBaby
+                    }
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al actualizar información del bebé")
+                }
+            }
+        } else {
+            if (uid == null) {
+                onError("UID de usuario no encontrado")
+            } else {
+                onError("ID del bebé no válido")
+            }
+        }
+    }
+
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()

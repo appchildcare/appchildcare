@@ -54,20 +54,51 @@ class PediatricVisitViewModel : ViewModel() {
 
     fun loadPediatricianVisits() {
         val userId = auth.currentUser?.uid ?: return
+
         firestore.collection("users").document(userId)
             .collection("pediatrician_visit_questions")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, _ ->
-                Log.d("snapshot NINO", snapshot?.documents.toString())
-                if (snapshot != null && !snapshot.isEmpty) {
-                    visitDataList = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(PediatricianVisit::class.java)?.copy(id = doc.id)
-                    }
+            // .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, exception ->
+
+                // Handle Firestore exceptions
+                if (exception != null) {
+                    Log.e("PediatricianVisits", "Error loading visits: ${exception.message}", exception)
+                    // Initialize empty list on error
+                    visitDataList = emptyList()
+                    return@addSnapshotListener
                 }
 
+                // Handle null snapshot
+                if (snapshot == null) {
+                    Log.d("PediatricianVisits", "Snapshot is null")
+                    visitDataList = emptyList()
+                    return@addSnapshotListener
+                }
+
+                // Handle empty collection (collection doesn't exist or has no documents)
+                if (snapshot.isEmpty) {
+                    Log.d("PediatricianVisits", "Collection is empty or doesn't exist")
+                    visitDataList = emptyList()
+                    return@addSnapshotListener
+                }
+
+                // Safe mapping with additional null checks
+                try {
+                    visitDataList = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            doc.toObject(PediatricianVisit::class.java)?.copy(id = doc.id)
+                        } catch (e: Exception) {
+                            Log.e("PediatricianVisits", "Error parsing document ${doc.id}: ${e.message}")
+                            null // Skip this document if parsing fails
+                        }
+                    }
+                    Log.d("PediatricianVisits", "Loaded ${visitDataList.size} visits")
+                } catch (e: Exception) {
+                    Log.e("PediatricianVisits", "Error processing snapshot: ${e.message}", e)
+                    visitDataList = emptyList()
+                }
             }
     }
-
     fun update(pediatrician: PediatricianVisit) {
         val userId = auth.currentUser?.uid ?: return
 

@@ -98,9 +98,9 @@ fun HeightLengthDetailScreen(
                                 Text("Mes: ${record.ageInMonths}")
                                 Text("Talla: ${record.height} cm")
 
-                                diagnostico?.let {
-                                    Text("Diagnóstico OMS Talla para la Edad: $it")
-                                }
+//                                diagnostico?.let {
+//                                    Text("Diagnóstico OMS Talla para la Edad: $it")
+//                                }
 
                                 rango?.let {
                                     Text("Rango OMS: ${it.min} cm - ${it.max} cm")
