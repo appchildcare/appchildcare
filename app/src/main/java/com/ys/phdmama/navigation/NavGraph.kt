@@ -34,6 +34,7 @@ import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
 import com.ys.phdmama.ui.screens.born.GrowthDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeightLengthDetailScreen
+import com.ys.phdmama.ui.screens.carbonfootprint.CarbonFootprintScreen
 import com.ys.phdmama.ui.screens.counters.SleepingCounterScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
@@ -59,6 +60,7 @@ import com.ys.phdmama.ui.screens.wizard.prebirth.RoughDateOfBirthScreen
 import com.ys.phdmama.ui.splash.SplashScreen
 import com.ys.phdmama.ui.welcome.WelcomeScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
+import com.ys.phdmama.viewmodel.CarbonFootprintViewModel
 import com.ys.phdmama.viewmodel.CounterViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
@@ -118,6 +120,7 @@ object NavRoutes {
     const val POO_MAIN_SELECTION = "poop_main_screen"
     const val POOP_TRACKING = "poop_tracking"
     const val TERMS_CONDITIONS = "terms_conditions"
+    const val CARBON_FOOTPRINT = "carbon_footprint"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -135,6 +138,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val lactationViewModel: LactationViewModel = viewModel()
     val counterViewModel: CounterViewModel = viewModel()
     val poopDiaryViewModel: PoopDiaryViewModel = viewModel()
+    val carbonFootViewModel: CarbonFootprintViewModel = viewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var babyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -190,6 +194,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
         composable(NavRoutes.TERMS_CONDITIONS) {
             TermsConditions (navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.CARBON_FOOTPRINT) {
+            CarbonFootprintScreen (viewModel = carbonFootViewModel, navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.LOGIN) {
             LoginScreen(navController = navController)

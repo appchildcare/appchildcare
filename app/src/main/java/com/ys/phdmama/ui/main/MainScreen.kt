@@ -38,6 +38,7 @@ val sideNavItems = listOf(
     NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, "Perfil de bebé", Icons.Default.Edit, isPremium = true),
     NavBarItem(NavRoutes.POO_MAIN_SELECTION, "Registro de cacas",Icons.Default.Add),
     NavBarItem(NavRoutes.TERMS_CONDITIONS, "Políticas de uso", Icons.Default.Info),
+    NavBarItem(NavRoutes.CARBON_FOOTPRINT, "Huella de carbono", Icons.Default.Star),
 )
 
 
