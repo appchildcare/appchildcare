@@ -58,7 +58,7 @@ import com.ys.phdmama.ui.screens.wizard.prebirth.BirthWaitingScreen
 import com.ys.phdmama.ui.screens.wizard.prebirth.HappyWaitingScreen
 import com.ys.phdmama.ui.screens.wizard.prebirth.RoughDateOfBirthScreen
 import com.ys.phdmama.ui.splash.SplashScreen
-import com.ys.phdmama.ui.welcome.WelcomeScreen
+import com.ys.phdmama.ui.welcome.WelcomeSlider
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.CarbonFootprintViewModel
 import com.ys.phdmama.viewmodel.CounterViewModel
@@ -190,7 +190,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             SplashScreen(navController = navController, loginViewModel, wizardViewModel)
         }
         composable(NavRoutes.WELCOME_SCREEN) {
-            WelcomeScreen(navController = navController)
+            WelcomeSlider(navController = navController)
         }
         composable(NavRoutes.TERMS_CONDITIONS) {
             TermsConditions (navController = navController, openDrawer = openDrawer)

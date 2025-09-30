@@ -73,4 +73,5 @@ dependencies {
     implementation(libs.compose.material3)
 
     implementation(libs.android.billingclient)
+    implementation(libs.accompanist.pager)
 }
