@@ -1,7 +1,6 @@
 package com.ys.phdmama.ui.screens.born.charts
 
 import android.content.ContentValues
-import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.MediaStore
 import androidx.compose.foundation.Canvas
@@ -14,13 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +30,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -157,9 +152,6 @@ fun HeadCircumferenceDetailScreen(
                                 Text("Talla: ${record.height} cm")
                                 Text("Perímetro cefálico: ${record.headCircumference} cm")
 
-//                                diagnostico?.let {
-//                                    Text("Diagnóstico perímetro cefálico (OMS): $it")
-//                                }
                                 val rango = calcularRangoNormalPerimetroCefalico(record.ageInMonths, "girl", lmsTable)
                                 rango?.let {
                                     Text("Rango normal: ${it.min} cm - ${it.max} cm")
@@ -678,7 +670,6 @@ fun generateHeadCircumferencePDF(
         canvas.drawText("Peso (kg)", colPositions[2], yPosition, paint)
         canvas.drawText("Talla (cm)", colPositions[3], yPosition, paint)
         canvas.drawText("P. Cefálico", colPositions[4], yPosition, paint)
-        canvas.drawText("Diagnóstico", colPositions[5], yPosition, paint)
 
         // Draw header separator line
         yPosition += 15f
@@ -707,39 +698,6 @@ fun generateHeadCircumferencePDF(
             }
 
             paint.color = android.graphics.Color.BLACK
-
-            // You'll need to adapt these property accesses to your actual record type
-            /*
-            // Format date
-            val formattedDate = record.date?.let {
-                SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(it)
-            } ?: "N/A"
-
-            canvas.drawText(formattedDate, colPositions[0], yPosition, paint)
-            canvas.drawText("${record.ageInMonths}m", colPositions[1], yPosition, paint)
-            canvas.drawText("${record.weight ?: "N/A"}", colPositions[2], yPosition, paint)
-            canvas.drawText("${record.height ?: "N/A"}", colPositions[3], yPosition, paint)
-            canvas.drawText("${record.headCircumference ?: "N/A"}", colPositions[4], yPosition, paint)
-
-            val zScore = record.headCircumference?.let {
-                calcularZScorePerimetroCefalico(
-                    headCircumference = it,
-                    edadMeses = record.ageInMonths,
-                    sexo = "girl", // You should get this from your data
-                    lmsList = lmsTable,
-                )
-            }
-
-            val diagnostico = zScore?.let {
-                when {
-                    it < -2 -> "Microcefalia"
-                    it <= 2 -> "Normal"
-                    else -> "Macrocefalia"
-                }
-            } ?: "N/A"
-
-            canvas.drawText(diagnostico, colPositions[5], yPosition, paint)
-            */
 
             // Placeholder data - replace with actual record data
             canvas.drawText("01/01/24", colPositions[0], yPosition, paint)
