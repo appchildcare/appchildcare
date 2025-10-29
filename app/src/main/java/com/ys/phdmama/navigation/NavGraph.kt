@@ -41,6 +41,7 @@ import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.phdmama.ui.screens.poop.PoopRegistrationScreen
 import com.ys.phdmama.ui.screens.counters.LactationCounterScreen
 import com.ys.phdmama.ui.screens.counters.LactationDiaryScreen
+import com.ys.phdmama.ui.screens.foodregistration.FoodRegistrationScreen
 import com.ys.phdmama.ui.screens.poop.PoopDiaryScreen
 import com.ys.phdmama.ui.screens.poop.PoopMainScreen
 import com.ys.phdmama.ui.screens.waiting.GynecologistScreen
@@ -121,6 +122,7 @@ object NavRoutes {
     const val POOP_TRACKING = "poop_tracking"
     const val TERMS_CONDITIONS = "terms_conditions"
     const val CARBON_FOOTPRINT = "carbon_footprint"
+    const val FOOD_REGISTRATION = "food_registration"
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -197,6 +199,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
         composable(NavRoutes.CARBON_FOOTPRINT) {
             CarbonFootprintScreen (viewModel = carbonFootViewModel, navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.FOOD_REGISTRATION) {
+            FoodRegistrationScreen(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.LOGIN) {
             LoginScreen(navController = navController)
