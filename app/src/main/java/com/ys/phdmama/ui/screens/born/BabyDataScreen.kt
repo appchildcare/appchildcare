@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,6 +80,7 @@ fun BabyDataScreen(
 
     // New state for baby selection
     val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
+    val isLoadingBabies by babyDataViewModel.isLoadingBabies.collectAsStateWithLifecycle()
     var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
     var isAddingNewBaby by remember { mutableStateOf(false) }
 
@@ -186,31 +189,62 @@ fun BabyDataScreen(
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     // Baby Selector Card with Add Button
-                    if (babyList.isNotEmpty()) {
-                        Column {
-                            // Baby Selector Card
-                            BabySelectorCard(
-                                babies = babyList,
-                                selectedBaby = if (isAddingNewBaby) null else selectedBaby,
-                                onBabySelected = { baby ->
-                                    selectedBaby = baby
-                                    isAddingNewBaby = false
-                                },
-                                babyAgeInMonths = babyAgeInMonths
-                            )
 
+                    if (isLoadingBabies) {
+                        // Show loading indicator
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        if (babyList.isNotEmpty()) {
+                            Column {
+                                // Baby Selector Card
+                                BabySelectorCard(
+                                    babies = babyList,
+                                    selectedBaby = if (isAddingNewBaby) null else selectedBaby,
+                                    onBabySelected = { baby ->
+                                        selectedBaby = baby
+                                        isAddingNewBaby = false
+                                    },
+                                    babyAgeInMonths = babyAgeInMonths
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Add New Baby Button - more prominent
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Button(
+                                        onClick = { clearForm() },
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.secondary
+                                        )
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "Agregar nuevo bebé",
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Agregar Nuevo Bebé")
+                                    }
+                                }
+                            }
                             Spacer(modifier = Modifier.height(16.dp))
-
-                            // Add New Baby Button - more prominent
+                        } else {
+                            // Show add button when no babies exist
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Button(
                                     onClick = { clearForm() },
-                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    modifier = Modifier.padding(vertical = 16.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.secondary
+                                        containerColor = MaterialTheme.colorScheme.primary
                                     )
                                 ) {
                                     Icon(
@@ -219,35 +253,14 @@ fun BabyDataScreen(
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Agregar Nuevo Bebé")
+                                    Text("Agregar Primer Bebé")
                                 }
                             }
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                    } else {
-                        // Show add button when no babies exist
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Button(
-                                onClick = { clearForm() },
-                                modifier = Modifier.padding(vertical = 16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Agregar nuevo bebé",
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Agregar Primer Bebé")
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
+
                     }
+
 
                     // Form title indicating mode
                     if (isAddingNewBaby) {

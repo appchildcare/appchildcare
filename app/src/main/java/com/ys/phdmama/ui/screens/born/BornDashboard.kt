@@ -241,7 +241,7 @@ fun ClickableCard(
                 }
                 "weight" -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.ilustraciones_baby),
+                        painter = painterResource(id = R.mipmap.icon_baby_peso),
                         contentDescription = "weight tracking image",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -250,7 +250,7 @@ fun ClickableCard(
                 }
                 "height" -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.crecimiento),
+                        painter = painterResource(id = R.mipmap.icon_baby_height),
                         contentDescription = "height tracking image",
                         modifier = Modifier
                             .fillMaxWidth()

@@ -27,7 +27,7 @@ val menuItems = listOf(
         description = "Controla las vacunas del bebé",
         icon = Icons.Default.Build,
         route = NavRoutes.BORN_VACCINES,
-        image = R.drawable.ic_vacunas
+        image = R.mipmap.vacuna_icon_color
     ),
     MenuItemData(
         label = "Crecimiento",
@@ -35,7 +35,15 @@ val menuItems = listOf(
         icon = Icons.Default.Create,
         route = NavRoutes.BORN_GROWTHMILESTONES,
         image = R.mipmap.crecimiento
+    ),
+    MenuItemData(
+        label = "Registro de alimentos",
+        description = "Ten al día los alimentos que consume tu bebé",
+        icon = Icons.Default.Create,
+        route = NavRoutes.FOOD_REGISTRATION,
+        image = R.mipmap.registro_alimento
     )
+
 )
 
 @Composable

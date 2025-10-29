@@ -57,7 +57,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.lactancia_madre_bebe),
+            painter = painterResource(id = R.mipmap.lactancia_bebe),
             contentDescription = "lactancia image",
             modifier = Modifier
                 .fillMaxWidth()
