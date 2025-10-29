@@ -1,6 +1,8 @@
 package com.ys.phdmama.ui.screens.foodregistration
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
 import com.ys.phdmama.ui.components.EditableField
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -44,6 +47,7 @@ import com.ys.phdmama.ui.components.PhdSubtitle
 import com.ys.phdmama.viewmodel.FoodReaction
 import com.ys.phdmama.viewmodel.FoodRegistrationViewModel
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun FoodRegistrationScreen(
     navController: NavHostController,
@@ -150,8 +154,10 @@ fun FoodRegistrationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            val context = LocalContext.current
+
             Button(
-                onClick = { /* Navigate to report screen */ },
+                onClick = { viewModel.generatePdfReport(context) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.align(Alignment.End)
