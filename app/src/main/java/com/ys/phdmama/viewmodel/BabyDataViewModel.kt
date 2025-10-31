@@ -73,6 +73,9 @@ class BabyDataViewModel (
     private val _babyList = MutableStateFlow<List<BabyProfile>>(emptyList())
     val babyList: StateFlow<List<BabyProfile>> = _babyList
 
+    private val _isLoadingBabies = MutableStateFlow(false)
+    val isLoadingBabies: StateFlow<Boolean> = _isLoadingBabies.asStateFlow()
+
     private val _babyDocumentIds = MutableLiveData<List<String>>()
     val babyDocumentIds: LiveData<List<String>> = _babyDocumentIds
 
@@ -101,6 +104,11 @@ class BabyDataViewModel (
                     doc.toObject(BabyProfile::class.java)?.copy(id = doc.id)
                 }
                 _babyList.value = babies
+                _isLoadingBabies.value = false
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BabyDataViewModel", "Error fetching babies: ", exception)
+                _isLoadingBabies.value = false
             }
     }
 
@@ -124,6 +132,7 @@ class BabyDataViewModel (
 
     fun clearUserData() {
         _babyList.value = emptyList()
+        _isLoadingBabies.value = false
         _babyData.value = null
         vaccineList = emptyList()
         calculatedDate = null
