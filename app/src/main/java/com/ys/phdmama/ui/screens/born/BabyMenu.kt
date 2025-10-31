@@ -42,8 +42,14 @@ val menuItems = listOf(
         icon = Icons.Default.Create,
         route = NavRoutes.FOOD_REGISTRATION,
         image = R.mipmap.registro_alimento
+    ),
+    MenuItemData(
+        label = "Registro de medicinas",
+        description = "Ten al día las medicinas que consume tu bebé",
+        icon = Icons.Default.Create,
+        route = NavRoutes.MEDICINE_REGISTRATION,
+        image = R.mipmap.medicina_registro
     )
-
 )
 
 @Composable
