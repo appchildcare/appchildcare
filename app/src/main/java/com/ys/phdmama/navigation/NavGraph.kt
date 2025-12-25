@@ -222,7 +222,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
         composable(NavRoutes.BABY_PROFILE) {
 //            BabyDataScreen(navController = navController, openDrawer = openDrawer)
-            AddBabyDataScreen(navController = navController, openDrawer = openDrawer, babyId = babyId)
+            AddBabyDataScreen(navController = navController, babyId = babyId, openDrawer = openDrawer,)
         }
         composable(NavRoutes.BABY_ALREADY_BORN) {
             BabyAlreadyBornScreen(navController = navController)

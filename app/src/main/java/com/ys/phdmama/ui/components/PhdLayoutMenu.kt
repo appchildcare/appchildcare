@@ -19,7 +19,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import com.ys.phdmama.R
 import com.ys.phdmama.ui.theme.secondaryCream
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +62,10 @@ fun PhdLayoutMenu(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
+                .paint(
+                    painter = painterResource(R.drawable.background_sun),
+                    contentScale = ContentScale.Crop
+                )
                 .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.welcome
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,16 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.splash.navigateSafely
-import com.ys.phdmama.ui.theme.primaryGray
 import com.ys.phdmama.ui.theme.primaryTeal
-import com.ys.phdmama.ui.theme.primaryYellow
 import com.ys.phdmama.ui.theme.secondaryYellow
 import kotlinx.coroutines.launch
 
@@ -47,14 +49,13 @@ data class SlideData(
 fun WelcomeSlider(navController: NavHostController) {
     val slides = listOf(
         SlideData(
-            title = "¡Felicidades, próximos ma/padres!",
+            title = "¡Felicidades!",
             content = "El viaje más increíble de su vida ha comenzado. Esta aplicación será su apoyo en cada paso, desde la dulce espera, el nacimiento y crianza."
         ),
         SlideData(
             title = "Aquí encontrarás:",
             content = "",
             bulletPoints = listOf(
-                "Organización",
                 "Información confiable",
                 "Apoyo y conexión",
                 "Bienestar emocional"
@@ -72,8 +73,14 @@ fun WelcomeSlider(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F9FF))
+//            .background(Color(0xFFF5F9FF))
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.background1_sun),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -84,6 +91,17 @@ fun WelcomeSlider(navController: NavHostController) {
             ) { page ->
                 SlideContent(slide = slides[page])
             }
+
+            Row(){
+                Image(
+                    painter = painterResource(id = R.drawable.mascota_relax),
+                    contentDescription = "Baby icon",
+//                    modifier = Modifier
+//                        .size(40.dp)
+                )
+            }
+
+
 
             // Indicadores de página
             Row(
@@ -99,7 +117,7 @@ fun WelcomeSlider(navController: NavHostController) {
                                 if (pagerState.currentPage == index)
                                     secondaryYellow
                                 else
-                                    primaryGray
+                                    primaryTeal
                             )
                     )
                 }
@@ -121,14 +139,15 @@ fun WelcomeSlider(navController: NavHostController) {
                     .padding(horizontal = 32.dp, vertical = 24.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = primaryYellow
+                    containerColor = primaryTeal
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
                     text = if (pagerState.currentPage < slides.size - 1) "Siguiente" else "Comenzar",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
                 )
             }
         }
