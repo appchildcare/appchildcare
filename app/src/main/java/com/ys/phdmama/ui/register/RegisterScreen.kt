@@ -1,21 +1,27 @@
 package com.ys.phdmama.ui.register
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.theme.primaryGray
+import com.ys.phdmama.ui.theme.primaryTeal
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.ui.theme.secondaryLightGray
 import com.ys.phdmama.viewmodel.BabyDataViewModel
@@ -41,6 +47,10 @@ fun RegisterScreen(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(secondaryCream)
+            .paint(
+                painter = painterResource(R.drawable.background1_sun),
+                contentScale = ContentScale.Crop
+            )
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
@@ -59,7 +69,7 @@ fun RegisterScreen(
             },
             label = { Text("Nombres") },
             singleLine = true,
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().background(color = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
@@ -73,7 +83,7 @@ fun RegisterScreen(
             },
             label = { Text("Email") },
             singleLine = true,
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().background(color = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
@@ -88,7 +98,7 @@ fun RegisterScreen(
             label = { Text("Contraseña") },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().background(color = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
@@ -103,7 +113,7 @@ fun RegisterScreen(
             label = { Text("Repetir Contraseña") },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().background(color = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
@@ -113,6 +123,15 @@ fun RegisterScreen(
                 email.isNotBlank() &&
                 password.isNotBlank() &&
                 repeatPassword.isNotBlank()
+
+        Image(
+            painter = painterResource(id = R.drawable.mascota_ok),
+            contentDescription = "Auth image",
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp, 4.dp)
+                .height(180.dp)
+        )
 
         Button(
             onClick = {
@@ -132,10 +151,11 @@ fun RegisterScreen(
                     }
                 )
             },
+            colors = ButtonDefaults.buttonColors(containerColor = primaryTeal),
             modifier = modifier.fillMaxWidth(),
             enabled = isFormValid
         ) {
-            Text(text = "Registrase")
+            Text(text = "Registrarse")
         }
     }
 }

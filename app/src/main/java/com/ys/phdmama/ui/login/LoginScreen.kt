@@ -19,7 +19,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -95,18 +97,30 @@ fun LoginScreen(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(secondaryCream)
+            .paint(
+                painter = painterResource(R.drawable.background1_sun),
+                contentScale = ContentScale.Crop
+            )
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
+
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.ilustraciones_login),
+            painter = painterResource(id = R.drawable.mascota_juntos),
             contentDescription = "Auth image",
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
                 .height(380.dp)
         )
+
+//        Image(
+//            painter = painterResource(id = R.drawable.background_sun),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop,
+//            modifier = Modifier.fillMaxSize()
+//        )
 
         Spacer(modifier = Modifier
             .fillMaxWidth()
@@ -120,12 +134,13 @@ fun LoginScreen(
             placeholder = { Text("Correo Electrónico") },
             leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") },
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White
             ),
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
+                .background(color = Color.White)
                 .border(
                     BorderStroke(width = 2.dp, color = primaryGray),
                     shape = RoundedCornerShape(50)
@@ -138,6 +153,7 @@ fun LoginScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
+                .background(color = Color.White)
                 .border(
                     BorderStroke(width = 2.dp, color = primaryGray),
                     shape = RoundedCornerShape(50)

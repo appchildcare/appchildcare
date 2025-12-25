@@ -54,12 +54,14 @@ import com.ys.phdmama.viewmodel.LoginViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BabyDataScreen(
     navController: NavController,
     babyDataViewModel: BabyDataViewModel = viewModel(),
     babyStatusViewModel: BabyStatusViewModel = viewModel(),
+    openDrawer: () -> Unit
 ) {
     val sexOptions = listOf("Masculino", "Femenino", "Otro")
     val bloodTypeOptions = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
@@ -168,218 +170,208 @@ fun BabyDataScreen(
             selectedBloodType = it.bloodType
         }
     }
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(12.dp)
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+        // Baby Selector Card with Add Button
 
-//    PhdLayoutMenu(
-//        title = "Perfil del bebé",
-//        navController = navController,
-//        openDrawer = openDrawer
-//    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Scaffold(
-                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp)
-                ) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    // Baby Selector Card with Add Button
+        if (isLoadingBabies) {
+            // Show loading indicator
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            if (babyList.isNotEmpty()) {
+                Column {
+                    // Baby Selector Card
+                    BabySelectorCard(
+                        babies = babyList,
+                        selectedBaby = if (isAddingNewBaby) null else selectedBaby,
+                        onBabySelected = { baby ->
+                            selectedBaby = baby
+                            isAddingNewBaby = false
+                        },
+                        babyAgeInMonths = babyAgeInMonths
+                    )
 
-                    if (isLoadingBabies) {
-                        // Show loading indicator
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
-                        }
-                    } else {
-                        if (babyList.isNotEmpty()) {
-                            Column {
-                                // Baby Selector Card
-                                BabySelectorCard(
-                                    babies = babyList,
-                                    selectedBaby = if (isAddingNewBaby) null else selectedBaby,
-                                    onBabySelected = { baby ->
-                                        selectedBaby = baby
-                                        isAddingNewBaby = false
-                                    },
-                                    babyAgeInMonths = babyAgeInMonths
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                // Add New Baby Button - more prominent
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Button(
-                                        onClick = { clearForm() },
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.secondary
-                                        )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = "Agregar nuevo bebé",
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Agregar Nuevo Bebé")
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                        } else {
-                            // Show add button when no babies exist
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Button(
-                                    onClick = { clearForm() },
-                                    modifier = Modifier.padding(vertical = 16.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Agregar nuevo bebé",
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Agregar Primer Bebé")
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                    }
-
-
-                    // Form title indicating mode
-                    if (isAddingNewBaby) {
-                        PhdMediumText("Agregar nuevo bebé")
-                    } else if (selectedBaby != null) {
-                        PhdMediumText("Editando: ${selectedBaby?.name}")
-                    }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    PhdTextField("Nombre", name) { name = it }
-
-                    PhdMediumText("Fecha Nacimiento")
-                    Button(onClick = {
-                        showDatePicker = true
-                    }) {
-                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "Abrir calendario")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Seleccionar Fecha")
-                    }
-                    if (showDatePicker) {
-                        android.app.DatePickerDialog(
-                            context,
-                            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                                calendar.set(year, month, dayOfMonth)
-                                selectedDate = calendar.time
-                                babyDataViewModel.onDateSelected(selectedDate)
-                                showDatePicker = false
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
-                    }
-
-                    val formattedDate = remember(selectedDate) {
-                        DateFormat.format("dd MMMM yyyy", selectedDate).toString()
-                    }
-
-                    PhdNormalText(text = formattedDate)
-
-                    PhdTextField("APGAR", apgarScore) { apgarScore = it }
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    PhdTextField("Peso (kg)", weight) { weight = it }
-                    PhdTextField("Talla (cm)", height) { height = it }
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
-                    PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    PhdDropdown("Tipo de sangre", bloodTypeOptions, selectedBloodType) { selectedBloodType = it }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
+                    // Add New Baby Button - more prominent
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        PhdButtons(if (isAddingNewBaby) "Agregar Bebé" else "Actualizar") {
-                            babyDataViewModel.setBabyAttribute("name", name)
-                            babyDataViewModel.setBabyAttribute("apgar", apgarScore)
-                            babyDataViewModel.setBabyAttribute("height", height)
-                            babyDataViewModel.setBabyAttribute("birthDate", formattedDate)
-                            babyDataViewModel.setBabyAttribute("weight", weight)
-                            babyDataViewModel.setBabyAttribute("perimeter", headCircumference)
-                            babyDataViewModel.setBabyAttribute("bloodType", selectedBloodType)
-                            babyDataViewModel.setBabyAttribute("sex", selectedSex)
-
-                            val babyData = mapOf(
-                                "name" to (babyDataViewModel.getBabyAttribute("name") ?: ""),
-                                "apgar" to (babyDataViewModel.getBabyAttribute("apgar") ?: ""),
-                                "height" to (babyDataViewModel.getBabyAttribute("height") ?: ""),
-                                "weight" to (babyDataViewModel.getBabyAttribute("weight") ?: ""),
-                                "perimeter" to (babyDataViewModel.getBabyAttribute("perimeter") ?: ""),
-                                "bloodType" to (babyDataViewModel.getBabyAttribute("bloodType") ?: ""),
-                                "birthDate" to (babyDataViewModel.getBabyAttribute("birthDate") ?: ""),
-                                "sex" to (babyDataViewModel.getBabyAttribute("sex") ?: "")
+                        Button(
+                            onClick = { clearForm() },
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
                             )
-
-                            if (isAddingNewBaby) {
-                                // Add new baby
-                                babyDataViewModel.addBabyToUser(
-                                    babyData = babyData,
-                                    onError = { errorMessage ->
-                                        Log.e("BabySummary", "Failed to save baby data: $errorMessage")
-                                        babyStatusViewModel.setLoadingRoleUpdate(false)
-                                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            } else {
-                                // Update existing baby
-                                selectedBaby?.let { baby ->
-                                    babyDataViewModel.updateBabyData(
-                                        babyId = baby.id,
-                                        babyData = babyData,
-                                        onError = { errorMessage ->
-                                            Log.e("BabySummary", "Failed to update baby data: $errorMessage")
-                                            babyStatusViewModel.setLoadingRoleUpdate(false)
-                                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        PhdButtons("Volver") {
-                            navController.navigate("bornDashboard")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Agregar nuevo bebé",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Agregar Nuevo Bebé")
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+            } else {
+                // Show add button when no babies exist
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = { clearForm() },
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Agregar nuevo bebé",
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Agregar Primer Bebé")
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+        }
+
+
+        // Form title indicating mode
+        if (isAddingNewBaby) {
+            PhdMediumText("Agregar nuevo bebé")
+        } else if (selectedBaby != null) {
+            PhdMediumText("Editando: ${selectedBaby?.name}")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PhdTextField("Nombre", name) { name = it }
+
+        PhdMediumText("Fecha Nacimiento")
+        Button(onClick = {
+            showDatePicker = true
+        }) {
+            Icon(imageVector = Icons.Default.DateRange, contentDescription = "Abrir calendario")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = "Seleccionar Fecha")
+        }
+        if (showDatePicker) {
+            android.app.DatePickerDialog(
+                context,
+                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                    calendar.set(year, month, dayOfMonth)
+                    selectedDate = calendar.time
+                    babyDataViewModel.onDateSelected(selectedDate)
+                    showDatePicker = false
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        val formattedDate = remember(selectedDate) {
+            DateFormat.format("dd MMMM yyyy", selectedDate).toString()
+        }
+
+        PhdNormalText(text = formattedDate)
+
+        PhdTextField("APGAR", apgarScore) { apgarScore = it }
+        Spacer(modifier = Modifier.width(16.dp))
+
+        PhdTextField("Peso (kg)", weight) { weight = it }
+        PhdTextField("Talla (cm)", height) { height = it }
+        Spacer(modifier = Modifier.width(16.dp))
+
+        PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
+        PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        PhdDropdown("Tipo de sangre", bloodTypeOptions, selectedBloodType) {
+            selectedBloodType = it
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            PhdButtons(if (isAddingNewBaby) "Agregar Bebé" else "Actualizar") {
+                babyDataViewModel.setBabyAttribute("name", name)
+                babyDataViewModel.setBabyAttribute("apgar", apgarScore)
+                babyDataViewModel.setBabyAttribute("height", height)
+                babyDataViewModel.setBabyAttribute("birthDate", formattedDate)
+                babyDataViewModel.setBabyAttribute("weight", weight)
+                babyDataViewModel.setBabyAttribute("perimeter", headCircumference)
+                babyDataViewModel.setBabyAttribute("bloodType", selectedBloodType)
+                babyDataViewModel.setBabyAttribute("sex", selectedSex)
+
+                val babyData = mapOf(
+                    "name" to (babyDataViewModel.getBabyAttribute("name") ?: ""),
+                    "apgar" to (babyDataViewModel.getBabyAttribute("apgar") ?: ""),
+                    "height" to (babyDataViewModel.getBabyAttribute("height") ?: ""),
+                    "weight" to (babyDataViewModel.getBabyAttribute("weight") ?: ""),
+                    "perimeter" to (babyDataViewModel.getBabyAttribute("perimeter") ?: ""),
+                    "bloodType" to (babyDataViewModel.getBabyAttribute("bloodType") ?: ""),
+                    "birthDate" to (babyDataViewModel.getBabyAttribute("birthDate") ?: ""),
+                    "sex" to (babyDataViewModel.getBabyAttribute("sex") ?: "")
+                )
+
+                if (isAddingNewBaby) {
+                    // Add new baby
+                    babyDataViewModel.addBabyToUser(
+                        babyData = babyData,
+                        onError = { errorMessage ->
+                            Log.e("BabySummary", "Failed to save baby data: $errorMessage")
+                            babyStatusViewModel.setLoadingRoleUpdate(false)
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                } else {
+                    // Update existing baby
+                    selectedBaby?.let { baby ->
+                        babyDataViewModel.updateBabyData(
+                            babyId = baby.id,
+                            babyData = babyData,
+                            onError = { errorMessage ->
+                                Log.e("BabySummary", "Failed to update baby data: $errorMessage")
+                                babyStatusViewModel.setLoadingRoleUpdate(false)
+                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+                }
+            }
+            PhdButtons("Volver") {
+                navController.navigate("bornDashboard")
             }
         }
+    }
+//            }
+//        }
 //    }
 }
 
 @Composable
-fun AddBabyDataScreen(loginViewModel: LoginViewModel = viewModel(), navController: NavController,
-                      openDrawer: () -> Unit, babyId: String?) {
+fun AddBabyDataScreen(
+    loginViewModel: LoginViewModel = viewModel(), navController: NavController,
+    openDrawer: () -> Unit, babyId: String?
+) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     var showPaymentUI by remember { mutableStateOf(true) }
 
@@ -411,7 +403,7 @@ fun AddBabyDataScreen(loginViewModel: LoginViewModel = viewModel(), navControlle
                 navController = navController,
                 babyDataViewModel = babyDataViewModel,
                 babyStatusViewModel = babyStatusViewModel,
-//                openDrawer = TODO()
+                openDrawer = openDrawer
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

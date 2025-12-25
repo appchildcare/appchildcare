@@ -65,7 +65,7 @@ fun HeightLengthDetailScreen(
     }
 
     PhdLayoutMenu(
-        title = "Reporte de Longitud/altura",
+        title = "Reporte de Longuitud/peso",
         navController = navController,
         openDrawer = openDrawer
     ) {

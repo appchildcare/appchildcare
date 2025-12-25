@@ -47,7 +47,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
     val selectedLactationType by viewModel.selectedLactationType.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
-    val lactationTypes = listOf("Leche natural", "Leche de fórmula")
+    val lactationTypes = listOf("Leche materna", "Leche de fórmula")
 
     Column(
         modifier = Modifier
