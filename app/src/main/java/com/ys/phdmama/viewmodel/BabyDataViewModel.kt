@@ -340,6 +340,28 @@ class BabyDataViewModel (
         }
     }
 
+    fun calculateBabyAge(birthDateString: String): BabyAge {
+        try {
+            val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+            val birthDate = sdf.parse(birthDateString) ?: return BabyAge(0, 0)
+
+            val now = Calendar.getInstance()
+            val birth = Calendar.getInstance().apply { time = birthDate }
+
+            var years = now.get(Calendar.YEAR) - birth.get(Calendar.YEAR)
+            var months = now.get(Calendar.MONTH) - birth.get(Calendar.MONTH)
+
+            if (months < 0) {
+                years--
+                months += 12
+            }
+
+            return BabyAge(years, months)
+        } catch (e: Exception) {
+            return BabyAge(0, 0)
+        }
+    }
+
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()

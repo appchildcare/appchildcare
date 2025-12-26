@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,7 +44,6 @@ import com.ys.phdmama.ui.components.PhdMediumText
 import com.ys.phdmama.ui.components.PhdNormalText
 import com.ys.phdmama.ui.components.PhdTextField
 import com.ys.phdmama.ui.screens.billing.BillingScreen
-import com.ys.phdmama.viewmodel.BabyAge
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.BabyProfile
 import com.ys.phdmama.viewmodel.BabyStatusViewModel
@@ -64,7 +62,6 @@ fun BabyDataScreen(
 ) {
     val sexOptions = listOf("Masculino", "Femenino", "Otro")
     val bloodTypeOptions = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
-
 
     val context = LocalContext.current
     var name by remember { mutableStateOf("") }
@@ -90,12 +87,15 @@ fun BabyDataScreen(
     // Calculate baby age for display
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
         selectedBaby?.birthDate?.let { birthDate ->
-            calculateBabyAge(birthDate)
+            babyDataViewModel.calculateBabyAge(birthDate)
         }
     }
 
+    // Fetch babies once when screen loads
     LaunchedEffect(Unit) {
         babyDataViewModel.fetchBabies("")
+
+        // Collect UI events
         babyStatusViewModel.uiEvent.collect { event ->
             when (event) {
                 is BabyStatusViewModel.UiEvent.ShowSnackbar -> {
@@ -105,19 +105,15 @@ fun BabyDataScreen(
                 }
             }
         }
-
-        if (selectedBaby == null && babyList.isNotEmpty() && !isAddingNewBaby) {
-            selectedBaby = babyList.first()
-        }
     }
 
-    // Auto-select first baby when list is loaded
-//    LaunchedEffect(babyList) {
-//        Log.d("BabyDataScreen", "Baby List updated. Size: ${babyList.size}")
-//        if (selectedBaby == null && babyList.isNotEmpty() && !isAddingNewBaby) {
-//            selectedBaby = babyList.first()
-//        }
-//    }
+    // Auto-select first baby when list loads (SEPARATE LaunchedEffect)
+    LaunchedEffect(babyList) {
+        if (selectedBaby == null && babyList.isNotEmpty() && !isAddingNewBaby) {
+            selectedBaby = babyList.first()
+            Log.d("BabyDataScreen", "Auto-selected first baby: ${babyList.first().name}")
+        }
+    }
 
     // Fill form when a baby is selected
     LaunchedEffect(selectedBaby) {
@@ -129,10 +125,8 @@ fun BabyDataScreen(
             headCircumference = baby.perimeter
             selectedSex = baby.sex
             selectedBloodType = baby.bloodType
-            // Parse the birth date if needed
+
             baby.birthDate?.let { dateString ->
-                // Assuming birthDate is stored as a formatted string
-                // You might need to adjust this parsing logic based on your date format
                 try {
                     val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
                     selectedDate = sdf.parse(dateString) ?: calendar.time
@@ -179,7 +173,12 @@ fun BabyDataScreen(
 
         if (isLoadingBabies) {
             // Show loading indicator
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         } else {
@@ -192,13 +191,14 @@ fun BabyDataScreen(
                         onBabySelected = { baby ->
                             selectedBaby = baby
                             isAddingNewBaby = false
+                            Log.d("BabyDataScreen", "User selected baby: ${baby.name}")
                         },
                         babyAgeInMonths = babyAgeInMonths
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Add New Baby Button - more prominent
+                    // Add New Baby Button
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
@@ -245,7 +245,6 @@ fun BabyDataScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
-
         }
 
         // Form title indicating mode
@@ -257,7 +256,6 @@ fun BabyDataScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         PhdTextField("Nombre", name) { name = it }
-
         PhdMediumText("Fecha Nacimiento")
         Button(onClick = {
             showDatePicker = true
@@ -266,6 +264,7 @@ fun BabyDataScreen(
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Seleccionar Fecha")
         }
+
         if (showDatePicker) {
             android.app.DatePickerDialog(
                 context,
@@ -286,19 +285,14 @@ fun BabyDataScreen(
         }
 
         PhdNormalText(text = formattedDate)
-
         PhdTextField("APGAR", apgarScore) { apgarScore = it }
         Spacer(modifier = Modifier.width(16.dp))
-
         PhdTextField("Peso (kg)", weight) { weight = it }
         PhdTextField("Talla (cm)", height) { height = it }
         Spacer(modifier = Modifier.width(16.dp))
-
         PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
         PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
-
         Spacer(modifier = Modifier.width(16.dp))
-
         PhdDropdown("Tipo de sangre", bloodTypeOptions, selectedBloodType) {
             selectedBloodType = it
         }
@@ -331,7 +325,6 @@ fun BabyDataScreen(
                 )
 
                 if (isAddingNewBaby) {
-                    // Add new baby
                     babyDataViewModel.addBabyToUser(
                         babyData = babyData,
                         onError = { errorMessage ->
@@ -341,7 +334,6 @@ fun BabyDataScreen(
                         }
                     )
                 } else {
-                    // Update existing baby
                     selectedBaby?.let { baby ->
                         babyDataViewModel.updateBabyData(
                             babyId = baby.id,
@@ -360,7 +352,6 @@ fun BabyDataScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -403,30 +394,5 @@ fun AddBabyDataScreen(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-// Helper function to calculate baby age (you might already have this)
-data class BabyAge(val years: Int, val months: Int)
-
-fun calculateBabyAge(birthDateString: String): BabyAge {
-    try {
-        val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
-        val birthDate = sdf.parse(birthDateString) ?: return BabyAge(0, 0)
-
-        val now = Calendar.getInstance()
-        val birth = Calendar.getInstance().apply { time = birthDate }
-
-        var years = now.get(Calendar.YEAR) - birth.get(Calendar.YEAR)
-        var months = now.get(Calendar.MONTH) - birth.get(Calendar.MONTH)
-
-        if (months < 0) {
-            years--
-            months += 12
-        }
-
-        return BabyAge(years, months)
-    } catch (e: Exception) {
-        return BabyAge(0, 0)
     }
 }
