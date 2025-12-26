@@ -20,7 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -96,6 +95,7 @@ fun BabyDataScreen(
     }
 
     LaunchedEffect(Unit) {
+        babyDataViewModel.fetchBabies("")
         babyStatusViewModel.uiEvent.collect { event ->
             when (event) {
                 is BabyStatusViewModel.UiEvent.ShowSnackbar -> {
@@ -105,20 +105,19 @@ fun BabyDataScreen(
                 }
             }
         }
-    }
 
-    // Load baby list on screen start
-    LaunchedEffect(Unit) {
-        // Assuming you have a method to load baby list
-        // babyDataViewModel.loadBabyList()
-    }
-
-    // Auto-select first baby when list is loaded
-    LaunchedEffect(babyList) {
         if (selectedBaby == null && babyList.isNotEmpty() && !isAddingNewBaby) {
             selectedBaby = babyList.first()
         }
     }
+
+    // Auto-select first baby when list is loaded
+//    LaunchedEffect(babyList) {
+//        Log.d("BabyDataScreen", "Baby List updated. Size: ${babyList.size}")
+//        if (selectedBaby == null && babyList.isNotEmpty() && !isAddingNewBaby) {
+//            selectedBaby = babyList.first()
+//        }
+//    }
 
     // Fill form when a baby is selected
     LaunchedEffect(selectedBaby) {
@@ -170,13 +169,13 @@ fun BabyDataScreen(
             selectedBloodType = it.bloodType
         }
     }
+
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(12.dp)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-        // Baby Selector Card with Add Button
 
         if (isLoadingBabies) {
             // Show loading indicator
@@ -217,7 +216,7 @@ fun BabyDataScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Agregar Nuevo Bebé")
+                            Text("Agregar Bebé")
                         }
                     }
                 }
@@ -237,7 +236,7 @@ fun BabyDataScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar nuevo bebé",
+                            contentDescription = "Agregar Primer bebé",
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -248,7 +247,6 @@ fun BabyDataScreen(
             }
 
         }
-
 
         // Form title indicating mode
         if (isAddingNewBaby) {
@@ -362,9 +360,7 @@ fun BabyDataScreen(
             }
         }
     }
-//            }
-//        }
-//    }
+
 }
 
 @Composable

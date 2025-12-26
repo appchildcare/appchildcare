@@ -21,8 +21,6 @@ import com.ys.phdmama.ui.register.RegisterScreen
 import com.ys.phdmama.ui.screens.Resources
 import com.ys.phdmama.ui.screens.TermsConditions
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
-//import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
-import com.ys.phdmama.ui.screens.born.BabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
 import com.ys.phdmama.ui.screens.born.BornResourcesMenuScreen
@@ -131,8 +129,7 @@ object NavRoutes {
 @Composable
 fun NavGraph(navController: NavHostController, startDestination: String = NavRoutes.SPLASH,
              openDrawer: () -> Unit) {
-    val viewModelStoreOwner = LocalViewModelStoreOwner.current
-    val babyDataViewModel: BabyDataViewModel = viewModel(viewModelStoreOwner!!)
+    val babyDataViewModel: BabyDataViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
     val wizardViewModel: WizardViewModel = viewModel()
     val growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel()
