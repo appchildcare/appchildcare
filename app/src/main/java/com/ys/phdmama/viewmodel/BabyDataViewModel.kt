@@ -71,7 +71,7 @@ class BabyDataViewModel (
         private set
 
     private val _babyList = MutableStateFlow<List<BabyProfile>>(emptyList())
-    val babyList: StateFlow<List<BabyProfile>> = _babyList
+    val babyList: StateFlow<List<BabyProfile>> = _babyList.asStateFlow()
 
     private val _isLoadingBabies = MutableStateFlow(false)
     val isLoadingBabies: StateFlow<Boolean> = _isLoadingBabies.asStateFlow()
@@ -93,10 +93,21 @@ class BabyDataViewModel (
         fetchBabyProfile()
     }
 
-    fun fetchBabies(userId: String) {
+    fun fetchBabies(userId: String?) {
+        val uid = firebaseAuth.currentUser?.uid
+        _isLoadingBabies.value = true
+        if (uid == null) {
+            _isLoadingBabies.value = false
+            return
+        }
+
+        Log.d("BabyDataViewModel", "ViewModel instance in fetchBabies: ${this.hashCode()}")
+        Log.d("BabyDataViewModel", "Fetching babies for userId: $uid")
+        Log.d("BabyDataViewModel", "ViewModel instance in fetchBabies: ${this.hashCode()}")
+        Log.d("BabyDataViewModel", "Fetching babies for userId: $uid")
         val db = FirebaseFirestore.getInstance()
         db.collection("users")
-            .document(userId)
+            .document(uid)
             .collection("babies")
             .get()
             .addOnSuccessListener { snapshot ->
@@ -105,6 +116,7 @@ class BabyDataViewModel (
                 }
                 _babyList.value = babies
                 _isLoadingBabies.value = false
+                Log.d("BabyDataViewModel", "Babies fetched successfully. Count: ${babies.size}")
             }
             .addOnFailureListener { exception ->
                 Log.e("BabyDataViewModel", "Error fetching babies: ", exception)
@@ -325,6 +337,28 @@ class BabyDataViewModel (
             } else {
                 onError("ID del bebé no válido")
             }
+        }
+    }
+
+    fun calculateBabyAge(birthDateString: String): BabyAge {
+        try {
+            val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+            val birthDate = sdf.parse(birthDateString) ?: return BabyAge(0, 0)
+
+            val now = Calendar.getInstance()
+            val birth = Calendar.getInstance().apply { time = birthDate }
+
+            var years = now.get(Calendar.YEAR) - birth.get(Calendar.YEAR)
+            var months = now.get(Calendar.MONTH) - birth.get(Calendar.MONTH)
+
+            if (months < 0) {
+                years--
+                months += 12
+            }
+
+            return BabyAge(years, months)
+        } catch (e: Exception) {
+            return BabyAge(0, 0)
         }
     }
 
