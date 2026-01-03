@@ -41,6 +41,7 @@ import com.ys.phdmama.ui.components.PhdDropdown
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.components.PhdMediumText
 import com.ys.phdmama.ui.components.PhdNormalText
+import com.ys.phdmama.ui.components.PhdTextBold
 import com.ys.phdmama.ui.components.PhdTextField
 import com.ys.phdmama.ui.screens.billing.BillingScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
@@ -168,31 +169,9 @@ fun BabyDataScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-//                    // Add New Baby Button
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.Center
-//                    ) {
-//                        Button(
-//                            onClick = { clearForm() },
-//                            modifier = Modifier.padding(vertical = 8.dp),
-//                            colors = ButtonDefaults.buttonColors(
-//                                containerColor = MaterialTheme.colorScheme.secondary
-//                            )
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Default.Add,
-//                                contentDescription = "Agregar bebé",
-//                                modifier = Modifier.size(18.dp)
-//                            )
-//                            Spacer(modifier = Modifier.width(8.dp))
-//                            Text("Agregar Bebé")
-//                        }
-//                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
-//
         }
 
         // Form title indicating mode
@@ -201,10 +180,13 @@ fun BabyDataScreen(
         } else if (selectedBaby != null) {
             PhdMediumText("Editando: ${selectedBaby?.name}")
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         PhdTextField("Nombre", name) { name = it }
-        PhdMediumText("Fecha Nacimiento")
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PhdTextBold("Fecha Nacimiento")
         Button(onClick = {
             showDatePicker = true
         }) {
@@ -231,20 +213,29 @@ fun BabyDataScreen(
         val formattedDate = remember(selectedDate) {
             DateFormat.format("dd MMMM yyyy", selectedDate).toString()
         }
+        Spacer(modifier = Modifier.height(16.dp))
 
         PhdNormalText(text = formattedDate)
+        Spacer(modifier = Modifier.height(16.dp))
+
         PhdTextField("APGAR", apgarScore) { apgarScore = it }
         Spacer(modifier = Modifier.width(16.dp))
+
         PhdTextField("Peso (kg)", weight) { weight = it }
+        Spacer(modifier = Modifier.height(16.dp))
+
         PhdTextField("Talla (cm)", height) { height = it }
         Spacer(modifier = Modifier.width(16.dp))
+
         PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
+        Spacer(modifier = Modifier.height(16.dp))
+
         PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
         Spacer(modifier = Modifier.width(16.dp))
+
         PhdDropdown("Tipo de sangre", bloodTypeOptions, selectedBloodType) {
             selectedBloodType = it
         }
-
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(

@@ -31,3 +31,8 @@ fun PhdLabelText(text: String){
 fun PhdErrorText(text: String){
     Text(text, style = MaterialTheme.typography.labelSmall, color = Color.Red)
 }
+
+@Composable
+fun PhdTextBold(text: String){
+    Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+}
