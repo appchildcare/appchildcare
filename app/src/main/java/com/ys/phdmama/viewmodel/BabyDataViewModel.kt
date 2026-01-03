@@ -236,6 +236,7 @@ class BabyDataViewModel @Inject constructor(
 
     fun addBabyToUser(
         babyData: Map<String, Any>,
+        onSuccess: () -> Unit = {},
         onError: (String) -> Unit
     ) {
         val uid = firebaseAuth.currentUser?.uid
@@ -244,6 +245,7 @@ class BabyDataViewModel @Inject constructor(
                 try {
                     val babyRef = firestore.collection("users").document(uid).collection("babies")
                     babyRef.add(babyData).await()
+                    onSuccess()
                     sendSnackbar("Información agregada correctamente!")
                 } catch (e: Exception) {
                     onError(e.localizedMessage ?: "Error al añadir bebé")
@@ -351,6 +353,7 @@ class BabyDataViewModel @Inject constructor(
     fun updateBabyData(
         babyId: String?,
         babyData: Map<String, Any>,
+        onSuccess: () -> Unit = {},
         onError: (String) -> Unit
     ) {
         val uid = firebaseAuth.currentUser?.uid
@@ -363,6 +366,7 @@ class BabyDataViewModel @Inject constructor(
                         .document(babyId)
 
                     babyRef.update(babyData).await()
+                    onSuccess()
                     sendSnackbar("Información actualizada correctamente!")
 
                     // Refresh the baby list after updating

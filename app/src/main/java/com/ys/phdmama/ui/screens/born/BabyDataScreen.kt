@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -30,19 +29,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.ys.phdmama.ui.components.AppChildAlert
 import com.ys.phdmama.ui.components.PhdButtons
 import com.ys.phdmama.ui.components.PhdDropdown
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.components.PhdMediumText
 import com.ys.phdmama.ui.components.PhdNormalText
+import com.ys.phdmama.ui.components.PhdTextBold
 import com.ys.phdmama.ui.components.PhdTextField
 import com.ys.phdmama.ui.screens.billing.BillingScreen
 import com.ys.phdmama.viewmodel.BabyDataViewModel
@@ -83,7 +82,8 @@ fun BabyDataScreen(
     var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
     var isAddingNewBaby by remember { mutableStateOf(false) }
 
-    val babyProfile by babyDataViewModel.babyData.collectAsStateWithLifecycle()
+    var showSuccessAlert by remember { mutableStateOf(false) }
+    var successMessage by remember { mutableStateOf("Datos registrados") }
 
     // Calculate baby age for display
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
@@ -137,32 +137,6 @@ fun BabyDataScreen(
         }
     }
 
-    // Clear form when adding new baby
-    fun clearForm() {
-        name = ""
-        apgarScore = ""
-        weight = ""
-        height = ""
-        headCircumference = ""
-        selectedSex = sexOptions[0]
-        selectedBloodType = bloodTypeOptions[0]
-        selectedDate = calendar.time
-        babyDataViewModel.clearSelectedBaby()
-        isAddingNewBaby = true
-    }
-
-//    LaunchedEffect(babyProfile) {
-//        babyProfile?.let {
-//            name = it.name
-//            apgarScore = it.apgar
-//            weight = it.weight
-//            height = it.height
-//            headCircumference = it.perimeter
-//            selectedSex = it.sex
-//            selectedBloodType = it.bloodType
-//        }
-//    }
-
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
@@ -187,7 +161,7 @@ fun BabyDataScreen(
                         babies = babyList,
                         selectedBaby = if (isAddingNewBaby) null else selectedBaby,
                         onBabySelected = { baby ->
-                            babyDataViewModel.setSelectedBaby(baby)
+                            selectedBaby = baby
                             isAddingNewBaby = false
                         },
                         babyAgeInMonths = babyAgeInMonths
@@ -195,50 +169,6 @@ fun BabyDataScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Add New Baby Button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Button(
-                            onClick = { clearForm() },
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Agregar nuevo bebé",
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Agregar Bebé")
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-            } else {
-                // Show add button when no babies exist
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        onClick = { clearForm() },
-                        modifier = Modifier.padding(vertical = 16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar Primer bebé",
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Agregar Primer Bebé")
-                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -250,10 +180,13 @@ fun BabyDataScreen(
         } else if (selectedBaby != null) {
             PhdMediumText("Editando: ${selectedBaby?.name}")
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         PhdTextField("Nombre", name) { name = it }
-        PhdMediumText("Fecha Nacimiento")
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PhdTextBold("Fecha Nacimiento")
         Button(onClick = {
             showDatePicker = true
         }) {
@@ -280,20 +213,29 @@ fun BabyDataScreen(
         val formattedDate = remember(selectedDate) {
             DateFormat.format("dd MMMM yyyy", selectedDate).toString()
         }
+        Spacer(modifier = Modifier.height(16.dp))
 
         PhdNormalText(text = formattedDate)
+        Spacer(modifier = Modifier.height(16.dp))
+
         PhdTextField("APGAR", apgarScore) { apgarScore = it }
         Spacer(modifier = Modifier.width(16.dp))
+
         PhdTextField("Peso (kg)", weight) { weight = it }
+        Spacer(modifier = Modifier.height(16.dp))
+
         PhdTextField("Talla (cm)", height) { height = it }
         Spacer(modifier = Modifier.width(16.dp))
+
         PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
+        Spacer(modifier = Modifier.height(16.dp))
+
         PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
         Spacer(modifier = Modifier.width(16.dp))
+
         PhdDropdown("Tipo de sangre", bloodTypeOptions, selectedBloodType) {
             selectedBloodType = it
         }
-
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(
@@ -321,9 +263,15 @@ fun BabyDataScreen(
                     "sex" to (babyDataViewModel.getBabyAttribute("sex") ?: "")
                 )
 
-                if (isAddingNewBaby) {
+                val isNewBaby = babyList.isEmpty()
+
+                if (isNewBaby) {
                     babyDataViewModel.addBabyToUser(
                         babyData = babyData,
+                        onSuccess = {
+                            successMessage = "Bebé agregado exitosamente"
+                            showSuccessAlert = true
+                        },
                         onError = { errorMessage ->
                             Log.e("BabySummary", "Failed to save baby data: $errorMessage")
                             babyStatusViewModel.setLoadingRoleUpdate(false)
@@ -335,6 +283,10 @@ fun BabyDataScreen(
                         babyDataViewModel.updateBabyData(
                             babyId = baby.id,
                             babyData = babyData,
+                            onSuccess = {
+                                successMessage = "Datos actualizados exitosamente"
+                                showSuccessAlert = true
+                            },
                             onError = { errorMessage ->
                                 Log.e("BabySummary", "Failed to update baby data: $errorMessage")
                                 babyStatusViewModel.setLoadingRoleUpdate(false)
@@ -344,6 +296,16 @@ fun BabyDataScreen(
                     }
                 }
             }
+
+            AppChildAlert(
+                showAlert = showSuccessAlert,
+                onDismiss = { showSuccessAlert = false },
+                message = successMessage,
+                onConfirm = {
+                    showSuccessAlert = false
+                }
+            )
+
             PhdButtons("Volver") {
                 navController.navigate("bornDashboard")
             }
