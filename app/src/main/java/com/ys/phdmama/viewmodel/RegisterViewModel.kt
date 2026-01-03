@@ -5,12 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import com.ys.phdmama.model.UserRegistrationData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RegisterViewModel(
+@HiltViewModel
+class RegisterViewModel @Inject constructor(): ViewModel() {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-) : ViewModel() {
-
     val userRegistrationData = UserRegistrationData()
 
     fun updateUserField(field: String, value: String) {

@@ -11,11 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
-class PregnancyTrackerViewModel(
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
+class PregnancyViewModel /* @Inject constructor() */ : ViewModel() {
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-) : ViewModel() {
-
     private val _pregnancyTrackingData = MutableStateFlow<User?>(null)
     val currentPregnancyTracking: StateFlow<User?> get() = _pregnancyTrackingData
 

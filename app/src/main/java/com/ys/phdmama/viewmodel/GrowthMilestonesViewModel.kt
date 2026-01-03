@@ -8,7 +8,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class GrowthRecord(
     val ageInMonths: Int = 0,
@@ -18,7 +20,8 @@ data class GrowthRecord(
     val timestamp: Long = 0L
 )
 
-class GrowthMilestonesViewModel : ViewModel() {
+@HiltViewModel
+class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val userId: String? = firebaseAuth.currentUser?.uid
     private val errorMessage = MutableLiveData<String?>()

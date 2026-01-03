@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.WizardViewModel
@@ -15,7 +15,7 @@ import com.ys.phdmama.viewmodel.WizardViewModel
 @Composable
 fun BirthWaitingScreen(
     navController: NavHostController,
-    wizardViewModel: WizardViewModel = viewModel()
+    wizardViewModel: WizardViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
 

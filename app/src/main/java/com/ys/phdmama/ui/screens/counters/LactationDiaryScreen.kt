@@ -1,7 +1,6 @@
 package com.ys.phdmama.ui.screens.counters
 
 import Nap
-import SleepRecordCard
 import WeekDay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
@@ -27,7 +26,7 @@ import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
 @Composable
 fun LactationDiaryScreen(
     babyId: String?,
-    viewModel: LactancyDiaryViewModel = viewModel(),
+    viewModel: LactancyDiaryViewModel = hiltViewModel(),
     navController: NavHostController,
     openDrawer: () -> Unit
 ) {

@@ -40,19 +40,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
-import com.ys.phdmama.ui.components.EditableField
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.ui.components.PhdGenericCardList
-import com.ys.phdmama.ui.components.PhdEditItemDialog
 import com.ys.phdmama.ui.components.PhdLabelText
 import com.ys.phdmama.ui.components.PhdNormalText
 import com.ys.phdmama.ui.components.PhdSubtitle
-import com.ys.phdmama.viewmodel.FoodReaction
-import com.ys.phdmama.viewmodel.FoodRegistrationViewModel
 import com.ys.phdmama.viewmodel.MedicineRecord
 import com.ys.phdmama.viewmodel.MedicineRegistrationViewModel
 import java.util.Calendar
@@ -62,7 +58,7 @@ import java.util.Calendar
 fun MedicineRegistrationScreen(
     navController: NavHostController,
     openDrawer: () -> Unit,
-    viewModel: MedicineRegistrationViewModel = viewModel()
+    viewModel: MedicineRegistrationViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         viewModel.loadMedicineRecords()

@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.ys.phdmama.model.CarbonFootprintReport
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlin.math.ceil
 
-// ViewModel
-class CarbonFootprintViewModel : ViewModel() {
+@HiltViewModel
+class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
     // Carbon footprint constants (kg CO₂e)
     private val C_DISPOSABLE_DIAPER = 0.4
     private val C_CLOTH_DIAPER_WASH = 0.2

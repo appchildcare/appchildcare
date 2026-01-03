@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -60,7 +61,7 @@ data class WeekDay(
 )
 
 @Composable
-fun SleepDiaryScreen(babyId: String?, viewModel: SleepDiaryViewModel = viewModel(), navController: NavHostController,  openDrawer: () -> Unit) {
+fun SleepDiaryScreen(babyId: String?, viewModel: SleepDiaryViewModel = hiltViewModel(), navController: NavHostController,  openDrawer: () -> Unit) {
     val napEntries by viewModel.napEntries.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {

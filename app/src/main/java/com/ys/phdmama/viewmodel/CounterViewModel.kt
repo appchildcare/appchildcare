@@ -1,26 +1,37 @@
 package com.ys.phdmama.viewmodel
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.services.CounterService
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CounterViewModel(application: Application) : AndroidViewModel(application) {
+
+@HiltViewModel
+class CounterViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
+
     private val auth = FirebaseAuth.getInstance()
 
-    private val sharedPreferences = application.getSharedPreferences("counter_prefs", Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("counter_prefs", Context.MODE_PRIVATE)
+
     private val _counter = MutableStateFlow(sharedPreferences.getInt("counter", 0))
     val counter: StateFlow<Int> = _counter
 
@@ -61,7 +72,6 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     @RequiresApi(Build.VERSION_CODES.O)
     fun startCounter() {
         Log.d("CounterViewModel", "Starting counter service")
-        val context = getApplication<Application>().applicationContext
 
         try {
             val intent = Intent(context, CounterService::class.java).apply {
@@ -82,7 +92,6 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
 
     fun stopCounter(babyId: String?) {
         Log.d("CounterViewModel", "Stopping counter service")
-        val context = getApplication<Application>().applicationContext
 
         try {
             val intent = Intent(context, CounterService::class.java).apply {
@@ -109,8 +118,7 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
         Log.d("CounterViewModel", "ViewModel cleared")
     }
 
-
-    private fun saveCounterTime(counterSeconds: Int, babyId: String?,) {
+    private fun saveCounterTime(counterSeconds: Int, babyId: String?) {
         val formattedTime = formatTime(counterSeconds)
         val timestamp = Timestamp.now()
 

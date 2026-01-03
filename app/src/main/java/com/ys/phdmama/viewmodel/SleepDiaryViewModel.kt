@@ -9,7 +9,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class SleepDiaryViewModel : ViewModel() {
+//@HiltViewModel
+class SleepDiaryViewModel /* @Inject constructor() */: ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val _napEntries = MutableStateFlow<List<DayNapEntry>>(emptyList())
     val napEntries: StateFlow<List<DayNapEntry>> = _napEntries

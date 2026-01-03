@@ -15,9 +15,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.ys.phdmama.navigation.NavGraph
 import com.ys.phdmama.ui.theme.PhdmamaTheme
@@ -25,8 +24,10 @@ import com.ys.phdmama.utils.BatteryOptimizationHelper
 import com.ys.phdmama.utils.NotificationPermissionHelper
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     // Request permission launcher
@@ -61,8 +62,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
-                val loginViewModel: LoginViewModel = viewModel()
-                val babyDataViewModel: BabyDataViewModel = viewModel()
+                val loginViewModel: LoginViewModel = hiltViewModel()
+                val babyDataViewModel: BabyDataViewModel = hiltViewModel()
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,

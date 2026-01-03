@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.model.LMSHeightWeight
@@ -34,6 +33,7 @@ import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ys.phdmama.viewmodel.GrowthRecord
 import kotlin.math.exp
 import kotlin.math.ln
@@ -42,10 +42,10 @@ import kotlin.math.pow
 @Composable
 fun HeightLengthDetailScreen(
     navController: NavHostController,
-    growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(),
-    userViewModel: UserDataViewModel = viewModel(),
-    dashboardViewModel: BabyDataViewModel = viewModel(),
-    babyDataViewModel: BabyDataViewModel = viewModel(),
+    growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
+    userViewModel: UserDataViewModel = hiltViewModel(),
+    dashboardViewModel: BabyDataViewModel = hiltViewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
     openDrawer: () -> Unit,
     babyId: String?
 ) {

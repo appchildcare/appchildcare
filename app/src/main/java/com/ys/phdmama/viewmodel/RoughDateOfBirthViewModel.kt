@@ -4,12 +4,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-class RoughDateOfBirthViewModel : ViewModel() {
+@HiltViewModel
+class RoughDateOfBirthViewModel @Inject constructor(): ViewModel() {
     var calculatedDate by mutableStateOf<String?>(null)
         private set
 

@@ -9,21 +9,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.ys.phdmama.navigation.BornNavGraph
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.BabyStatusViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
-import com.ys.phdmama.viewmodel.WizardViewModelFactory
 
 @Composable
 fun BabySummary(
     navController: NavHostController,
-    viewModel: BabyDataViewModel = viewModel(),
-    babyStatusViewModel: BabyStatusViewModel = viewModel(),
-    wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory())
+    viewModel: BabyDataViewModel = hiltViewModel(),
+    babyStatusViewModel: BabyStatusViewModel = hiltViewModel(),
+    wizardViewModel: WizardViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val isLoading by remember { mutableStateOf(false) }

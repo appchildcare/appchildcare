@@ -10,16 +10,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.Vaccine
 import com.ys.phdmama.viewmodel.BabyDataViewModel.UiEvent.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -31,6 +37,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import javax.inject.Inject
 
 data class BabyProfile(
     val id: String? = "",
@@ -46,10 +53,15 @@ data class BabyProfile(
 
 data class BabyAge(val years: Int, val months: Int)
 
-class BabyDataViewModel (
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+@HiltViewModel
+class BabyDataViewModel @Inject constructor(
+    private val dataStore: DataStore<Preferences>
 ) : ViewModel() {
+
+    private val SELECTED_BABY_ID = stringPreferencesKey("selected_baby_id")
+
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     private val _uiEvent = Channel<BabyDataViewModel.UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -79,6 +91,9 @@ class BabyDataViewModel (
     private val _babyDocumentIds = MutableLiveData<List<String>>()
     val babyDocumentIds: LiveData<List<String>> = _babyDocumentIds
 
+    private val _selectedBaby = MutableStateFlow<BabyProfile?>(null)
+    val selectedBaby: StateFlow<BabyProfile?> = _selectedBaby.asStateFlow()
+
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
             this[attribute] = value
@@ -91,6 +106,45 @@ class BabyDataViewModel (
 
     init {
         fetchBabyProfile()
+        loadSelectedBaby()
+    }
+
+    private fun loadSelectedBaby() {
+        viewModelScope.launch {
+            dataStore.data
+                .map { preferences ->
+                    preferences[SELECTED_BABY_ID]
+                }
+                .collect { savedBabyId ->
+                    if (savedBabyId != null && _babyList.value.isNotEmpty()) {
+                        _babyList.value.find { it.id == savedBabyId }?.let { baby ->
+                            _selectedBaby.value = baby
+                            Log.d("BabyDataViewModel", "Restored selected baby: ${baby.name}")
+                        }
+                    }
+                }
+        }
+    }
+
+    fun setSelectedBaby(baby: BabyProfile?) {
+        _selectedBaby.value = baby
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                if (baby != null) {
+                    baby.id?.let { id ->
+                        preferences[SELECTED_BABY_ID] = id
+                        Log.d("BabyDataViewModel", "Saved selected baby: ${baby.name}")
+                    }
+                } else {
+                    preferences.remove(SELECTED_BABY_ID)
+                    Log.d("BabyDataViewModel", "Cleared selected baby")
+                }
+            }
+        }
+    }
+
+    fun clearSelectedBaby() {
+        setSelectedBaby(null)
     }
 
     fun fetchBabies(userId: String?) {
@@ -169,7 +223,8 @@ class BabyDataViewModel (
                         val baby = document.toObject(BabyProfile::class.java)
                            .copy(id = document.id)
                         _babyData.value = baby
-                        Log.d("NINO", baby.toString())
+                        setSelectedBaby(baby)
+                        Log.d("BabyDataViewModel", baby.toString())
                         break // Get only the first baby
                     }
                 }

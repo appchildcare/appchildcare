@@ -24,8 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.ChecklistItem
@@ -56,8 +56,8 @@ sealed class ChecklistDisplayItem {
 
 @Composable
 fun ChecklistScreen(
-    loginViewModel: LoginViewModel = viewModel(),
-    userViewModel: UserDataViewModel = viewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    userViewModel: UserDataViewModel = hiltViewModel()
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     val textTitle = when (userRole) {

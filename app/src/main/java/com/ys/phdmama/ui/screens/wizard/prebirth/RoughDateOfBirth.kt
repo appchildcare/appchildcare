@@ -1,6 +1,6 @@
 package com.ys.phdmama.ui.screens.wizard.prebirth
 
-import PregnancyTrackerViewModel
+import PregnancyViewModel
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import android.widget.Toast
@@ -13,28 +13,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.BabyStatusViewModel
-import com.ys.phdmama.viewmodel.PregnancyTrackingViewModelFactory
 import com.ys.phdmama.viewmodel.RoughDateOfBirthViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
-import com.ys.phdmama.viewmodel.WizardViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 
+@JvmOverloads
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoughDateOfBirthScreen(
     navController: NavHostController,
-    babyStatusViewModel: BabyStatusViewModel = viewModel(),
-    viewModel: RoughDateOfBirthViewModel = viewModel()
+    babyStatusViewModel: BabyStatusViewModel = hiltViewModel(),
+    viewModel: RoughDateOfBirthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val wizardViewModel: WizardViewModel = viewModel(factory = WizardViewModelFactory())
-    val pregnancyTrackerViewModel: PregnancyTrackerViewModel = viewModel(factory = PregnancyTrackingViewModelFactory())
+    val wizardViewModel: WizardViewModel = hiltViewModel()
+    val pregnancyViewModel: PregnancyViewModel = viewModel()
     val calendar = Calendar.getInstance()
     var selectedDate by remember { mutableStateOf(calendar.time) }
     var isLoading by remember { mutableStateOf(false) }
@@ -200,7 +200,7 @@ fun RoughDateOfBirthScreen(
                             val upcomingBirthDate = if (formattedBirthDate.isNotEmpty()) {formattedBirthDate} else { formattedBirthDateWeek}
                             val convertedUpcomingBirthDate = viewModel.convertToDate(upcomingBirthDate)
 
-                            pregnancyTrackerViewModel.savePregnancyTracker(
+                            pregnancyViewModel.savePregnancyTracker(
                                     convertedUpcomingBirthDate,
                                 selectedOption.toInt(),
                                 selectedDate)
