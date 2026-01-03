@@ -1,7 +1,6 @@
 package com.ys.phdmama.ui.screens.pregnancy
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,7 +19,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ys.phdmama.navigation.NavRoutes
-import com.ys.phdmama.ui.components.BottomNavigationBar
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 
 data class MenuItemData(val label: String, val description: String, val icon: ImageVector, val route: String)

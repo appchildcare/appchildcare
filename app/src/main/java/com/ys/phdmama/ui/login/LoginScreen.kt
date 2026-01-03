@@ -1,6 +1,5 @@
 package com.ys.phdmama.ui.login
 
-
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -36,21 +36,17 @@ import com.ys.phdmama.ui.theme.primaryTeal
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
-import com.ys.phdmama.viewmodel.WizardViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val email by loginViewModel.email.collectAsState()
     val password by loginViewModel.password.collectAsState()
-    val wizardViewModel: WizardViewModel = viewModel(
-        factory = WizardViewModelFactory()
-    )
     var isGoogleLoading by remember { mutableStateOf(false) }
     var isEmailLoading by remember { mutableStateOf(false) }
 

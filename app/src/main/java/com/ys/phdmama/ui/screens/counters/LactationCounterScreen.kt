@@ -12,6 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
@@ -21,7 +22,7 @@ import com.ys.phdmama.viewmodel.LactationViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LactationCounterScreen(babyId: String?, navController: NavController,
-                           viewModel: LactationViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+                           viewModel: LactationViewModel = hiltViewModel(),
                            openDrawer: () -> Unit) {
     PhdLayoutMenu(
         title = "Contador de Lactancia",

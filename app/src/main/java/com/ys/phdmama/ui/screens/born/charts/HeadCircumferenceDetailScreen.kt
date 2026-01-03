@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.model.LMSHeadCircumference
@@ -49,10 +49,10 @@ import kotlin.math.exp
 @Composable
 fun HeadCircumferenceDetailScreen(
     navController: NavHostController,
-    growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(),
-    userViewModel: UserDataViewModel = viewModel(),
-    dashboardViewModel: BabyDataViewModel = viewModel(),
-    babyDataViewModel: BabyDataViewModel = viewModel(),
+    growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
+    userViewModel: UserDataViewModel = hiltViewModel(),
+    dashboardViewModel: BabyDataViewModel = hiltViewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
     openDrawer: () -> Unit,
     babyId: String?
 ) {

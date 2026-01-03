@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ys.phdmama.model.Vaccine
 import com.ys.phdmama.ui.components.EditableField
@@ -56,7 +56,7 @@ import java.util.Calendar
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun VaccineScreen(navController: NavController,
-                  babyDataViewModel: BabyDataViewModel = viewModel(),
+                  babyDataViewModel: BabyDataViewModel = hiltViewModel(),
                   openDrawer: () -> Unit) {
     val context = LocalContext.current
     var vaccineName by remember { mutableStateOf("") }

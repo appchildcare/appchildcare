@@ -11,10 +11,13 @@ import com.google.firebase.firestore.Query
 import com.ys.phdmama.ui.screens.poop.DayPoopEntry
 import com.ys.phdmama.ui.screens.poop.PoopRecord
 import com.ys.phdmama.ui.screens.poop.WeekDay
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class PoopDiaryViewModel : ViewModel() {
+@HiltViewModel
+class PoopDiaryViewModel @Inject constructor(): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
 
     private val _poopEntries = MutableStateFlow<List<DayPoopEntry>>(emptyList())

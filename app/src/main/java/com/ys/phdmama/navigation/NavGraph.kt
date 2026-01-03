@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -129,17 +129,17 @@ object NavRoutes {
 @Composable
 fun NavGraph(navController: NavHostController, startDestination: String = NavRoutes.SPLASH,
              openDrawer: () -> Unit) {
-    val babyDataViewModel: BabyDataViewModel = viewModel()
-    val loginViewModel: LoginViewModel = viewModel()
-    val wizardViewModel: WizardViewModel = viewModel()
-    val growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel()
-    val poopRegisterViewModel: PoopRegistrationViewModel = viewModel()
+    val babyDataViewModel: BabyDataViewModel = hiltViewModel()
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    val wizardViewModel: WizardViewModel = hiltViewModel()
+    val growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel()
+    val poopRegisterViewModel: PoopRegistrationViewModel = hiltViewModel()
     val sleepDiaryViewModel: SleepDiaryViewModel = viewModel()
-    val lactationDiaryViewModel: LactancyDiaryViewModel = viewModel()
-    val lactationViewModel: LactationViewModel = viewModel()
-    val counterViewModel: CounterViewModel = viewModel()
-    val poopDiaryViewModel: PoopDiaryViewModel = viewModel()
-    val carbonFootViewModel: CarbonFootprintViewModel = viewModel()
+    val lactationDiaryViewModel: LactancyDiaryViewModel = hiltViewModel()
+    val lactationViewModel: LactationViewModel = hiltViewModel()
+    val counterViewModel: CounterViewModel = hiltViewModel()
+    val poopDiaryViewModel: PoopDiaryViewModel = hiltViewModel()
+    val carbonFootViewModel: CarbonFootprintViewModel = hiltViewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
     var babyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -270,7 +270,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.WAITING_GYNECOLOGIST) {
-            GynecologistScreen(navController = navController, loginViewModel, openDrawer = openDrawer)
+            GynecologistScreen(navController = navController, openDrawer = openDrawer)
         }
 
         composable(NavRoutes.PREGNANCY_DASHBOARD) {
@@ -327,7 +327,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 }
             }
 //            babyId: String?,
-//            viewModel: PoopDiaryViewModel = viewModel(),
+//            viewModel: PoopDiaryViewModel = hiltViewModel(),
 //            navController: NavHostController,
 //            openDrawer: () -> Unit
             composable(NavRoutes.POOP_TRACKING) {

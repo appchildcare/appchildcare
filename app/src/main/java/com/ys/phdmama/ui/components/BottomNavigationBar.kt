@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ys.phdmama.ui.theme.primaryTeal
 import com.ys.phdmama.viewmodel.LoginViewModel
 
@@ -31,7 +32,7 @@ val navWaitingItems = listOf(
 
 @Composable
 fun BottomNavigationBar(navController: NavController,
-                        loginViewModel: LoginViewModel = viewModel(),) {// Observe ViewModel state
+                        loginViewModel: LoginViewModel = hiltViewModel()) {// Observe ViewModel state
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
 
     val navItems = when (userRole) {

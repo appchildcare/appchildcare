@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -18,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ys.phdmama.R
 import com.ys.phdmama.ui.components.PhdBoldText
@@ -46,7 +46,7 @@ val sideNavItems = listOf(
 @Composable
 fun MainScreen(
     navController: NavController = rememberNavController(),
-    loginViewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
     openDrawer: () -> Unit
 ) {
     Scaffold(
@@ -102,7 +102,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel = viewModel(), babyDataViewModel: BabyDataViewModel = viewModel(), closeDrawer: () -> Unit) {
+fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel = hiltViewModel(), babyDataViewModel: BabyDataViewModel = hiltViewModel(), closeDrawer: () -> Unit) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     var showPremiumOption by remember { mutableStateOf(true) }
 

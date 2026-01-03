@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -42,10 +43,10 @@ import com.ys.phdmama.viewmodel.UserDataViewModel
 @Composable
 fun BornDashboardScreen(
     navController: NavHostController,
-    growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(),
-    userViewModel: UserDataViewModel = viewModel(),
-    dashboardViewModel: BabyDataViewModel = viewModel(),
-    babyDataViewModel: BabyDataViewModel = viewModel(),
+    growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
+    userViewModel: UserDataViewModel = hiltViewModel(),
+    dashboardViewModel: BabyDataViewModel = hiltViewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
     openDrawer: () -> Unit,
     babyId: String?
 ) {
@@ -55,6 +56,10 @@ fun BornDashboardScreen(
     val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
     var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
     var babyAgeInMonths by remember { mutableStateOf<BabyAge?>(null) }
+
+    val selectedBabyTest by babyDataViewModel.selectedBaby.collectAsStateWithLifecycle()
+
+
 
     LaunchedEffect(Unit) {
         babyId?.let { babyDataViewModel.fetchBabies(it) }
@@ -84,6 +89,11 @@ fun BornDashboardScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            selectedBaby?.let { baby ->
+                Text("Viewing: ${baby.name}")
+//                Text("Age: ${calculateBabyAge(baby.birthDate)}")
+            } ?: Text("No baby selected")
+
             BabySelectorCard(
                 babies = babyList,
                 selectedBaby = selectedBaby,

@@ -1,6 +1,6 @@
 package com.ys.phdmama.ui.screens.pregnancy
 
-import PregnancyTrackerViewModel
+import PregnancyViewModel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -34,8 +34,8 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun PregnancyDashboardScreen (
     navController: NavHostController,
-    userViewModel: UserDataViewModel = viewModel(),
-    pregnancyTrackingViewModel: PregnancyTrackerViewModel = viewModel(),
+    userViewModel: UserDataViewModel = hiltViewModel(),
+    pregnancyTrackingViewModel: PregnancyViewModel = hiltViewModel(),
     openDrawer: () -> Unit
 ) {
     val currentUser by userViewModel.currentUser.collectAsState()

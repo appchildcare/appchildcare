@@ -19,6 +19,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,6 +28,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import javax.inject.Inject
 
 data class MedicineRecord(
     val id: String = "",
@@ -37,7 +39,8 @@ data class MedicineRecord(
     val date: String = ""
 )
 
-class MedicineRegistrationViewModel : ViewModel() {
+@HiltViewModel
+class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 

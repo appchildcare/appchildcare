@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ys.phdmama.R
@@ -31,8 +32,8 @@ import com.ys.phdmama.viewmodel.RegisterViewModel
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    loginViewModel: LoginViewModel = viewModel(),
-    babyDataViewModel: BabyDataViewModel = viewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -40,7 +41,7 @@ fun RegisterScreen(
     var displayName by remember { mutableStateOf("") }
     val modifier: Modifier = Modifier
     val context = LocalContext.current
-    val registerViewModel: RegisterViewModel = viewModel()
+    val registerViewModel: RegisterViewModel = hiltViewModel()
 
     Column(
         modifier = modifier

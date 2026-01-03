@@ -9,7 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.viewmodel.LoginViewModel
@@ -18,8 +18,8 @@ import com.ys.phdmama.viewmodel.WizardViewModel
 @Composable
 fun SplashScreen(
     navController: NavHostController,
-    loginViewModel: LoginViewModel = viewModel(),
-    wizardViewModel: WizardViewModel = viewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    wizardViewModel: WizardViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
 //        delay(1000L) // Simula un tiempo de carga inicial

@@ -6,14 +6,17 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-class LactancyDiaryViewModel : ViewModel() {
+@HiltViewModel
+class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val _lactationEntries = MutableStateFlow<List<DayNapEntry>>(emptyList())
     val lactationEntries: StateFlow<List<DayNapEntry>> = _lactationEntries

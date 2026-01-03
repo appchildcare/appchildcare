@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -47,7 +48,7 @@ import java.util.Calendar
 @Composable
 fun MotherProfileScreen(
     navController: NavController,
-    motherProfileViewModel: MotherProfileViewModel = viewModel(),
+    motherProfileViewModel: MotherProfileViewModel = hiltViewModel(),
     openDrawer: () -> Unit
 ) {
     val context = LocalContext.current

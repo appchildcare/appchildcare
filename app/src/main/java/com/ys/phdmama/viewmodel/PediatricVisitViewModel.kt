@@ -7,15 +7,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.PediatricianVisit
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import javax.inject.Inject
 
-
-class PediatricVisitViewModel : ViewModel() {
+@HiltViewModel
+class PediatricVisitViewModel @Inject constructor(): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     var visitDataList by mutableStateOf<List<PediatricianVisit>>(emptyList())

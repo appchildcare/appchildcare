@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -56,8 +57,8 @@ import java.util.Locale
 @Composable
 fun BabyDataScreen(
     navController: NavController,
-    babyDataViewModel: BabyDataViewModel = viewModel(),
-    babyStatusViewModel: BabyStatusViewModel = viewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
+    babyStatusViewModel: BabyStatusViewModel = hiltViewModel(),
     openDrawer: () -> Unit
 ) {
     val sexOptions = listOf("Masculino", "Femenino", "Otro")
@@ -94,8 +95,6 @@ fun BabyDataScreen(
     // Fetch babies once when screen loads
     LaunchedEffect(Unit) {
         babyDataViewModel.fetchBabies("")
-
-        // Collect UI events
         babyStatusViewModel.uiEvent.collect { event ->
             when (event) {
                 is BabyStatusViewModel.UiEvent.ShowSnackbar -> {
@@ -148,21 +147,21 @@ fun BabyDataScreen(
         selectedSex = sexOptions[0]
         selectedBloodType = bloodTypeOptions[0]
         selectedDate = calendar.time
-        selectedBaby = null
+        babyDataViewModel.clearSelectedBaby()
         isAddingNewBaby = true
     }
 
-    LaunchedEffect(babyProfile) {
-        babyProfile?.let {
-            name = it.name
-            apgarScore = it.apgar
-            weight = it.weight
-            height = it.height
-            headCircumference = it.perimeter
-            selectedSex = it.sex
-            selectedBloodType = it.bloodType
-        }
-    }
+//    LaunchedEffect(babyProfile) {
+//        babyProfile?.let {
+//            name = it.name
+//            apgarScore = it.apgar
+//            weight = it.weight
+//            height = it.height
+//            headCircumference = it.perimeter
+//            selectedSex = it.sex
+//            selectedBloodType = it.bloodType
+//        }
+//    }
 
     Column(
         modifier = Modifier
@@ -172,7 +171,6 @@ fun BabyDataScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isLoadingBabies) {
-            // Show loading indicator
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -189,9 +187,8 @@ fun BabyDataScreen(
                         babies = babyList,
                         selectedBaby = if (isAddingNewBaby) null else selectedBaby,
                         onBabySelected = { baby ->
-                            selectedBaby = baby
+                            babyDataViewModel.setSelectedBaby(baby)
                             isAddingNewBaby = false
-                            Log.d("BabyDataScreen", "User selected baby: ${baby.name}")
                         },
                         babyAgeInMonths = babyAgeInMonths
                     )
@@ -356,7 +353,7 @@ fun BabyDataScreen(
 
 @Composable
 fun AddBabyDataScreen(
-    loginViewModel: LoginViewModel = viewModel(), navController: NavController,
+    loginViewModel: LoginViewModel = hiltViewModel(), navController: NavController,
     openDrawer: () -> Unit, babyId: String?
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
@@ -384,8 +381,8 @@ fun AddBabyDataScreen(
         if (showPaymentUI) {
             BillingScreen()
         } else {
-            val babyDataViewModel: BabyDataViewModel = viewModel()
-            val babyStatusViewModel: BabyStatusViewModel = viewModel()
+            val babyDataViewModel: BabyDataViewModel = hiltViewModel()
+            val babyStatusViewModel: BabyStatusViewModel = hiltViewModel()
             BabyDataScreen(
                 navController = navController,
                 babyDataViewModel = babyDataViewModel,

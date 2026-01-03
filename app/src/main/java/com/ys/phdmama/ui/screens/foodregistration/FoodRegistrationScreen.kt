@@ -33,8 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ys.phdmama.ui.components.EditableField
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -52,7 +52,7 @@ import com.ys.phdmama.viewmodel.FoodRegistrationViewModel
 fun FoodRegistrationScreen(
     navController: NavHostController,
     openDrawer: () -> Unit,
-    viewModel: FoodRegistrationViewModel = viewModel()
+    viewModel: FoodRegistrationViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         viewModel.loadFoodReactions()

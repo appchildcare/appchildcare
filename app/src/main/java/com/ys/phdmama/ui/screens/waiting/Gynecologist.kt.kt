@@ -17,15 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.viewmodel.LoginViewModel
 
 @Composable
 fun GynecologistScreen(navController: NavController = rememberNavController(),
-                       loginViewModel: LoginViewModel = viewModel(),
                        openDrawer: () -> Unit){
     var modifier: Modifier = Modifier
 

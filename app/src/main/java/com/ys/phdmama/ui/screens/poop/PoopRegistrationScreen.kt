@@ -48,7 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.model.PoopColor
@@ -66,7 +66,7 @@ fun PoopRegistrationScreen(
     userId: String,
     babyId: String,
     babyName: String = "Benjamín",
-    viewModel: PoopRegistrationViewModel = viewModel()
+    viewModel: PoopRegistrationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current

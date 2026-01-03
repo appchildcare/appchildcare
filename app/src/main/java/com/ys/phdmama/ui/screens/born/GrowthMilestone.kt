@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
@@ -25,7 +25,7 @@ import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 @Composable
 fun GrowthMilestonesScreen(
     navController: NavHostController,
-    viewModel: GrowthMilestonesViewModel = viewModel(),
+    viewModel: GrowthMilestonesViewModel = hiltViewModel(),
     openDrawer: () -> Unit,
     babyId: String?
 ) {

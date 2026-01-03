@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.ys.phdmama.viewmodel.PoopDiaryViewModel
@@ -66,7 +66,7 @@ data class WeekDay(
 @Composable
 fun PoopDiaryScreen(
     babyId: String?,
-    viewModel: PoopDiaryViewModel = viewModel(),
+    viewModel: PoopDiaryViewModel = hiltViewModel(),
     navController: NavHostController,
     openDrawer: () -> Unit
 ) {

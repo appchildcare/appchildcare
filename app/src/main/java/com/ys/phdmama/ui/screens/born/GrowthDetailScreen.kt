@@ -18,7 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.model.LMS
@@ -31,10 +31,10 @@ import com.ys.phdmama.viewmodel.UserDataViewModel
 
 @Composable
 fun GrowthDetailScreen(navController: NavHostController,
-                       growthMilestonesViewModel: GrowthMilestonesViewModel = viewModel(),
-                       userViewModel: UserDataViewModel = viewModel(),
-                       dashboardViewModel: BabyDataViewModel = viewModel(),
-                       babyDataViewModel: BabyDataViewModel = viewModel(),
+                       growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
+                       userViewModel: UserDataViewModel = hiltViewModel(),
+                       dashboardViewModel: BabyDataViewModel = hiltViewModel(),
+                       babyDataViewModel: BabyDataViewModel = hiltViewModel(),
                        openDrawer: () -> Unit,
                        babyId: String?) {
     val records = growthMilestonesViewModel.growthRecords.value

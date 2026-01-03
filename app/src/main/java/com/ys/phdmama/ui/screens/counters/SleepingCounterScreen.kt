@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
@@ -33,8 +34,8 @@ import com.ys.phdmama.viewmodel.CounterViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SleepingCounterScreen( babyId: String?, navController: NavController,
-                           viewModel: CounterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+fun SleepingCounterScreen(babyId: String?, navController: NavController,
+                          viewModel: CounterViewModel = hiltViewModel(),
                           openDrawer: () -> Unit) {
     PhdLayoutMenu(
         title = "Contador de Sueño",

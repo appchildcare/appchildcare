@@ -25,6 +25,8 @@ compose = "1.5.4"
 androidMedia = "1.6.0"
 androidBilling = "7.1.1"
 accompanist = "0.32.0"
+hilt = "2.51"
+ksp = "2.0.0-1.0.21"
 
 [libraries]
 androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
@@ -59,9 +61,14 @@ compose-material3 = { module = "androidx.compose.material3:material3", version.r
 androidx-media = { module = "androidx.media:media", version.ref = "androidMedia" }
 android-billingclient = { group="android.billingclient", name = "androi-billing-client",  module = "com.android.billingclient:billing-ktx", version.ref = "androidBilling" }
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version = "1.2.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }  # Plugin de Google Services para Firebase
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
