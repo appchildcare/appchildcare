@@ -101,7 +101,7 @@ class MotherProfileViewModel @Inject constructor(): ViewModel() {
                         val mother = document.toObject(MotherProfile::class.java)
                             .copy(id = document.id)
                         _motherData.value = mother
-                        Log.d("NINO", mother.toString())
+                        Log.d("MotherProfileViewModel", mother.toString())
                         break // Get only the first baby
                     }
                 }
