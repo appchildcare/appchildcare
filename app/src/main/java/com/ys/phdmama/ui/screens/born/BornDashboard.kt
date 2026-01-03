@@ -2,6 +2,7 @@ package com.ys.phdmama.ui.screens.born
 
 import android.os.Build
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,7 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
@@ -45,21 +46,22 @@ fun BornDashboardScreen(
     navController: NavHostController,
     growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
     userViewModel: UserDataViewModel = hiltViewModel(),
-    dashboardViewModel: BabyDataViewModel = hiltViewModel(),
     babyDataViewModel: BabyDataViewModel = hiltViewModel(),
     openDrawer: () -> Unit,
     babyId: String?
 ) {
+    //TODO: Remove logs after testing
+    val selectedBaby2 by babyDataViewModel.selectedBaby.collectAsState()
+
+    Text(text = "NINO Selected baby: ${selectedBaby2?.name ?: "None"}")
+    selectedBaby2?.name?.let { Log.d("NINO Selected baby:", it) }
+
     if (babyId != null) {
         Log.d("BABY ID received", babyId)
     }
     val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
     var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
     var babyAgeInMonths by remember { mutableStateOf<BabyAge?>(null) }
-
-    val selectedBabyTest by babyDataViewModel.selectedBaby.collectAsStateWithLifecycle()
-
-
 
     LaunchedEffect(Unit) {
         babyId?.let { babyDataViewModel.fetchBabies(it) }
@@ -92,6 +94,7 @@ fun BornDashboardScreen(
             selectedBaby?.let { baby ->
                 Text("Viewing: ${baby.name}")
 //                Text("Age: ${calculateBabyAge(baby.birthDate)}")
+                babyDataViewModel.setSelectedBaby(baby)
             } ?: Text("No baby selected")
 
             BabySelectorCard(

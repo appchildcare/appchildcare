@@ -58,6 +58,8 @@ class BabyDataViewModel @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) : ViewModel() {
 
+    private val SELECTED_BABY_ID = stringPreferencesKey("selected_baby_id")
+
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -102,10 +104,6 @@ class BabyDataViewModel @Inject constructor(
         return _babyAttributes.value[attribute]
     }
 
-    companion object {
-        private val SELECTED_BABY_ID_KEY = stringPreferencesKey("selected_baby_id")
-    }
-
     init {
         fetchBabyProfile()
         loadSelectedBaby()
@@ -115,7 +113,7 @@ class BabyDataViewModel @Inject constructor(
         viewModelScope.launch {
             dataStore.data
                 .map { preferences ->
-                    preferences[SELECTED_BABY_ID_KEY]
+                    preferences[SELECTED_BABY_ID]
                 }
                 .collect { savedBabyId ->
                     if (savedBabyId != null && _babyList.value.isNotEmpty()) {
@@ -134,11 +132,11 @@ class BabyDataViewModel @Inject constructor(
             dataStore.edit { preferences ->
                 if (baby != null) {
                     baby.id?.let { id ->
-                        preferences[SELECTED_BABY_ID_KEY] = id
+                        preferences[SELECTED_BABY_ID] = id
                         Log.d("BabyDataViewModel", "Saved selected baby: ${baby.name}")
                     }
                 } else {
-                    preferences.remove(SELECTED_BABY_ID_KEY)
+                    preferences.remove(SELECTED_BABY_ID)
                     Log.d("BabyDataViewModel", "Cleared selected baby")
                 }
             }
@@ -225,7 +223,8 @@ class BabyDataViewModel @Inject constructor(
                         val baby = document.toObject(BabyProfile::class.java)
                            .copy(id = document.id)
                         _babyData.value = baby
-                        Log.d("NINO", baby.toString())
+                        setSelectedBaby(baby)
+                        Log.d("BabyDataViewModel", baby.toString())
                         break // Get only the first baby
                     }
                 }
