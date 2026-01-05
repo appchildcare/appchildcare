@@ -46,37 +46,31 @@ fun BornDashboardScreen(
     navController: NavHostController,
     growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
     userViewModel: UserDataViewModel = hiltViewModel(),
-    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     openDrawer: () -> Unit,
     babyId: String?
 ) {
-    //TODO: Remove logs after testing
-    val selectedBaby2 by babyDataViewModel.selectedBaby.collectAsState()
-
-    Text(text = "NINO Selected baby: ${selectedBaby2?.name ?: "None"}")
-    selectedBaby2?.name?.let { Log.d("NINO Selected baby:", it) }
-
-    if (babyId != null) {
-        Log.d("BABY ID received", babyId)
-    }
+    // Use ViewModel's selected baby directly
+    val selectedBaby by babyDataViewModel.selectedBaby.collectAsState()
     val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
-    var selectedBaby by remember { mutableStateOf<BabyProfile?>(null) }
-    var babyAgeInMonths by remember { mutableStateOf<BabyAge?>(null) }
 
-    LaunchedEffect(Unit) {
-        babyId?.let { babyDataViewModel.fetchBabies(it) }
-    }
-
-    LaunchedEffect(babyList) {
-        if (selectedBaby == null && babyList.isNotEmpty()) {
-            selectedBaby = babyList.first()
-            growthMilestonesViewModel.loadGrowthData(babyList.first().id) // Load data immediately
+    // Calculate age reactively based on selected baby
+    val babyAgeInMonths = remember(selectedBaby?.birthDate) {
+        selectedBaby?.birthDate?.let { birthDate ->
+            babyDataViewModel.calculateAgeInMonths(birthDate)
         }
     }
 
-    LaunchedEffect(selectedBaby) {
-        selectedBaby?.birthDate?.let {
-            babyAgeInMonths = babyDataViewModel.calculateAgeInMonths(it)
+    // Fetch babies when screen loads
+    LaunchedEffect(Unit) {
+        babyDataViewModel.fetchBabies("")
+    }
+
+    // Load growth data when selected baby changes
+    LaunchedEffect(selectedBaby?.id) {
+        selectedBaby?.id?.let { id ->
+            growthMilestonesViewModel.loadGrowthData(id)
+            Log.d("BornDashboard", "Loading growth data for baby: ${selectedBaby?.name}")
         }
     }
 
@@ -91,21 +85,18 @@ fun BornDashboardScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            selectedBaby?.let { baby ->
-                Text("Viewing: ${baby.name}")
-//                Text("Age: ${calculateBabyAge(baby.birthDate)}")
-                babyDataViewModel.setSelectedBaby(baby)
-            } ?: Text("No baby selected")
+            // Debug text
+            Text(text = "NINO Selected baby: ${selectedBaby?.name ?: "None"}")
+            selectedBaby?.name?.let { Log.d("NINO Selected baby:", it) }
 
             BabySelectorCard(
                 babies = babyList,
                 selectedBaby = selectedBaby,
-                onBabySelected = {
-                    selectedBaby = it
-                    growthMilestonesViewModel.loadGrowthData(it.id) // Reemplaza testId logic
+                onBabySelected = { baby ->
+                    Log.d("BornDashboard", "Baby selected from dropdown: ${baby.name}")
+                    babyDataViewModel.setSelectedBaby(baby) // This will save to DataStore
                 },
                 babyAgeInMonths = babyAgeInMonths
-
             )
 
             selectedBaby?.let {
