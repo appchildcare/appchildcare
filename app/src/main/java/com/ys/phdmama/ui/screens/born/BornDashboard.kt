@@ -50,27 +50,22 @@ fun BornDashboardScreen(
     openDrawer: () -> Unit,
     babyId: String?
 ) {
-    // Use ViewModel's selected baby directly
+    // Collect from ViewModel's StateFlow
     val selectedBaby by babyDataViewModel.selectedBaby.collectAsState()
-    val babyList by babyDataViewModel.babyList.collectAsStateWithLifecycle()
+    val babyList by babyDataViewModel.babyList.collectAsState()
 
-    // Calculate age reactively based on selected baby
+    // Calculate age reactively
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
         selectedBaby?.birthDate?.let { birthDate ->
             babyDataViewModel.calculateAgeInMonths(birthDate)
         }
     }
 
-    // Fetch babies when screen loads
-    LaunchedEffect(Unit) {
-        babyDataViewModel.fetchBabies("")
-    }
-
     // Load growth data when selected baby changes
     LaunchedEffect(selectedBaby?.id) {
         selectedBaby?.id?.let { id ->
             growthMilestonesViewModel.loadGrowthData(id)
-            Log.d("BornDashboard", "Loading growth data for baby: ${selectedBaby?.name}")
+            Log.d("BornDashboard", "Loading data for baby: ${selectedBaby?.name}")
         }
     }
 
@@ -85,16 +80,14 @@ fun BornDashboardScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Debug text
-            Text(text = "NINO Selected baby: ${selectedBaby?.name ?: "None"}")
-            selectedBaby?.name?.let { Log.d("NINO Selected baby:", it) }
+            Text(text = "Selected baby: ${selectedBaby?.name ?: "None"}")
 
             BabySelectorCard(
                 babies = babyList,
                 selectedBaby = selectedBaby,
                 onBabySelected = { baby ->
-                    Log.d("BornDashboard", "Baby selected from dropdown: ${baby.name}")
-                    babyDataViewModel.setSelectedBaby(baby) // This will save to DataStore
+                    Log.d("BornDashboard", "User selected baby: ${baby.name}")
+                    babyDataViewModel.setSelectedBaby(baby)
                 },
                 babyAgeInMonths = babyAgeInMonths
             )

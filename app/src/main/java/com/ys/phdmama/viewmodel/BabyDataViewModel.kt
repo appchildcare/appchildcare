@@ -10,23 +10,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.Vaccine
-import com.ys.phdmama.viewmodel.BabyDataViewModel.UiEvent.*
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -54,17 +48,16 @@ data class BabyProfile(
 
 data class BabyAge(val years: Int, val months: Int)
 
+
 @HiltViewModel
 class BabyDataViewModel @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    private val preferencesRepository: BabyPreferencesRepository
 ) : ViewModel() {
-
-    private val SELECTED_BABY_ID = stringPreferencesKey("selected_baby_id")
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    private val _uiEvent = Channel<BabyDataViewModel.UiEvent>()
+    private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _babyAttributes = MutableStateFlow(mapOf<String, String>())
@@ -92,10 +85,63 @@ class BabyDataViewModel @Inject constructor(
     private val _babyDocumentIds = MutableLiveData<List<String>>()
     val babyDocumentIds: LiveData<List<String>> = _babyDocumentIds
 
+    // Main selected baby StateFlow - combines DataStore with baby list
     private val _selectedBaby = MutableStateFlow<BabyProfile?>(null)
     val selectedBaby: StateFlow<BabyProfile?> = _selectedBaby.asStateFlow()
 
-    private var hasLoadedInitialBaby = false
+    init {
+        // Observe saved baby ID from DataStore and sync with baby list
+        observeSelectedBabyFromDataStore()
+        fetchBabies(null)
+    }
+
+    // ============================================
+    // DATASTORE INTEGRATION
+    // ============================================
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                Log.d("BabyDataViewModel", "DataStore changed, saved ID: $savedBabyId")
+
+                if (savedBabyId != null && _babyList.value.isNotEmpty()) {
+                    // Find the baby in the current list
+                    val baby = _babyList.value.find { it.id == savedBabyId }
+                    if (baby != null) {
+                        _selectedBaby.value = baby
+                        _babyData.value = baby
+                        Log.d("BabyDataViewModel", "Restored baby from DataStore: ${baby.name}")
+                    } else {
+                        Log.d("BabyDataViewModel", "Saved baby ID not found in list")
+                    }
+                } else if (savedBabyId == null && _babyList.value.isNotEmpty() && _selectedBaby.value == null) {
+                    // No saved ID, auto-select first baby
+                    val firstBaby = _babyList.value.first()
+                    setSelectedBaby(firstBaby)
+                    Log.d("BabyDataViewModel", "Auto-selected first baby: ${firstBaby.name}")
+                }
+            }
+        }
+    }
+
+    fun setSelectedBaby(baby: BabyProfile?) {
+        _selectedBaby.value = baby
+        _babyData.value = baby
+
+        viewModelScope.launch {
+            if (baby?.id != null) {
+                preferencesRepository.saveSelectedBabyId(baby.id!!)
+                Log.d("BabyDataViewModel", "Set selected baby: ${baby.name} (${baby.id})")
+            } else {
+                preferencesRepository.clearSelectedBabyId()
+                Log.d("BabyDataViewModel", "Cleared selected baby")
+            }
+        }
+    }
+
+    // ============================================
+    // BABY OPERATIONS
+    // ============================================
 
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
@@ -107,65 +153,18 @@ class BabyDataViewModel @Inject constructor(
         return _babyAttributes.value[attribute]
     }
 
-    init {
-        fetchBabyProfile()
-        loadInitialSelectedBaby()
-    }
-
-    private fun loadInitialSelectedBaby() {
-        viewModelScope.launch {
-            // Only load once on init
-            val savedBabyId = dataStore.data
-                .map { preferences -> preferences[SELECTED_BABY_ID] }
-                .firstOrNull() // Use firstOrNull instead of collect
-
-            if (savedBabyId != null && _babyList.value.isNotEmpty()) {
-                _babyList.value.find { it.id == savedBabyId }?.let { baby ->
-                    _selectedBaby.value = baby
-                    hasLoadedInitialBaby = true
-                    Log.d("BabyDataViewModel", "Restored selected baby: ${baby.name}")
-                }
-            }
-        }
-    }
-
-    fun setSelectedBaby(baby: BabyProfile?) {
-        _selectedBaby.value = baby
-        hasLoadedInitialBaby = true // Mark as manually set
-        viewModelScope.launch {
-            dataStore.edit { preferences ->
-                if (baby != null) {
-                    baby.id?.let { id ->
-                        preferences[SELECTED_BABY_ID] = id
-                        Log.d("BabyDataViewModel", "Saved selected baby: ${baby.name} with ID: $id")
-                    }
-                } else {
-                    preferences.remove(SELECTED_BABY_ID)
-                    clearSelectedBaby()
-                    Log.d("BabyDataViewModel", "Cleared selected baby")
-                }
-            }
-        }
-    }
-
-    private fun clearSelectedBaby() {
-        setSelectedBaby(null)
-    }
-
     fun fetchBabies(userId: String?) {
         val uid = firebaseAuth.currentUser?.uid
         _isLoadingBabies.value = true
+
         if (uid == null) {
             _isLoadingBabies.value = false
             return
         }
 
-        Log.d("BabyDataViewModel", "ViewModel instance in fetchBabies: ${this.hashCode()}")
         Log.d("BabyDataViewModel", "Fetching babies for userId: $uid")
-        Log.d("BabyDataViewModel", "ViewModel instance in fetchBabies: ${this.hashCode()}")
-        Log.d("BabyDataViewModel", "Fetching babies for userId: $uid")
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users")
+
+        firestore.collection("users")
             .document(uid)
             .collection("babies")
             .get()
@@ -175,87 +174,29 @@ class BabyDataViewModel @Inject constructor(
                 }
                 _babyList.value = babies
                 _isLoadingBabies.value = false
+
                 Log.d("BabyDataViewModel", "Babies fetched successfully. Count: ${babies.size}")
+
+                // After fetching babies, restore selected baby from DataStore
+                viewModelScope.launch {
+                    val savedBabyId = preferencesRepository.getSelectedBabyId()
+                    if (savedBabyId != null) {
+                        val baby = babies.find { it.id == savedBabyId }
+                        if (baby != null) {
+                            _selectedBaby.value = baby
+                            _babyData.value = baby
+                            Log.d("BabyDataViewModel", "Restored saved baby: ${baby.name}")
+                        }
+                    } else if (babies.isNotEmpty() && _selectedBaby.value == null) {
+                        // No saved baby, select first one
+                        setSelectedBaby(babies.first())
+                    }
+                }
             }
             .addOnFailureListener { exception ->
                 Log.e("BabyDataViewModel", "Error fetching babies: ", exception)
                 _isLoadingBabies.value = false
             }
-    }
-
-    fun onDateSelected(date: Date) {
-        val calendar = Calendar.getInstance().apply {
-            time = date
-            add(Calendar.WEEK_OF_YEAR, 40)
-        }
-        calculatedDate = SimpleDateFormat("yyyy-MM-dd", locale).format(calendar.time)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun calculateAgeInMonths(birthDate: String?): BabyAge {
-        if (birthDate.isNullOrBlank()) return BabyAge(0, 0)
-        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH)
-        val convertedBirthDate = LocalDate.parse(birthDate, formatter)
-        val today = LocalDate.now()
-        val timeLapse = Period.between(convertedBirthDate, today)
-        return BabyAge(timeLapse.years, timeLapse.months)
-    }
-
-    fun clearUserData() {
-        _babyList.value = emptyList()
-        _isLoadingBabies.value = false
-        _babyData.value = null
-        vaccineList = emptyList()
-        calculatedDate = null
-        vaccineText = ""
-        vaccineDate = ""
-    }
-
-    private fun fetchBabyProfile() {
-        viewModelScope.launch {
-            val currentUserId = firebaseAuth.currentUser?.uid
-            if (currentUserId == null) {
-                Log.e("FirestoreError", "No user is currently signed in")
-                return@launch
-            }
-
-            // Read saved baby ID
-            val savedBabyId = dataStore.data
-                .map { preferences -> preferences[SELECTED_BABY_ID] }
-                .firstOrNull()
-
-            if (savedBabyId.isNullOrEmpty()) {
-                Log.d("BabyDataViewModel", "No saved baby ID")
-                return@launch
-            }
-
-            try {
-                // Load the specific saved baby
-                val document = firestore.collection("users")
-                    .document(currentUserId)
-                    .collection("babies")
-                    .document(savedBabyId)
-                    .get()
-                    .await()
-
-                if (document.exists()) {
-                    val baby = document.toObject(BabyProfile::class.java)
-                        ?.copy(id = document.id)
-
-                    if (baby != null) {
-                        _babyData.value = baby
-                        _selectedBaby.value = baby
-                        Log.d("BabyDataViewModel", "Loaded saved baby: ${baby.name}")
-                    }
-                } else {
-                    Log.d("BabyDataViewModel", "Saved baby not found, clearing saved ID")
-                    // Clear invalid saved ID
-                    dataStore.edit { it.remove(SELECTED_BABY_ID) }
-                }
-            } catch (exception: Exception) {
-                Log.e("BabyViewModel", "Error fetching baby: ", exception)
-            }
-        }
     }
 
     fun addBabyToUser(
@@ -268,7 +209,25 @@ class BabyDataViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val babyRef = firestore.collection("users").document(uid).collection("babies")
-                    babyRef.add(babyData).await()
+                    val docRef = babyRef.add(babyData).await()
+
+                    // Create baby profile with the new ID
+                    val newBaby = BabyProfile(
+                        id = docRef.id,
+                        name = babyData["name"] as? String ?: "",
+                        apgar = babyData["apgar"] as? String ?: "",
+                        bloodType = babyData["bloodType"] as? String ?: "",
+                        height = babyData["height"] as? String ?: "",
+                        perimeter = babyData["perimeter"] as? String ?: "",
+                        sex = babyData["sex"] as? String ?: "",
+                        weight = babyData["weight"] as? String ?: "",
+                        birthDate = babyData["birthDate"] as? String ?: ""
+                    )
+
+                    // Add to list and set as selected
+                    _babyList.value = _babyList.value + newBaby
+                    setSelectedBaby(newBaby)
+
                     onSuccess()
                     sendSnackbar("Información agregada correctamente!")
                 } catch (e: Exception) {
@@ -277,100 +236,6 @@ class BabyDataViewModel @Inject constructor(
             }
         } else {
             onError("UID de usuario no encontrado")
-        }
-    }
-
-    fun addVaccines(
-        onError: (String) -> Unit
-    ){
-        val uid = firebaseAuth.currentUser?.uid
-        if (uid != null) {
-            viewModelScope.launch {
-                try {
-                    val vaccineId = UUID.randomUUID().toString()
-                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    val currentDate = formatter.format(Date())
-                    val vaccineToSave = Vaccine(id = vaccineId, vaccineName = vaccineText, vaccineDate = vaccineDate,  timestamp = currentDate)
-                    val vaccinesRef = firestore.collection("users").document(uid).collection("vaccines")
-                    vaccinesRef.add(vaccineToSave).await()
-
-                    sendSnackbar("Información agregada correctamente!")
-
-                } catch (e: Exception) {
-                    onError(e.localizedMessage ?: "Error al agregar vacuna")
-                }
-            }
-        } else {
-            onError("UID de usuario no encontrado")
-        }
-    }
-
-    fun loadVaccines() {
-        val userId = firebaseAuth.currentUser?.uid
-
-        if(userId !=null) {
-            firestore.collection("users").document(userId)
-                .collection("vaccines")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, _ ->
-                    if (snapshot != null && !snapshot.isEmpty) {
-                        vaccineList = snapshot.documents.mapNotNull { doc ->
-                            doc.toObject(Vaccine::class.java)?.copy(id = doc.id)
-                        }
-                    }
-                }
-        }
-
-    }
-
-    fun updateVaccine(vaccine: Vaccine) {
-        val userId = firebaseAuth.currentUser?.uid
-
-        if(userId != null) {
-            vaccine.id?.let {
-                firestore.collection("users").document(userId)
-                    .collection("vaccines").document(it)
-                    .set(vaccine)
-            }
-        }
-    }
-
-    fun loadBabyIds(onSuccess: (String?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
-        val uid = firebaseAuth.currentUser?.uid
-        if (uid != null) {
-            viewModelScope.launch {
-                try {
-                    val userRef = firestore.collection("babies").document(uid)
-                    val document = userRef.get().await()
-                    val babyId = document.id
-                    Log.d("BabyData ViewModel", babyId)
-                    onSuccess(babyId)
-                } catch (e: Exception) {
-                    onError(e.localizedMessage ?: "Error al obtener detalles del bebe")
-                }
-            }
-        } else {
-            onError("UID de usuario no encontrado")
-        }
-    }
-
-    fun fetchBabiesForUser(
-        onResult: (List<String>) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        val userId = firebaseAuth.currentUser?.uid
-
-        if (userId != null) {
-            FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .collection("babies")
-                .get()
-                .addOnSuccessListener { result ->
-                    val babyIds = result.map { it.id }
-                    onResult(babyIds)
-                }
-                .addOnFailureListener { onError(it) }
         }
     }
 
@@ -390,26 +255,37 @@ class BabyDataViewModel @Inject constructor(
                         .document(babyId)
 
                     babyRef.update(babyData).await()
+
+                    // Update local state
+                    val updatedBabies = _babyList.value.map { baby ->
+                        if (baby.id == babyId) {
+                            baby.copy(
+                                name = babyData["name"] as? String ?: baby.name,
+                                apgar = babyData["apgar"] as? String ?: baby.apgar,
+                                height = babyData["height"] as? String ?: baby.height,
+                                weight = babyData["weight"] as? String ?: baby.weight,
+                                perimeter = babyData["perimeter"] as? String ?: baby.perimeter,
+                                bloodType = babyData["bloodType"] as? String ?: baby.bloodType,
+                                birthDate = babyData["birthDate"] as? String ?: baby.birthDate,
+                                sex = babyData["sex"] as? String ?: baby.sex
+                            )
+                        } else {
+                            baby
+                        }
+                    }
+                    _babyList.value = updatedBabies
+
+                    // Update selected baby if it's the one being edited
+                    if (_selectedBaby.value?.id == babyId) {
+                        val updatedBaby = updatedBabies.find { it.id == babyId }
+                        if (updatedBaby != null) {
+                            _selectedBaby.value = updatedBaby
+                            _babyData.value = updatedBaby
+                        }
+                    }
+
                     onSuccess()
                     sendSnackbar("Información actualizada correctamente!")
-
-                    // Refresh the baby list after updating
-                    fetchBabies(uid)
-
-                    // Update the current baby data if it's the one being edited
-                    if (_babyData.value?.id == babyId) {
-                        val updatedBaby = _babyData.value?.copy(
-                            name = babyData["name"] as? String ?: _babyData.value?.name ?: "",
-                            apgar = babyData["apgar"] as? String ?: _babyData.value?.apgar ?: "",
-                            height = babyData["height"] as? String ?: _babyData.value?.height ?: "",
-                            weight = babyData["weight"] as? String ?: _babyData.value?.weight ?: "",
-                            perimeter = babyData["perimeter"] as? String ?: _babyData.value?.perimeter ?: "",
-                            bloodType = babyData["bloodType"] as? String ?: _babyData.value?.bloodType ?: "",
-                            birthDate = babyData["birthDate"] as? String ?: _babyData.value?.birthDate ?: "",
-                            sex = babyData["sex"] as? String ?: _babyData.value?.sex ?: ""
-                        )
-                        _babyData.value = updatedBaby
-                    }
                 } catch (e: Exception) {
                     onError(e.localizedMessage ?: "Error al actualizar información del bebé")
                 }
@@ -421,6 +297,88 @@ class BabyDataViewModel @Inject constructor(
                 onError("ID del bebé no válido")
             }
         }
+    }
+
+    // ============================================
+    // VACCINE OPERATIONS
+    // ============================================
+
+    fun addVaccines(onError: (String) -> Unit) {
+        val uid = firebaseAuth.currentUser?.uid
+        if (uid != null) {
+            viewModelScope.launch {
+                try {
+                    val vaccineId = UUID.randomUUID().toString()
+                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    val currentDate = formatter.format(Date())
+                    val vaccineToSave = Vaccine(
+                        id = vaccineId,
+                        vaccineName = vaccineText,
+                        vaccineDate = vaccineDate,
+                        timestamp = currentDate
+                    )
+                    val vaccinesRef = firestore.collection("users").document(uid).collection("vaccines")
+                    vaccinesRef.add(vaccineToSave).await()
+
+                    sendSnackbar("Información agregada correctamente!")
+                } catch (e: Exception) {
+                    onError(e.localizedMessage ?: "Error al agregar vacuna")
+                }
+            }
+        } else {
+            onError("UID de usuario no encontrado")
+        }
+    }
+
+    fun loadVaccines() {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if (userId != null) {
+            firestore.collection("users").document(userId)
+                .collection("vaccines")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && !snapshot.isEmpty) {
+                        vaccineList = snapshot.documents.mapNotNull { doc ->
+                            doc.toObject(Vaccine::class.java)?.copy(id = doc.id)
+                        }
+                    }
+                }
+        }
+    }
+
+    fun updateVaccine(vaccine: Vaccine) {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if (userId != null) {
+            vaccine.id?.let {
+                firestore.collection("users").document(userId)
+                    .collection("vaccines").document(it)
+                    .set(vaccine)
+            }
+        }
+    }
+
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+
+    fun onDateSelected(date: Date) {
+        val calendar = Calendar.getInstance().apply {
+            time = date
+            add(Calendar.WEEK_OF_YEAR, 40)
+        }
+        calculatedDate = SimpleDateFormat("yyyy-MM-dd", locale).format(calendar.time)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun calculateAgeInMonths(birthDate: String?): BabyAge {
+        if (birthDate.isNullOrBlank()) return BabyAge(0, 0)
+        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH)
+        val convertedBirthDate = LocalDate.parse(birthDate, formatter)
+        val today = LocalDate.now()
+        val timeLapse = Period.between(convertedBirthDate, today)
+        return BabyAge(timeLapse.years, timeLapse.months)
     }
 
     fun calculateBabyAge(birthDateString: String): BabyAge {
@@ -445,6 +403,40 @@ class BabyDataViewModel @Inject constructor(
         }
     }
 
+    fun clearUserData() {
+        _babyList.value = emptyList()
+        _isLoadingBabies.value = false
+        _babyData.value = null
+        _selectedBaby.value = null
+        vaccineList = emptyList()
+        calculatedDate = null
+        vaccineText = ""
+        vaccineDate = ""
+
+        viewModelScope.launch {
+            preferencesRepository.clearSelectedBabyId()
+        }
+    }
+
+    fun fetchBabiesForUser(
+        onResult: (List<String>) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val userId = firebaseAuth.currentUser?.uid
+
+        if (userId != null) {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .collection("babies")
+                .get()
+                .addOnSuccessListener { result ->
+                    val babyIds = result.map { it.id }
+                    onResult(babyIds)
+                }
+                .addOnFailureListener { onError(it) }
+        }
+    }
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()
@@ -452,7 +444,7 @@ class BabyDataViewModel @Inject constructor(
 
     private fun sendSnackbar(message: String) {
         viewModelScope.launch {
-            _uiEvent.send(ShowSnackbar(message))
+            _uiEvent.send(UiEvent.ShowSnackbar(message))
             delay(100)
         }
     }
