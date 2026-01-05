@@ -25,6 +25,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -94,6 +95,8 @@ class BabyDataViewModel @Inject constructor(
     private val _selectedBaby = MutableStateFlow<BabyProfile?>(null)
     val selectedBaby: StateFlow<BabyProfile?> = _selectedBaby.asStateFlow()
 
+    private var hasLoadedInitialBaby = false
+
     fun setBabyAttribute(attribute: String, value: String) {
         _babyAttributes.value = _babyAttributes.value.toMutableMap().apply {
             this[attribute] = value
@@ -106,44 +109,46 @@ class BabyDataViewModel @Inject constructor(
 
     init {
         fetchBabyProfile()
-        loadSelectedBaby()
+        loadInitialSelectedBaby()
     }
 
-    private fun loadSelectedBaby() {
+    private fun loadInitialSelectedBaby() {
         viewModelScope.launch {
-            dataStore.data
-                .map { preferences ->
-                    preferences[SELECTED_BABY_ID]
+            // Only load once on init
+            val savedBabyId = dataStore.data
+                .map { preferences -> preferences[SELECTED_BABY_ID] }
+                .firstOrNull() // Use firstOrNull instead of collect
+
+            if (savedBabyId != null && _babyList.value.isNotEmpty()) {
+                _babyList.value.find { it.id == savedBabyId }?.let { baby ->
+                    _selectedBaby.value = baby
+                    hasLoadedInitialBaby = true
+                    Log.d("BabyDataViewModel", "Restored selected baby: ${baby.name}")
                 }
-                .collect { savedBabyId ->
-                    if (savedBabyId != null && _babyList.value.isNotEmpty()) {
-                        _babyList.value.find { it.id == savedBabyId }?.let { baby ->
-                            _selectedBaby.value = baby
-                            Log.d("BabyDataViewModel", "Restored selected baby: ${baby.name}")
-                        }
-                    }
-                }
+            }
         }
     }
 
     fun setSelectedBaby(baby: BabyProfile?) {
         _selectedBaby.value = baby
+        hasLoadedInitialBaby = true // Mark as manually set
         viewModelScope.launch {
             dataStore.edit { preferences ->
                 if (baby != null) {
                     baby.id?.let { id ->
                         preferences[SELECTED_BABY_ID] = id
-                        Log.d("BabyDataViewModel", "Saved selected baby: ${baby.name}")
+                        Log.d("BabyDataViewModel", "Saved selected baby: ${baby.name} with ID: $id")
                     }
                 } else {
                     preferences.remove(SELECTED_BABY_ID)
+                    clearSelectedBaby()
                     Log.d("BabyDataViewModel", "Cleared selected baby")
                 }
             }
         }
     }
 
-    fun clearSelectedBaby() {
+    private fun clearSelectedBaby() {
         setSelectedBaby(null)
     }
 
@@ -208,29 +213,48 @@ class BabyDataViewModel @Inject constructor(
 
     private fun fetchBabyProfile() {
         viewModelScope.launch {
-            // Get the current user's UID
             val currentUserId = firebaseAuth.currentUser?.uid
             if (currentUserId == null) {
                 Log.e("FirestoreError", "No user is currently signed in")
                 return@launch
             }
-            firestore.collection("users")
-                .document(currentUserId)
-                .collection("babies")
-                .get()
-                .addOnSuccessListener { result ->
-                    for (document in result) {
-                        val baby = document.toObject(BabyProfile::class.java)
-                           .copy(id = document.id)
+
+            // Read saved baby ID
+            val savedBabyId = dataStore.data
+                .map { preferences -> preferences[SELECTED_BABY_ID] }
+                .firstOrNull()
+
+            if (savedBabyId.isNullOrEmpty()) {
+                Log.d("BabyDataViewModel", "No saved baby ID")
+                return@launch
+            }
+
+            try {
+                // Load the specific saved baby
+                val document = firestore.collection("users")
+                    .document(currentUserId)
+                    .collection("babies")
+                    .document(savedBabyId)
+                    .get()
+                    .await()
+
+                if (document.exists()) {
+                    val baby = document.toObject(BabyProfile::class.java)
+                        ?.copy(id = document.id)
+
+                    if (baby != null) {
                         _babyData.value = baby
-                        setSelectedBaby(baby)
-                        Log.d("BabyDataViewModel", baby.toString())
-                        break // Get only the first baby
+                        _selectedBaby.value = baby
+                        Log.d("BabyDataViewModel", "Loaded saved baby: ${baby.name}")
                     }
+                } else {
+                    Log.d("BabyDataViewModel", "Saved baby not found, clearing saved ID")
+                    // Clear invalid saved ID
+                    dataStore.edit { it.remove(SELECTED_BABY_ID) }
                 }
-                .addOnFailureListener { exception ->
-                    Log.e("BabyViewModel", "Error fetching baby: ", exception)
-                }
+            } catch (exception: Exception) {
+                Log.e("BabyViewModel", "Error fetching baby: ", exception)
+            }
         }
     }
 
