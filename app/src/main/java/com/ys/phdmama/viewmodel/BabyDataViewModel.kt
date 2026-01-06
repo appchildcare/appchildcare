@@ -6,8 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -66,8 +64,6 @@ class BabyDataViewModel @Inject constructor(
     var vaccineText by mutableStateOf("")
     var vaccineDate by mutableStateOf("")
 
-    val babyData: StateFlow<BabyProfile?> = _babyData.asStateFlow()
-
     var calculatedDate by mutableStateOf<String?>(null)
         private set
     var locale = Locale("es", "ES")
@@ -81,9 +77,6 @@ class BabyDataViewModel @Inject constructor(
 
     private val _isLoadingBabies = MutableStateFlow(false)
     val isLoadingBabies: StateFlow<Boolean> = _isLoadingBabies.asStateFlow()
-
-    private val _babyDocumentIds = MutableLiveData<List<String>>()
-    val babyDocumentIds: LiveData<List<String>> = _babyDocumentIds
 
     // Main selected baby StateFlow - combines DataStore with baby list
     private val _selectedBaby = MutableStateFlow<BabyProfile?>(null)
@@ -305,7 +298,9 @@ class BabyDataViewModel @Inject constructor(
 
     fun addVaccines(onError: (String) -> Unit) {
         val uid = firebaseAuth.currentUser?.uid
-        if (uid != null) {
+        val selectedBaby = selectedBaby.value
+
+        if (uid != null && selectedBaby != null) {
             viewModelScope.launch {
                 try {
                     val vaccineId = UUID.randomUUID().toString()
@@ -317,7 +312,12 @@ class BabyDataViewModel @Inject constructor(
                         vaccineDate = vaccineDate,
                         timestamp = currentDate
                     )
-                    val vaccinesRef = firestore.collection("users").document(uid).collection("vaccines")
+                    val vaccinesRef = firestore.collection("users")
+                        .document(uid)
+                        .collection("babies")
+                        .document(selectedBaby.id.toString())
+                        .collection("vaccines")
+
                     vaccinesRef.add(vaccineToSave).await()
 
                     sendSnackbar("Información agregada correctamente!")
@@ -332,9 +332,14 @@ class BabyDataViewModel @Inject constructor(
 
     fun loadVaccines() {
         val userId = firebaseAuth.currentUser?.uid
+        val selectedBaby = selectedBaby.value
 
-        if (userId != null) {
-            firestore.collection("users").document(userId)
+        if (userId != null && selectedBaby != null) {
+            firestore
+                .collection("users")
+                .document(userId)
+                .collection("babies")
+                .document(selectedBaby.id.toString())
                 .collection("vaccines")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener { snapshot, _ ->
