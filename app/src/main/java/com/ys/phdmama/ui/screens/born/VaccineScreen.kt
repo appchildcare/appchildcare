@@ -6,7 +6,6 @@ import android.text.format.DateFormat
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -95,7 +93,6 @@ fun VaccineScreen(navController: NavController,
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF2F2F2))
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp)
         ) {
