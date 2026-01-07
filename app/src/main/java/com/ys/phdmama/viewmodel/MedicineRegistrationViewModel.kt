@@ -1,5 +1,6 @@
 package com.ys.phdmama.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Paint
@@ -19,8 +20,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.ys.phdmama.model.MedicineRecord
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -30,17 +36,10 @@ import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
 
-data class MedicineRecord(
-    val id: String = "",
-    val medicineName: String = "",
-    val timeToTake: String = "",
-    val notificationReminder: String = "No", // "Yes" or "No"
-    val reminderDate: String = "",
-    val date: String = ""
-)
-
 @HiltViewModel
-class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
+class MedicineRegistrationViewModel @Inject constructor(
+    private val preferencesRepository: BabyPreferencesRepository
+): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -49,15 +48,34 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
     var selectedMinute by mutableStateOf(0)
     var wantsReminder by mutableStateOf<Boolean?>(null)
 
-    // Reminder date fields
     private val calendar = Calendar.getInstance()
     var reminderYear by mutableStateOf(calendar.get(Calendar.YEAR))
     var reminderMonth by mutableStateOf(calendar.get(Calendar.MONTH))
     var reminderDay by mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH))
 
-    var medicineList by mutableStateOf<List<MedicineRecord>>(emptyList())
-        private set
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
 
+    private val _medicineList = MutableStateFlow<List<MedicineRecord>>(emptyList())
+    val medicineList: StateFlow<List<MedicineRecord>> = _medicineList.asStateFlow()
+
+    init {
+        observeSelectedBabyFromDataStore()
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("FoodRegistrationVM", "Saved baby ID not found in list")
+                }
+            }
+        }
+    }
+
+    @SuppressLint("DefaultLocale")
     fun saveMedicineRecord() {
         Log.d("MedicineRegistrationVM", "saveMedicineRecord called - Medicine: $medicineName")
 
@@ -95,13 +113,17 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
             Log.e("MedicineRegistrationVM", "User ID is null")
             return
         }
+        val selectedBaby = selectedBaby.value
 
-        firestore.collection("users").document(userId)
-            .collection("medicine_registration").document(medicineId)
+        firestore.collection("users")
+            .document(userId)
+            .collection("babies")
+            .document(selectedBaby.toString())
+            .collection("medicine_registration")
+            .document(medicineId)
             .set(medicineRecord)
             .addOnSuccessListener {
                 Log.d("MedicineRegistrationVM", "Medicine record saved successfully")
-
                 // Schedule notification if reminder is enabled
                 if (wantsReminder == true) {
                     scheduleNotification(medicineRecord)
@@ -190,7 +212,13 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
 
     fun loadMedicineRecords() {
         val userId = auth.currentUser?.uid ?: return
-        firestore.collection("users").document(userId)
+        val selectedBaby = selectedBaby.value
+        Log.d("MedicineRegistrationVM", "Loading medicine records for baby ID: $selectedBaby")
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("babies")
+            .document(selectedBaby.toString())
             .collection("medicine_registration")
             .orderBy("date", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
@@ -200,12 +228,11 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
                 }
 
                 if (snapshot != null) {
-                    medicineList = snapshot.documents.mapNotNull { doc ->
+                    val medicines = snapshot.documents.mapNotNull { doc ->
                         doc.toObject(MedicineRecord::class.java)?.copy(id = doc.id)
                     }
-                    Log.d("MedicineRegistrationVM", "Loaded ${medicineList.size} medicine records")
-                } else {
-                    medicineList = emptyList()
+                    _medicineList.value = medicines
+                    Log.d("MedicineRegistrationVM", "Loaded ${_medicineList.value} medicine records")
                 }
             }
     }
@@ -317,12 +344,13 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
                 yPosition += lineHeight
 
                 // Data rows
-                medicineList.forEach { medicine ->
+                _medicineList.value.forEach { medicine ->
                     // Check if we need a new page
                     if (yPosition > pageHeight) {
                         pdfDocument.finishPage(page)
                         pageNumber++
-                        val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
+                        val newPageInfo =
+                            PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                         page = pdfDocument.startPage(newPageInfo)
                         canvas = page.canvas
                         yPosition = 50f
@@ -330,7 +358,10 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
 
                     // Format date
                     val formattedDate = try {
-                        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(medicine.date)
+                        val date =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(
+                                medicine.date
+                            )
                         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date ?: Date())
                     } catch (e: Exception) {
                         medicine.date
@@ -353,7 +384,8 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
                         if (yPosition > pageHeight) {
                             pdfDocument.finishPage(page)
                             pageNumber++
-                            val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
+                            val newPageInfo =
+                                PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                             page = pdfDocument.startPage(newPageInfo)
                             canvas = page.canvas
                             yPosition = 50f
@@ -362,12 +394,22 @@ class MedicineRegistrationViewModel @Inject constructor(): ViewModel() {
                         paint.textSize = 10f
                         // Format reminder date for display
                         val formattedReminderDate = try {
-                            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(medicine.reminderDate)
-                            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date ?: Date())
+                            val date = SimpleDateFormat(
+                                "yyyy-MM-dd",
+                                Locale.getDefault()
+                            ).parse(medicine.reminderDate)
+                            SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(
+                                date ?: Date()
+                            )
                         } catch (e: Exception) {
                             medicine.reminderDate
                         }
-                        canvas.drawText("  Fecha recordatorio: $formattedReminderDate", 150f, yPosition, paint)
+                        canvas.drawText(
+                            "  Fecha recordatorio: $formattedReminderDate",
+                            150f,
+                            yPosition,
+                            paint
+                        )
                         paint.textSize = 12f
                         yPosition += lineHeight
                     }

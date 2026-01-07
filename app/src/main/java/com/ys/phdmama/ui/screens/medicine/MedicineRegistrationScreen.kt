@@ -26,6 +26,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,14 +44,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ys.phdmama.model.MedicineRecord
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
-import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.ui.components.PhdGenericCardList
 import com.ys.phdmama.ui.components.PhdLabelText
 import com.ys.phdmama.ui.components.PhdNormalText
 import com.ys.phdmama.ui.components.PhdSubtitle
-import com.ys.phdmama.viewmodel.MedicineRecord
 import com.ys.phdmama.viewmodel.MedicineRegistrationViewModel
 import java.util.Calendar
 
@@ -60,8 +61,13 @@ fun MedicineRegistrationScreen(
     openDrawer: () -> Unit,
     viewModel: MedicineRegistrationViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadMedicineRecords()
+    val selectedBaby by viewModel.selectedBaby.collectAsState()
+    val medicineList by viewModel.medicineList.collectAsState()
+
+    LaunchedEffect(selectedBaby) {
+        if (selectedBaby != null) {
+            viewModel.loadMedicineRecords()
+        }
     }
 
     PhdLayoutMenu(
@@ -73,20 +79,18 @@ fun MedicineRegistrationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(secondaryCream)
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
             PhdLabelText("Medicina")
-            TextField(
+            OutlinedTextField(
                 value = viewModel.medicineName,
                 onValueChange = { viewModel.medicineName = it },
                 modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
             PhdLabelText("Hora de toma")
 
             // Time Picker
@@ -159,7 +163,6 @@ fun MedicineRegistrationScreen(
 
             if (viewModel.wantsReminder == true) {
                 Spacer(modifier = Modifier.height(16.dp))
-
                 PhdLabelText("Fecha de recordatorio")
 
                 // Date Picker
@@ -218,23 +221,27 @@ fun MedicineRegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            PhdSubtitle("Historial de medicinas")
-            Spacer(modifier = Modifier.height(8.dp))
+            if (medicineList.isNotEmpty()) {
+                PhdSubtitle("Historial de medicinas")
+                Spacer(modifier = Modifier.height(8.dp))
 
-            ListMedicineRecords(
-                medicineList = viewModel.medicineList,
-                viewModel = viewModel
-            )
+                ListMedicineRecords(
+                    medicineList = medicineList,
+                    viewModel = viewModel
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = { viewModel.generatePdfReport(context) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Reporte")
+                Button(
+                    onClick = { viewModel.generatePdfReport(context) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Reporte")
+                }
+            } else {
+                PhdNormalText("No hay registros de medicinas.")
             }
         }
     }
