@@ -19,8 +19,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.ys.phdmama.model.FoodReaction
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -30,25 +35,42 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
+class FoodRegistrationViewModel @Inject constructor(
+    private val preferencesRepository: BabyPreferencesRepository
+) : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
 
     var foodName by mutableStateOf("")
     var hasReaction by mutableStateOf<Boolean?>(null)
     var reactionDetail by mutableStateOf("")
-    var foodList by mutableStateOf<List<FoodReaction>>(emptyList())
-        private set
+    private val _foodList = MutableStateFlow<List<FoodReaction>>(emptyList())
+    val foodList: StateFlow<List<FoodReaction>> = _foodList.asStateFlow()
+
+    init {
+        observeSelectedBabyFromDataStore()
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("FoodRegistrationVM", "Saved baby ID not found in list")
+                }
+            }
+        }
+    }
 
     fun saveFoodReaction() {
-        Log.d("FoodRegistrationVM", "saveFoodReaction called - Food: $foodName, HasReaction: $hasReaction")
-
         if (foodName.isBlank()) {
-            Log.e("FoodRegistrationVM", "Food name is blank")
             return
         }
         if (hasReaction == null) {
-            Log.e("FoodRegistrationVM", "HasReaction is null")
             return
         }
 
@@ -64,35 +86,41 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
             date = currentDate
         )
 
-        Log.d("FoodRegistrationVM", "Creating food reaction: $foodReaction")
-
         val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Log.e("FoodRegistrationVM", "User ID is null")
-            return
-        }
-
+        val selectedBaby = selectedBaby.value
         val db = FirebaseFirestore.getInstance()
 
-        db.collection("users").document(userId)
-            .collection("food_reactions").document(foodId)
-            .set(foodReaction)
-            .addOnSuccessListener {
-                Log.d("FoodRegistrationVM", "Food reaction saved successfully")
-                // Clear form
-                foodName = ""
-                hasReaction = null
-                reactionDetail = ""
-            }
-            .addOnFailureListener { e ->
-                // Log error for debugging
-                Log.e("FoodRegistrationVM", "Error saving food reaction", e)
-            }
+        if (userId != null && selectedBaby != null) {
+            val foodRef = db.collection("users")
+                .document(userId)
+                .collection("babies")
+                .document(selectedBaby.toString())
+                .collection("food_reactions")
+
+            foodRef.add(foodReaction)
+                .addOnSuccessListener {
+                    foodName = ""
+                    hasReaction = null
+                    reactionDetail = ""
+                }
+                .addOnFailureListener { e ->
+                    // Log error for debugging
+                    Log.e("FoodRegistrationVM", "Error saving food reaction", e)
+                }
+        } else {
+            Log.e("FoodRegistrationVM", "User ID or babyID is null")
+            return
+        }
     }
 
     fun loadFoodReactions() {
         val userId = auth.currentUser?.uid ?: return
-        firestore.collection("users").document(userId)
+        val selectedBaby = selectedBaby.value
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("babies")
+            .document(selectedBaby.toString())
             .collection("food_reactions")
             .orderBy("date", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
@@ -101,22 +129,24 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
                     return@addSnapshotListener
                 }
 
-                if (snapshot != null) {
-                    foodList = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(FoodReaction::class.java)?.copy(id = doc.id)
-                    }
-                    Log.d("FoodRegistrationVM", "Loaded ${foodList.size} food reactions")
-                } else {
-                    foodList = emptyList()
-                }
+                val reactions = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(FoodReaction::class.java)?.copy(id = doc.id)
+                } ?: emptyList()
+
+                _foodList.value = reactions
             }
     }
 
     fun updateFoodReaction(foodReaction: FoodReaction) {
         val userId = auth.currentUser?.uid ?: return
+        val selectedBaby = selectedBaby.value
 
-        firestore.collection("users").document(userId)
-            .collection("food_reactions").document(foodReaction.id)
+        firestore.collection("users")
+            .document(userId)
+            .collection("babies")
+            .document(selectedBaby.toString())
+            .collection("food_reactions")
+            .document(foodReaction.id)
             .set(foodReaction)
             .addOnSuccessListener {
                 loadFoodReactions()
@@ -141,7 +171,8 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
                 // Date
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                val currentDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+                val currentDate =
+                    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
                 canvas.drawText("Fecha de generación: $currentDate", 50f, 80f, paint)
 
                 var yPosition = 120f
@@ -162,13 +193,14 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
                 canvas.drawLine(50f, yPosition, 545f, yPosition, paint)
                 yPosition += lineHeight
 
-                // Data rows
-                foodList.forEach { food ->
+                // Data rows - ACCESS THE STATEFLOW VALUE HERE
+                _foodList.value.forEach { food ->
                     // Check if we need a new page
                     if (yPosition > pageHeight) {
                         pdfDocument.finishPage(page)
                         pageNumber++
-                        val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
+                        val newPageInfo =
+                            PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                         page = pdfDocument.startPage(newPageInfo)
                         canvas = page.canvas
                         yPosition = 50f
@@ -176,7 +208,10 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
 
                     // Format date
                     val formattedDate = try {
-                        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(food.date)
+                        val date = SimpleDateFormat(
+                            "yyyy-MM-dd HH:mm:ss",
+                            Locale.getDefault()
+                        ).parse(food.date)
                         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date ?: Date())
                     } catch (e: Exception) {
                         food.date
@@ -192,7 +227,8 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
                         if (yPosition > pageHeight) {
                             pdfDocument.finishPage(page)
                             pageNumber++
-                            val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
+                            val newPageInfo =
+                                PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                             page = pdfDocument.startPage(newPageInfo)
                             canvas = page.canvas
                             yPosition = 50f
@@ -208,7 +244,12 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
                 pdfDocument.finishPage(page)
 
                 // Save the document
-                val fileName = "Reporte_Alimentos_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.pdf"
+                val fileName = "Reporte_Alimentos_${
+                    SimpleDateFormat(
+                        "yyyyMMdd_HHmmss",
+                        Locale.getDefault()
+                    ).format(Date())
+                }.pdf"
                 val resolver = context.contentResolver
                 val contentValues = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -223,7 +264,8 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "PDF guardado en Descargas", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "PDF guardado en Descargas", Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
 
@@ -232,21 +274,10 @@ class FoodRegistrationViewModel @Inject constructor() :  ViewModel() {
             } catch (e: Exception) {
                 Log.e("FoodRegistrationVM", "Error generating PDF", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error al generar PDF: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Error al generar PDF: ${e.message}", Toast.LENGTH_LONG)
+                        .show()
                 }
             }
         }
     }
-
-    fun getReactionsOnly(): List<FoodReaction> {
-        return foodList.filter { it.hasReaction }
-    }
 }
-
-data class FoodReaction(
-    val id: String = "",
-    val foodName: String = "",
-    val hasReaction: Boolean = false,
-    val reactionDetail: String = "",
-    val date: String = ""
-)

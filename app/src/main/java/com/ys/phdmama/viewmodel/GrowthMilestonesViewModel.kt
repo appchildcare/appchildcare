@@ -8,7 +8,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,10 +25,14 @@ data class GrowthRecord(
 )
 
 @HiltViewModel
-class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
+class GrowthMilestonesViewModel @Inject constructor(
+    private val preferencesRepository: BabyPreferencesRepository
+) : ViewModel() {
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val userId: String? = firebaseAuth.currentUser?.uid
     private val errorMessage = MutableLiveData<String?>()
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
 
     // Simula que este valor se configura al seleccionar un bebé, actualízalo según sea necesario.
     private var currentBabyId: String? = null
@@ -35,6 +43,22 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
 
     private val _growthRecords = mutableStateOf<List<GrowthRecord>>(emptyList())
     val growthRecords: State<List<GrowthRecord>> = _growthRecords
+
+    init {
+        observeSelectedBabyFromDataStore()
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("GrowthMilestonesViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
+    }
 
     private fun fetchBabyId(onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         val userId = this.userId
@@ -67,26 +91,12 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val userId = this.userId
+        val selectedBaby = selectedBaby.value
+        val userId = firebaseAuth.currentUser?.uid
+        saveMilestoneToFirestore(userId, selectedBaby!!, milestoneData, onSuccess, onError)
 
-        // Si el babyId no está configurado, intenta obtenerlo
-        if (currentBabyId == null) {
-            fetchBabyId(
-                onSuccess = { babyId ->
-                    setBabyId(babyId) // Configura el babyId en el ViewModel
-                    saveMilestoneToFirestore(userId, babyId, milestoneData, onSuccess, onError)
-                },
-                onError = { error ->
-                    onError("Error al obtener el babyId: $error")
-                }
-            )
-        } else {
-            // Si el babyId ya está configurado, procede a guardar
-            saveMilestoneToFirestore(userId, currentBabyId!!, milestoneData, onSuccess, onError)
-        }
     }
 
-    // Método para guardar los datos en Firestore
     private fun saveMilestoneToFirestore(
         userId: String?,
         babyId: String,
@@ -94,6 +104,7 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+
         if (userId == null) {
             onError("El usuario no está autenticado.")
             return
@@ -108,7 +119,10 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
             .collection("growth_milestones")
 
         growthMilestonesRef.add(milestoneData)
-            .addOnSuccessListener { onSuccess() }
+            .addOnSuccessListener {
+                onSuccess()
+                Log.d("saveGrowthMilestone", "Milestone guardado con éxito")
+            }
             .addOnFailureListener { e -> onError(e.message ?: "Error desconocido") }
     }
 
@@ -126,7 +140,7 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
         val userId = this.userId
         val currentBabyId = babyId ?: currentBabyId
 
-        if (userId != null ) {
+        if (userId != null) {
             db.collection("users")
                 .document(userId)
                 .collection("babies")
@@ -138,7 +152,8 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
                         try {
                             GrowthRecord(
                                 ageInMonths = doc.getLong("ageInMonths")?.toInt() ?: 0,
-                                headCircumference = doc.getString("headCircumference")?.toDoubleOrNull() ?: 0.0,
+                                headCircumference = doc.getString("headCircumference")
+                                    ?.toDoubleOrNull() ?: 0.0,
                                 height = doc.getString("height")?.toDoubleOrNull() ?: 0.0,
                                 weight = doc.getString("weight")?.toDoubleOrNull() ?: 0.0,
                                 timestamp = doc.getLong("timestamp") ?: 0L
@@ -185,7 +200,11 @@ class GrowthMilestonesViewModel @Inject constructor(): ViewModel() {
         )
     }
 
-    fun fetchBabyId(onSuccess: (List<String>?) -> Unit, onSkip: () -> Unit, onError: (String) -> Unit) {
+    fun fetchBabyId(
+        onSuccess: (List<String>?) -> Unit,
+        onSkip: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         val uid = firebaseAuth.currentUser?.uid
         val db = FirebaseFirestore.getInstance()
         var babyIds: MutableList<String> = mutableListOf()

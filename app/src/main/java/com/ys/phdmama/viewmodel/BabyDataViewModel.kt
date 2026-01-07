@@ -335,6 +335,7 @@ class BabyDataViewModel @Inject constructor(
         val selectedBaby = selectedBaby.value
 
         if (userId != null && selectedBaby != null) {
+            vaccineList = emptyList()
             firestore
                 .collection("users")
                 .document(userId)

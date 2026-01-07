@@ -2,7 +2,6 @@ package com.ys.phdmama.ui.screens.born
 
 import android.util.Log
 import android.widget.NumberPicker
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,7 +49,6 @@ fun GrowthMilestonesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(Color(0xFFF1F1F1))
                 .padding(16.dp)
         ) {
             Text(text = "Registrar Hitos del Crecimiento", style = MaterialTheme.typography.titleLarge)
