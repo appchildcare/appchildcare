@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ys.phdmama.model.FoodReaction
 import com.ys.phdmama.ui.components.EditableField
 import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -44,7 +46,6 @@ import com.ys.phdmama.ui.components.PhdEditItemDialog
 import com.ys.phdmama.ui.components.PhdLabelText
 import com.ys.phdmama.ui.components.PhdNormalText
 import com.ys.phdmama.ui.components.PhdSubtitle
-import com.ys.phdmama.viewmodel.FoodReaction
 import com.ys.phdmama.viewmodel.FoodRegistrationViewModel
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -54,8 +55,13 @@ fun FoodRegistrationScreen(
     openDrawer: () -> Unit,
     viewModel: FoodRegistrationViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadFoodReactions()
+    val selectedBaby by viewModel.selectedBaby.collectAsState()
+    val foodList by viewModel.foodList.collectAsState()
+
+    LaunchedEffect(selectedBaby) {
+        if (selectedBaby != null) {
+            viewModel.loadFoodReactions()
+        }
     }
 
     PhdLayoutMenu(
@@ -144,25 +150,30 @@ fun FoodRegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            PhdSubtitle("Historial de alimentos con reacción")
-            Spacer(modifier = Modifier.height(8.dp))
+            if(foodList.none { it.hasReaction }) {
+                PhdNormalText("No hay registros de alimentos con reacción.")
+                return@Column
+            } else{
+                PhdSubtitle("Historial de alimentos con reacción")
+                Spacer(modifier = Modifier.height(8.dp))
 
-            ListFoodReactions(
-                foodList = viewModel.foodList.filter { it.hasReaction },
-                viewModel = viewModel
-            )
+                ListFoodReactions(
+                    foodList = foodList.filter { it.hasReaction },
+                    viewModel = viewModel
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            val context = LocalContext.current
+                val context = LocalContext.current
 
-            Button(
-                onClick = { viewModel.generatePdfReport(context) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Reporte")
+                Button(
+                    onClick = { viewModel.generatePdfReport(context) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Reporte")
+                }
             }
         }
     }
