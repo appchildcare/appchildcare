@@ -11,20 +11,24 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import com.ys.phdmama.services.CounterService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.core.content.edit
 
 
 @HiltViewModel
 class CounterViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val preferencesRepository: BabyPreferencesRepository
 ) : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
@@ -38,10 +42,25 @@ class CounterViewModel @Inject constructor(
     private val _isRunning = MutableStateFlow(false)
     val isRunning: StateFlow<Boolean> = _isRunning
 
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
+
     init {
         observeCounterChanges()
-        // Load initial running state
+        observeSelectedBabyFromDataStore()
         _isRunning.value = sharedPreferences.getBoolean("counter_running", false)
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("CounterViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
     }
 
     private fun observeCounterChanges() {
@@ -81,7 +100,7 @@ class CounterViewModel @Inject constructor(
 
             // Update running state
             _isRunning.value = true
-            sharedPreferences.edit().putBoolean("counter_running", true).apply()
+            sharedPreferences.edit() { putBoolean("counter_running", true) }
 
             // Reset UI counter
             _counter.value = 0
@@ -91,6 +110,7 @@ class CounterViewModel @Inject constructor(
     }
 
     fun stopCounter(babyId: String?) {
+        val selectedBaby = selectedBaby.value
         Log.d("CounterViewModel", "Stopping counter service")
 
         try {
@@ -102,12 +122,12 @@ class CounterViewModel @Inject constructor(
             // Save the counter time to Firestore before resetting
             saveCounterTime(
                 _counter.value,
-                babyId
+                selectedBaby.toString()
             )
 
             // Update running state
             _isRunning.value = false
-            sharedPreferences.edit().putBoolean("counter_running", false).apply()
+            sharedPreferences.edit() { putBoolean("counter_running", false) }
         } catch (e: Exception) {
             Log.e("CounterViewModel", "Error stopping counter service", e)
         }
@@ -125,7 +145,9 @@ class CounterViewModel @Inject constructor(
         val userId = auth.currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
 
-        if (babyId != null) {
+        val selectedBaby = selectedBaby.value
+
+        if (selectedBaby != null) {
             val napData = hashMapOf(
                 "time" to formattedTime,
                 "timestamp" to timestamp
@@ -134,7 +156,7 @@ class CounterViewModel @Inject constructor(
             db.collection("users")
                 .document(userId)
                 .collection("babies")
-                .document(babyId)
+                .document(selectedBaby.toString())
                 .collection("nap_counter_time")
                 .add(napData)
                 .addOnSuccessListener {
