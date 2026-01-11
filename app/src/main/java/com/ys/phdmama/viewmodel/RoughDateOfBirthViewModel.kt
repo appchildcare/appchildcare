@@ -1,10 +1,12 @@
 package com.ys.phdmama.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -40,8 +42,27 @@ class RoughDateOfBirthViewModel @Inject constructor(): ViewModel() {
         calculatedWeekDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
     }
 
-    fun convertToDate(dateString: String): Date {
-        val formatter = SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH) // Define the format
-        return formatter.parse(dateString) as Date // Parse the string to a Date object
+    fun convertToDate(dateString: String): Date? {
+        if (dateString.isEmpty() || dateString == "Fecha no válida") {
+            return null
+        }
+
+        return try {
+            val locale = Locale("es", "ES")
+            // Parse the formatted date string back to Date
+            val format = SimpleDateFormat("dd MMMM yyyy", locale)
+            format.parse(dateString)
+        } catch (e: ParseException) {
+            Log.e("RoughDateOfBirthVM", "Error parsing date: ${e.message}")
+            null
+        }
+    }
+
+    fun calculateBirthDateFromWeek(weekNumber: Int): Date {
+        val calendar = Calendar.getInstance()
+        // Calculate due date: current date + (40 - weekNumber) weeks
+        val weeksRemaining = 40 - weekNumber
+        calendar.add(Calendar.WEEK_OF_YEAR, weeksRemaining)
+        return calendar.time
     }
 }
