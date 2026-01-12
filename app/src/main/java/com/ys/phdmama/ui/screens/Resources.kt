@@ -1,33 +1,61 @@
 package com.ys.phdmama.ui.screens
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.viewmodel.CheckItemsViewModel
 import com.ys.phdmama.viewmodel.ChecklistItem
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.UserDataViewModel
@@ -40,11 +68,252 @@ fun Resources(navController: NavController, openDrawer: () -> Unit) {
         navController = navController,
         openDrawer = openDrawer
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize(),
+//        ) {
+            CheckItemsScreen()
+//        }
+    }
+}
+
+@Composable
+fun CheckItemsScreen(
+    checkItemsViewModel: CheckItemsViewModel = hiltViewModel(),
+) {
+    val checklistItems by checkItemsViewModel.checklistItems.collectAsState()
+    val isLoading by checkItemsViewModel.isLoading.collectAsState()
+    val error by checkItemsViewModel.error.collectAsState()
+
+    Scaffold(
+    ) { paddingValues ->
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            error != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = error ?: "Unknown error",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+            checklistItems.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No items found",
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(checklistItems.size) { index ->
+                        ExpandableListItem(
+                            subtopicGroup = checklistItems[index],
+                            onItemCheckedChange = { itemId, checked ->
+                                checkItemsViewModel.toggleItemChecked(itemId)
+                            }
+                        )
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpandableListItem(
+    subtopicGroup: CheckItemsViewModel.SubtopicGroup,
+    onItemCheckedChange: (String, Boolean) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            ChecklistScreen()
+            // Header - Subtopic (clickable to expand/collapse)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = subtopicGroup.subtopic,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Icon(
+                    imageVector = if (expanded) {
+                        Icons.Default.KeyboardArrowUp
+                    } else {
+                        Icons.Default.ArrowDropDown
+                    },
+                    contentDescription = if (expanded) "Collapse" else "Expand"
+                )
+            }
+
+            // Expandable content - List of items
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(),
+                exit = shrinkVertically(
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeOut()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                ) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+
+                    subtopicGroup.items.forEachIndexed { index, item ->
+                        ChecklistItemRow(
+                            item = item,
+                            onCheckedChange = { checked ->
+                                onItemCheckedChange(item.id, checked)
+                            }
+                        )
+
+                        // Add divider between items (but not after the last one)
+                        if (index < subtopicGroup.items.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ChecklistItemRow(
+    item: CheckItemsViewModel.ChecklistItem,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Checkbox item
+            item.isChecked?.let {
+                Checkbox(
+                    checked = it,
+                    onCheckedChange = { checked ->
+                        onCheckedChange(checked)
+                    }
+                )
+            }
+
+            // Item text beside checkbox
+            Text(
+                text = item.item,
+                style = MaterialTheme.typography.bodyMedium,
+                textDecoration = if (item.isChecked == true) TextDecoration.LineThrough else null,
+                color = if (item.isChecked == true) {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
+            )
+        }
+
+        // Metadata chips
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (item.topic.isNotEmpty()) {
+                SuggestionChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = item.topic,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Topic",
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                )
+            }
+
+            if (item.months > 0) {
+                SuggestionChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = "${item.months} months",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Months",
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                )
+            }
         }
     }
 }
