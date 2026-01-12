@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -34,10 +35,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,12 +67,7 @@ fun Resources(navController: NavController, openDrawer: () -> Unit) {
         navController = navController,
         openDrawer = openDrawer
     ) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize(),
-//        ) {
-            CheckItemsScreen()
-//        }
+        CheckItemsScreen()
     }
 }
 
@@ -81,71 +75,120 @@ fun Resources(navController: NavController, openDrawer: () -> Unit) {
 fun CheckItemsScreen(
     checkItemsViewModel: CheckItemsViewModel = hiltViewModel(),
 ) {
-    val checklistItems by checkItemsViewModel.checklistItems.collectAsState()
+    val topicGroups by checkItemsViewModel.topicGroups.collectAsState()
     val isLoading by checkItemsViewModel.isLoading.collectAsState()
     val error by checkItemsViewModel.error.collectAsState()
 
-    Scaffold(
-    ) { paddingValues ->
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+    when {
+        isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-            error != null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = error ?: "Unknown error",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-            checklistItems.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No items found",
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(checklistItems.size) { index ->
-                        ExpandableListItem(
-                            subtopicGroup = checklistItems[index],
-                            onItemCheckedChange = { itemId, checked ->
-                                checkItemsViewModel.toggleItemChecked(itemId)
-                            }
-                        )
+        }
 
-                    }
+        error != null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = error ?: "Unknown error",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
+        topicGroups.isEmpty() -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No items found",
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        else -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(topicGroups.size) { index ->
+                    TopicSection(
+                        topicGroup = topicGroups[index],
+                        onItemCheckedChange = { itemId, checked ->
+                            checkItemsViewModel.toggleItemChecked(itemId)
+                        }
+                    )
                 }
             }
+        }
+    }
+}
+
+
+
+@Composable
+fun TopicSection(
+    topicGroup: CheckItemsViewModel.TopicGroup,
+    onItemCheckedChange: (String, Boolean) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Topic header with badge
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = topicGroup.topic,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+
+            if (topicGroup.months > 0) {
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = "${topicGroup.months} meses",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Months",
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                )
+            }
+        }
+
+        // All subtopic groups under this topic
+        topicGroup.subtopicGroups.forEach { subtopicGroup ->
+            ExpandableListItem(
+                subtopicGroup = subtopicGroup,
+                onItemCheckedChange = onItemCheckedChange
+            )
         }
     }
 }
@@ -398,7 +441,11 @@ fun ChecklistScreen(
                         Checkbox(
                             checked = item.checked,
                             onCheckedChange = { checked ->
-                                userViewModel.updateCheckedState(item.id, checked, userRole.toString())
+                                userViewModel.updateCheckedState(
+                                    item.id,
+                                    checked,
+                                    userRole.toString()
+                                )
                                 checklistItems = checklistItems.map {
                                     if (it.id == item.id && it.topic == item.topic) it.copy(checked = checked) else it
                                 }
