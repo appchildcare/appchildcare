@@ -30,7 +30,7 @@ data class NavBarItem(val route: String, val label: String, val icon: ImageVecto
 val navItems = listOf(
     NavBarItem("home", "Inicio", Icons.Default.Home),
     NavBarItem("counters", "Controles", Icons.Default.AddCircle),
-    NavBarItem("resources", "Recursos", Icons.Default.Menu),
+    NavBarItem("resources", "Checklist", Icons.Default.Menu),
     NavBarItem("baby", "Bebé", Icons.Default.Face)
 )
 

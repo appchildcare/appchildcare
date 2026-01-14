@@ -21,13 +21,13 @@ data class NavBarItem(val route: String, val label: String, val icon: ImageVecto
 val navBornItems = listOf(
     NavBarItem(NavRoutes.BORN_DASHBOARD, "Panel", Icons.Default.Home),
     NavBarItem(NavRoutes.BORN_COUNTERS, "Contadores", Icons.Default.AddCircle),
-    NavBarItem(NavRoutes.BORN_RESOURCES, "Recursos", Icons.Default.Menu),
+    NavBarItem(NavRoutes.BORN_RESOURCES, "Checklist", Icons.Default.Menu),
     NavBarItem(NavRoutes.BORN_MENU, "Bebé", Icons.Default.Face)
 )
 
 val navWaitingItems = listOf(
     NavBarItem(NavRoutes.PREGNANCY_DASHBOARD, "Panel", Icons.Default.Home),
-    NavBarItem(NavRoutes.PREGNANCY_RESOURCES, "Recursos", Icons.Default.Menu)
+    NavBarItem(NavRoutes.PREGNANCY_RESOURCES, "Checklist", Icons.Default.Menu)
 )
 
 @Composable
