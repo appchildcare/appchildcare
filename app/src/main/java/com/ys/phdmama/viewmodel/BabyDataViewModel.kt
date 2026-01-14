@@ -41,8 +41,25 @@ data class BabyProfile(
     val perimeter: String = "",
     val sex: String = "",
     val weight: String = "",
-    val birthDate: String? = "" // TODO: REVISAR
-)
+    val birthDate: String? = "",
+    val weeksBirth: String? = "",
+    val correctedAge: String? = "" // Corrected age in weeks
+) {
+    // No-argument constructor required by Firestore
+    constructor() : this(
+        id = "",
+        apgar = "",
+        bloodType = "",
+        height = "",
+        name = "",
+        perimeter = "",
+        sex = "",
+        weight = "",
+        birthDate = "",
+        weeksBirth = "",
+        correctedAge = ""
+    )
+}
 
 data class BabyAge(val years: Int, val months: Int)
 
@@ -82,10 +99,15 @@ class BabyDataViewModel @Inject constructor(
     private val _selectedBaby = MutableStateFlow<BabyProfile?>(null)
     val selectedBaby: StateFlow<BabyProfile?> = _selectedBaby.asStateFlow()
 
+    companion object {
+        private const val FULL_TERM_WEEKS = 40
+        private const val PREMATURE_THRESHOLD_WEEKS = 37
+    }
+
     init {
         // Observe saved baby ID from DataStore and sync with baby list
         observeSelectedBabyFromDataStore()
-        fetchBabies(null)
+        fetchBabies()
     }
 
     // ============================================
@@ -146,7 +168,7 @@ class BabyDataViewModel @Inject constructor(
         return _babyAttributes.value[attribute]
     }
 
-    fun fetchBabies(userId: String?) {
+    fun fetchBabies() {
         val uid = firebaseAuth.currentUser?.uid
         _isLoadingBabies.value = true
 
@@ -203,6 +225,9 @@ class BabyDataViewModel @Inject constructor(
                 try {
                     val babyRef = firestore.collection("users").document(uid).collection("babies")
                     val docRef = babyRef.add(babyData).await()
+                    val weeksBirth = babyData["weeksBirth"] as? String
+                    val birthDate = babyData["birthDate"] as? String
+                    val correctedAge = calculateCorrectedAge(birthDate, weeksBirth)
 
                     // Create baby profile with the new ID
                     val newBaby = BabyProfile(
@@ -214,12 +239,22 @@ class BabyDataViewModel @Inject constructor(
                         perimeter = babyData["perimeter"] as? String ?: "",
                         sex = babyData["sex"] as? String ?: "",
                         weight = babyData["weight"] as? String ?: "",
-                        birthDate = babyData["birthDate"] as? String ?: ""
+                        birthDate = birthDate,
+                        weeksBirth = weeksBirth ?: "",
+                        correctedAge = correctedAge
                     )
 
                     // Add to list and set as selected
                     _babyList.value = _babyList.value + newBaby
                     setSelectedBaby(newBaby)
+
+                    // Log corrected age info
+                    if (correctedAge != null) {
+                        val weeksOfPrematurity = getWeeksOfPrematurity(weeksBirth)
+                        Log.d("BabyDataViewModel",
+                            "Baby added with corrected age: $correctedAge weeks " +
+                                    "(Prematurity: $weeksOfPrematurity weeks)")
+                    }
 
                     onSuccess()
                     sendSnackbar("Información agregada correctamente!")
@@ -242,12 +277,25 @@ class BabyDataViewModel @Inject constructor(
         if (uid != null && !babyId.isNullOrEmpty()) {
             viewModelScope.launch {
                 try {
+                    // Recalculate corrected age with updated data
+                    val weeksBirthRaw = babyData["weeksBirth"] as? String ?: ""
+                    val birthDate = babyData["birthDate"] as? String
+                    val correctedAge = calculateCorrectedAge(birthDate, weeksBirthRaw)
+
+                    // Add corrected age to the update data
+                    val completeData = babyData.toMutableMap().apply {
+                        if (correctedAge != null) {
+                            this["realWeeksBirth"] = correctedAge.toDouble()
+                            Log.d("BabyDataViewModel", "Updating realWeeksBirth in Firebase: ${weeksBirthRaw}")
+                        }
+                    }
+
                     val babyRef = firestore.collection("users")
                         .document(uid)
                         .collection("babies")
                         .document(babyId)
 
-                    babyRef.update(babyData).await()
+                    babyRef.update(completeData).await()
 
                     // Update local state
                     val updatedBabies = _babyList.value.map { baby ->
@@ -259,8 +307,10 @@ class BabyDataViewModel @Inject constructor(
                                 weight = babyData["weight"] as? String ?: baby.weight,
                                 perimeter = babyData["perimeter"] as? String ?: baby.perimeter,
                                 bloodType = babyData["bloodType"] as? String ?: baby.bloodType,
-                                birthDate = babyData["birthDate"] as? String ?: baby.birthDate,
-                                sex = babyData["sex"] as? String ?: baby.sex
+                                birthDate = birthDate ?: baby.birthDate,
+                                sex = babyData["sex"] as? String ?: baby.sex,
+                                weeksBirth = weeksBirthRaw,
+                                correctedAge = correctedAge
                             )
                         } else {
                             baby
@@ -277,9 +327,18 @@ class BabyDataViewModel @Inject constructor(
                         }
                     }
 
+                    // Log corrected age info
+                    if (correctedAge != null) {
+                        val weeksOfPrematurity = getWeeksOfPrematurity(correctedAge)
+                        Log.d("BabyDataViewModel",
+                            "Baby updated with corrected age: $correctedAge " +
+                                    "(Prematurity: $weeksOfPrematurity weeks)")
+                    }
+
                     onSuccess()
                     sendSnackbar("Información actualizada correctamente!")
                 } catch (e: Exception) {
+                    Log.e("BabyDataViewModel", "Error updating baby: ", e)
                     onError(e.localizedMessage ?: "Error al actualizar información del bebé")
                 }
             }
@@ -290,6 +349,80 @@ class BabyDataViewModel @Inject constructor(
                 onError("ID del bebé no válido")
             }
         }
+    }
+
+    /**
+     * Calculates corrected age (edad corregida) for premature babies
+     *
+     * Formula:
+     * - Weeks of prematurity = 40 - weeks at birth
+     * - Corrected age = Chronological age - Weeks of prematurity
+     *
+     * @param birthDate Baby's birth date in format "dd/MM/yyyy" or ISO format
+     * @param weeksBirth Gestational age at birth in weeks
+     * @return Corrected age in weeks, or null if baby is not premature or data is invalid
+     */
+    private fun calculateCorrectedAge(
+        birthDate: String?,
+        weeksBirth: String?
+    ): String? {
+
+        if (birthDate.isNullOrEmpty() || weeksBirth.isNullOrEmpty()) {
+            return null
+        }
+
+        val weeksAtBirth = weeksBirth.toIntOrNull() ?: return null
+
+        // Only premature babies
+        if (weeksAtBirth >= PREMATURE_THRESHOLD_WEEKS) {
+            return null
+        }
+
+        val birthDateParsed = parseBirthDate(birthDate) ?: return null
+        val today = Calendar.getInstance()
+        val diffInMillis = today.timeInMillis - birthDateParsed.timeInMillis
+
+        val daysOfWeek = 7
+        val hoursInDay = 24
+        val minutesInHour = 60
+        val secondsInMinute = 60
+        val millisInSecond = 1000
+
+        val chronologicalAgeInWeeks =
+            diffInMillis / (daysOfWeek * hoursInDay * minutesInHour * secondsInMinute * millisInSecond)
+        val weeksOfPrematurity = FULL_TERM_WEEKS - weeksAtBirth
+
+        val correctedAge = chronologicalAgeInWeeks - weeksOfPrematurity
+        val response = correctedAge.takeIf { it >= 0 }
+
+        return response.toString()
+    }
+
+
+    private fun parseBirthDate(birthDate: String): Calendar? {
+        return try {
+            val format = SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH)
+            format.isLenient = false
+            val date = format.parse(birthDate) ?: return null
+            Calendar.getInstance().apply {
+                time = date
+            }
+        } catch (e: Exception) {
+            Log.e("BabyDataViewModel", "Error parsing birth date: $birthDate", e)
+            null
+        }
+    }
+
+    /**
+     * Gets weeks of prematurity (semanas de prematuridad)
+     * Formula: 40 - weeks at birth
+     */
+    fun getWeeksOfPrematurity(weeksBirth: String?): Double? {
+        if (weeksBirth == null) return null
+        val weeksAtBirth = weeksBirth.toDouble()
+        return if (weeksAtBirth < PREMATURE_THRESHOLD_WEEKS) {
+            FULL_TERM_WEEKS - weeksAtBirth
+        } else null
     }
 
     // ============================================
