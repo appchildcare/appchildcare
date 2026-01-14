@@ -63,7 +63,7 @@ import com.ys.phdmama.viewmodel.UserDataViewModel
 @Composable
 fun Resources(navController: NavController, openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Recursos",
+        title = "Checklist",
         navController = navController,
         openDrawer = openDrawer
     ) {

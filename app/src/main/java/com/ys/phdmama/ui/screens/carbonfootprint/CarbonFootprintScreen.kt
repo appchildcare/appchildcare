@@ -96,7 +96,7 @@ fun DataEntryScreen(viewModel: CarbonFootprintViewModel) {
         )
 
         InputField(
-            label = "Baños Dados",
+            label = "Baños",
             value = viewModel.baths,
             onValueChange = { viewModel.baths = it },
             icon = "🛁"

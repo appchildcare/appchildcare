@@ -399,7 +399,7 @@ data class LactationTypeInfo(
 fun getLactationTypeInfo(lactancyType: String): LactationTypeInfo {
     return when (lactancyType.lowercase()) {
         "natural" -> LactationTypeInfo(
-            displayName = "Leche natural",
+            displayName = "Leche materna",
             emoji = "🤱",
             color = Color(0xFF4CAF50) // Green for natural
         )
@@ -409,7 +409,7 @@ fun getLactationTypeInfo(lactancyType: String): LactationTypeInfo {
             color = Color(0xFF2196F3) // Blue for formula
         )
         else -> LactationTypeInfo(
-            displayName = "Leche natural",
+            displayName = "Leche materna",
             emoji = "🤱",
             color = Color(0xFF4CAF50)
         )

@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,9 +14,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
@@ -33,6 +36,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,7 +58,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BabyDataScreen(
@@ -75,6 +78,7 @@ fun BabyDataScreen(
     var height by remember { mutableStateOf("") }
     var headCircumference by remember { mutableStateOf("") }
     var selectedSex by remember { mutableStateOf(sexOptions[0]) }
+    var selectedWeeksBirth by remember { mutableStateOf("") }
     var selectedBloodType by remember { mutableStateOf(bloodTypeOptions[0]) }
     val snackbarHostState = remember { SnackbarHostState() }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -97,7 +101,7 @@ fun BabyDataScreen(
 
     // Fetch babies once when screen loads
     LaunchedEffect(Unit) {
-        babyDataViewModel.fetchBabies("")
+        babyDataViewModel.fetchBabies()
 
         launch {
             babyStatusViewModel.uiEvent.collect { event ->
@@ -123,6 +127,7 @@ fun BabyDataScreen(
                 headCircumference = baby.perimeter
                 selectedSex = baby.sex
                 selectedBloodType = baby.bloodType
+                selectedWeeksBirth = baby.weeksBirth.toString()
 
                 baby.birthDate?.let { dateString ->
                     try {
@@ -212,6 +217,18 @@ fun BabyDataScreen(
         PhdNormalText(text = formattedDate)
         Spacer(modifier = Modifier.height(16.dp))
 
+
+        // Weeks selection dropdown
+        WeeksSelectionDropdown(
+            selectedWeeks = babyDataViewModel.getBabyAttribute("weeksBirth"), // TODO: revisar porque no actualiza en fb
+//            selectedWeeks = selectedBaby?.weeksBirth,
+            onWeeksSelected = { weeks ->
+                Log.d("BabyDataScreen", "User selected weeks: $weeks")
+                babyDataViewModel.setBabyAttribute("weeksBirth", weeks.toString())
+            },
+            label = "¿De cuántas semanas nació?"
+        )
+
         PhdTextField("APGAR", apgarScore) { apgarScore = it }
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -245,6 +262,7 @@ fun BabyDataScreen(
                 babyDataViewModel.setBabyAttribute("perimeter", headCircumference)
                 babyDataViewModel.setBabyAttribute("bloodType", selectedBloodType)
                 babyDataViewModel.setBabyAttribute("sex", selectedSex)
+                babyDataViewModel.setBabyAttribute("weeksBirth", selectedWeeksBirth )
 
                 val babyData = mapOf(
                     "name" to (babyDataViewModel.getBabyAttribute("name") ?: ""),
@@ -254,7 +272,8 @@ fun BabyDataScreen(
                     "perimeter" to (babyDataViewModel.getBabyAttribute("perimeter") ?: ""),
                     "bloodType" to (babyDataViewModel.getBabyAttribute("bloodType") ?: ""),
                     "birthDate" to (babyDataViewModel.getBabyAttribute("birthDate") ?: ""),
-                    "sex" to (babyDataViewModel.getBabyAttribute("sex") ?: "")
+                    "sex" to (babyDataViewModel.getBabyAttribute("sex") ?: ""),
+                    "weeksBirth" to (babyDataViewModel.getBabyAttribute("weeksBirth") ?: ""),
                 )
 
                 val isNewBaby = babyList.isEmpty() || isAddingNewBaby
@@ -347,3 +366,109 @@ fun AddBabyDataScreen(
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WeeksSelectionDropdown(
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
+    selectedWeeks: String?,
+    onWeeksSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "Semanas de gestación"
+) {
+    // Create list of weeks from 1 to 40
+    val options = (20..42).map { it.toString() }
+
+    var selectedOption by remember(selectedWeeks) {
+        mutableStateOf(selectedWeeks ?: options[0])
+    }
+    var expanded by remember { mutableStateOf(false) }
+    babyDataViewModel.setBabyAttribute("weeksBirth", selectedOption)
+    Log.d("WeeksSelectionDropdown", "Selected weeks set in ViewModel: $selectedOption")
+
+    Column(modifier = modifier) {
+        // Optional label
+        if (label.isNotEmpty()) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = "$selectedOption semanas",
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                },
+                modifier = Modifier
+                    .menuAnchor()
+                    .background(Color.White)
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFFB794F6),
+                    focusedBorderColor = Color(0xFF9F7AEA),
+                    focusedLabelColor = Color(0xFF9F7AEA),
+                    unfocusedLabelColor = Color(0xFFB794F6)
+                ),
+                placeholder = { Text("Selecciona las semanas") }
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.heightIn(max = 300.dp) // Limit height for scrolling
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "$option semanas",
+                                color = if (option == selectedOption) {
+                                    Color(0xFF9F7AEA)
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                        },
+                        onClick = {
+                            selectedOption = option
+                            expanded = false
+                            onWeeksSelected(option.toInt())
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    )
+                }
+            }
+        }
+
+        // Show helper text for premature babies (less than 37 weeks)
+        if (selectedOption.toIntOrNull() != null && selectedOption.toInt() < 37) {
+            Text(
+                text = "⚠️ Bebé prematuro - Se calculará edad corregida",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFFED8936), // Orange color for warning
+                modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+            )
+        } else if (selectedOption.toIntOrNull() != null && selectedOption.toInt() >= 37) {
+            Text(
+                text = "✓ Bebé a término",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF48BB78), // Green color for full term
+                modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+            )
+        }
+    }
+}
+

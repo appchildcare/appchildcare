@@ -49,7 +49,7 @@ val menuBornItems = listOf(
 @Composable
 fun BornResourcesMenuScreen(navController: NavController, openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Recursos",
+        title = "Checklist",
         navController = navController,
         openDrawer = openDrawer
     ) { innerPadding ->
