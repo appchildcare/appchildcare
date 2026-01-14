@@ -37,7 +37,7 @@ class LactationViewModel @Inject constructor(
     val isRunning: StateFlow<Boolean> = _isRunning
 
     private val _selectedLactationType = MutableStateFlow(
-        sharedPreferences.getString("selected_lactation_type", "Leche natural") ?: "Leche natural"
+        sharedPreferences.getString("selected_lactation_type", "Leche materna") ?: "Leche materna"
     )
     val selectedLactationType: StateFlow<String> = _selectedLactationType
 
@@ -135,7 +135,7 @@ class LactationViewModel @Inject constructor(
 
         // Convert lactation type to the required format
         val lactationType = when (_selectedLactationType.value) {
-            "Leche natural" -> "natural"
+            "Leche materna" -> "materna"
             "Leche de fórmula" -> "formula"
             else -> "natural" // default fallback
         }
