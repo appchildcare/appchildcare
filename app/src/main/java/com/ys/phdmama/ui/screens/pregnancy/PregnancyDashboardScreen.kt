@@ -65,9 +65,17 @@ fun PregnancyDashboardScreen (
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.app_child_care_logo),
+                contentDescription = "Logo image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp, vertical = 8.dp)
+                    .height(190.dp)
+            )
 
             Image(
-                painter = painterResource(id = R.mipmap.ilustraciones_childcare_embarazada),
+                painter = painterResource(id = R.drawable.mascota_juntos),
                 contentDescription = "Pregnant women",
                 modifier = Modifier
                     .fillMaxWidth()
