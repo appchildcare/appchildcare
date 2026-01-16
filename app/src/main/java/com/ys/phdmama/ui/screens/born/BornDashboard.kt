@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -48,7 +47,6 @@ fun BornDashboardScreen(
     userViewModel: UserDataViewModel = hiltViewModel(),
     babyDataViewModel: BabyDataViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     openDrawer: () -> Unit,
-    babyId: String?
 ) {
     // Collect from ViewModel's StateFlow
     val selectedBaby by babyDataViewModel.selectedBaby.collectAsState()
@@ -56,8 +54,8 @@ fun BornDashboardScreen(
 
     // Calculate age reactively
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
-        selectedBaby?.birthDate?.let { birthDate ->
-            babyDataViewModel.calculateAgeInMonths(birthDate)
+        selectedBaby?.let { baby ->
+            babyDataViewModel.calculateCorrectedAge(baby.birthDate, baby.weeksBirth)
         }
     }
 
