@@ -1,11 +1,13 @@
 package com.ys.phdmama.ui.screens.born
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.text.format.DateFormat
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,6 +60,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun BabyDataScreen(
@@ -94,8 +97,8 @@ fun BabyDataScreen(
 
     // Calculate baby age reactively
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
-        selectedBaby?.birthDate?.let { birthDate ->
-            babyDataViewModel.calculateBabyAge(birthDate)
+        selectedBaby?.let { baby ->
+            babyDataViewModel.calculateCorrectedAge(baby.birthDate, baby.weeksBirth)
         }
     }
 
@@ -161,9 +164,8 @@ fun BabyDataScreen(
             if (babyList.isNotEmpty()) {
                 BabySelectorCard(
                     babies = babyList,
-                    selectedBaby = if (isAddingNewBaby) null else selectedBaby,
+                    selectedBaby = selectedBaby,
                     onBabySelected = { baby ->
-                        Log.d("BabyDataScreen", "User selected baby: ${baby.name}")
                         babyDataViewModel.setSelectedBaby(baby)
                         isAddingNewBaby = false
                     },
@@ -220,11 +222,9 @@ fun BabyDataScreen(
 
         // Weeks selection dropdown
         WeeksSelectionDropdown(
-            selectedWeeks = babyDataViewModel.getBabyAttribute("weeksBirth"), // TODO: revisar porque no actualiza en fb
-//            selectedWeeks = selectedBaby?.weeksBirth,
+            selectedWeeks = selectedBaby?.weeksBirth,
             onWeeksSelected = { weeks ->
-                Log.d("BabyDataScreen", "User selected weeks: $weeks")
-                babyDataViewModel.setBabyAttribute("weeksBirth", weeks.toString())
+                selectedWeeksBirth = weeks.toString()
             },
             label = "¿De cuántas semanas nació?"
         )
@@ -324,6 +324,7 @@ fun BabyDataScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddBabyDataScreen(
     loginViewModel: LoginViewModel = hiltViewModel(), navController: NavController,
@@ -331,10 +332,6 @@ fun AddBabyDataScreen(
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     var showPaymentUI by remember { mutableStateOf(true) }
-
-    if (babyId != null) {
-        Log.d("NALA", babyId)
-    }
 
     LaunchedEffect(userRole) {
         userRole?.let {
@@ -371,7 +368,6 @@ fun AddBabyDataScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeeksSelectionDropdown(
-    babyDataViewModel: BabyDataViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     selectedWeeks: String?,
     onWeeksSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -384,8 +380,6 @@ fun WeeksSelectionDropdown(
         mutableStateOf(selectedWeeks ?: options[0])
     }
     var expanded by remember { mutableStateOf(false) }
-    babyDataViewModel.setBabyAttribute("weeksBirth", selectedOption)
-    Log.d("WeeksSelectionDropdown", "Selected weeks set in ViewModel: $selectedOption")
 
     Column(modifier = modifier) {
         // Optional label
