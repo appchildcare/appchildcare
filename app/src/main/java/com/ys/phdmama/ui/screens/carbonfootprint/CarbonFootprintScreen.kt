@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.ys.phdmama.ui.screens.carbonfootprint
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.OutlinedTextField
@@ -22,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -51,12 +54,6 @@ fun DataEntryScreen(viewModel: CarbonFootprintViewModel) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-//        Text(
-//            "Datos diarios del cuidado del bebé",
-//            fontSize = 24.sp,
-//            fontWeight = FontWeight.Bold,
-//            color = Color(0xFF2E7D32)
-//        )
         PhdSubtitle("Datos diarios del cuidado del bebé")
 
         // Input Fields
@@ -64,42 +61,36 @@ fun DataEntryScreen(viewModel: CarbonFootprintViewModel) {
             label = "Pañales desechables usados",
             value = viewModel.disposableDiapers,
             onValueChange = { viewModel.disposableDiapers = it },
-            icon = "🍼"
         )
 
         InputField(
             label = "Pañales de tela usados",
             value = viewModel.clothDiapers,
             onValueChange = { viewModel.clothDiapers = it },
-            icon = "🌿"
         )
 
         InputField(
             label = "Toallitas húmedas usadas",
             value = viewModel.wetWipes,
             onValueChange = { viewModel.wetWipes = it },
-            icon = "🧻"
         )
 
         InputField(
             label = "Alimentación con fórmula",
             value = viewModel.formulaFeedings,
             onValueChange = { viewModel.formulaFeedings = it },
-            icon = "🍼"
         )
 
         InputField(
             label = "Lavados de botellas",
             value = viewModel.bottleWashes,
             onValueChange = { viewModel.bottleWashes = it },
-            icon = "🧽"
         )
 
         InputField(
             label = "Baños",
             value = viewModel.baths,
             onValueChange = { viewModel.baths = it },
-            icon = "🛁"
         )
 
         if (viewModel.successMessage.isNotEmpty()) {
@@ -172,14 +163,16 @@ fun InputField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    icon: String
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text("$icon $label") },
+        label = { Text(label) },
+
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true
+        modifier = Modifier.fillMaxWidth()
+            .padding(16.dp, 4.dp)
+            .background(color = Color.White),
+        singleLine = true,
     )
 }

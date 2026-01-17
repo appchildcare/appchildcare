@@ -2,6 +2,9 @@ package com.ys.phdmama.viewmodel
 
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
@@ -19,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.ys.phdmama.R
 import com.ys.phdmama.model.FoodReaction
 import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -158,27 +162,36 @@ class FoodRegistrationViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val pdfDocument = PdfDocument()
-                val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+                val pageWidth = 595f
+                val pageHeight = 842f
+                var pageNumber = 1
+                var totalPages = 1 // We'll calculate this if needed
+
+                val pageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                 var page = pdfDocument.startPage(pageInfo)
                 var canvas = page.canvas
                 val paint = Paint()
 
+                // Load and draw image/logo at the top
+                val logo = BitmapFactory.decodeResource(context.resources, R.drawable.app_child_care_logo)
+                val scaledLogo = Bitmap.createScaledBitmap(logo, 100, 100, false)
+                val centerX = (pageWidth - 100) / 2f
+                canvas.drawBitmap(scaledLogo, centerX, 20f, paint)
+
                 // Title
                 paint.textSize = 20f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                canvas.drawText("Reporte de Alimentos", 50f, 50f, paint)
+                canvas.drawText("Reporte de Alimentos", 50f, 150f, paint)
 
                 // Date
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                val currentDate =
-                    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-                canvas.drawText("Fecha de generación: $currentDate", 50f, 80f, paint)
+                val currentDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+                canvas.drawText("Fecha de generación: $currentDate", 50f, 180f, paint)
 
-                var yPosition = 120f
+                var yPosition = 220f
                 val lineHeight = 20f
-                val pageHeight = 792f // Leave margin at bottom
-                var pageNumber = 1
+                val pageContentHeight = 750f // Leave space for footer
 
                 // Headers
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
@@ -189,29 +202,48 @@ class FoodRegistrationViewModel @Inject constructor(
                 yPosition += lineHeight
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
 
-                // Draw line under headers
                 canvas.drawLine(50f, yPosition, 545f, yPosition, paint)
                 yPosition += lineHeight
 
-                // Data rows - ACCESS THE STATEFLOW VALUE HERE
+                // Helper function to draw footer
+                fun drawFooter(currentCanvas: Canvas, currentPage: Int) {
+                    val footerPaint = Paint().apply {
+                        textSize = 10f
+                        typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                        color = android.graphics.Color.GRAY
+                    }
+
+                    // Draw line above footer
+                    currentCanvas.drawLine(50f, 800f, 545f, 800f, footerPaint)
+
+                    // Left side: "Generado por Child Care App"
+                    currentCanvas.drawText("Generado por Child Care App", 50f, 820f, footerPaint)
+
+                    // Right side: "Página X de Y"
+                    val pageText = "Página $currentPage de $totalPages"
+                    footerPaint.textAlign = Paint.Align.RIGHT
+                    currentCanvas.drawText(pageText, 545f, 820f, footerPaint)
+                    footerPaint.textAlign = Paint.Align.LEFT // Reset alignment
+                }
+
+                // Data rows
                 _foodList.value.forEach { food ->
                     // Check if we need a new page
-                    if (yPosition > pageHeight) {
+                    if (yPosition > pageContentHeight) {
+                        // Draw footer on current page before finishing
+                        drawFooter(canvas, pageNumber)
                         pdfDocument.finishPage(page)
+
                         pageNumber++
-                        val newPageInfo =
-                            PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
+                        totalPages = pageNumber // Update total pages
+                        val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                         page = pdfDocument.startPage(newPageInfo)
                         canvas = page.canvas
                         yPosition = 50f
                     }
 
-                    // Format date
                     val formattedDate = try {
-                        val date = SimpleDateFormat(
-                            "yyyy-MM-dd HH:mm:ss",
-                            Locale.getDefault()
-                        ).parse(food.date)
+                        val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(food.date)
                         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date ?: Date())
                     } catch (e: Exception) {
                         food.date
@@ -222,13 +254,14 @@ class FoodRegistrationViewModel @Inject constructor(
                     canvas.drawText(if (food.hasReaction) "Sí" else "No", 350f, yPosition, paint)
                     yPosition += lineHeight
 
-                    // If has reaction detail, add it on next line
                     if (food.hasReaction && food.reactionDetail.isNotEmpty()) {
-                        if (yPosition > pageHeight) {
+                        if (yPosition > pageContentHeight) {
+                            drawFooter(canvas, pageNumber)
                             pdfDocument.finishPage(page)
+
                             pageNumber++
-                            val newPageInfo =
-                                PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
+                            totalPages = pageNumber
+                            val newPageInfo = PdfDocument.PageInfo.Builder(595, 842, pageNumber).create()
                             page = pdfDocument.startPage(newPageInfo)
                             canvas = page.canvas
                             yPosition = 50f
@@ -241,15 +274,12 @@ class FoodRegistrationViewModel @Inject constructor(
                     }
                 }
 
+                // Draw footer on last page
+                drawFooter(canvas, pageNumber)
                 pdfDocument.finishPage(page)
 
                 // Save the document
-                val fileName = "Reporte_Alimentos_${
-                    SimpleDateFormat(
-                        "yyyyMMdd_HHmmss",
-                        Locale.getDefault()
-                    ).format(Date())
-                }.pdf"
+                val fileName = "Reporte_Alimentos_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())}.pdf"
                 val resolver = context.contentResolver
                 val contentValues = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -264,8 +294,7 @@ class FoodRegistrationViewModel @Inject constructor(
                     }
 
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "PDF guardado en Descargas", Toast.LENGTH_LONG)
-                            .show()
+                        Toast.makeText(context, "PDF guardado en Descargas", Toast.LENGTH_LONG).show()
                     }
                 }
 
@@ -274,8 +303,7 @@ class FoodRegistrationViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("FoodRegistrationVM", "Error generating PDF", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error al generar PDF: ${e.message}", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(context, "Error al generar PDF: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }

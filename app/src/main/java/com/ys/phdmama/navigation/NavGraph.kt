@@ -23,7 +23,6 @@ import com.ys.phdmama.ui.screens.TermsConditions
 import com.ys.phdmama.ui.screens.born.AddBabyDataScreen
 import com.ys.phdmama.ui.screens.born.BabyMenuScreen
 import com.ys.phdmama.ui.screens.born.BornDashboardScreen
-import com.ys.phdmama.ui.screens.born.BornResourcesMenuScreen
 import com.ys.phdmama.ui.screens.born.GrowthMilestonesScreen
 import com.ys.phdmama.ui.screens.born.VaccineScreen
 import com.ys.phdmama.ui.screens.pregnancy.PregnancyDashboardScreen
@@ -258,7 +257,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
         composable(NavRoutes.BORN_RESOURCES) {
-            BornResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+            Resources(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_RESOURCES_CHECKLIST) {
             Resources(navController = navController, openDrawer = openDrawer)
