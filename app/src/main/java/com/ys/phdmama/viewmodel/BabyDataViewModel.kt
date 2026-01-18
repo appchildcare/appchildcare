@@ -154,6 +154,19 @@ class BabyDataViewModel @Inject constructor(
         }
     }
 
+    fun setBabyAgeMonths(months: String?) {
+        viewModelScope.launch {
+            if (months != null) {
+                preferencesRepository.saveBabyAgeMonths(months!!)
+                Log.d("BabyDataViewModel", "Set selected baby age months: $months")
+            } else {
+                preferencesRepository.clearBabyAgeMonths()
+                Log.d("BabyDataViewModel", "Cleared selected baby age months")
+            }
+        }
+    }
+
+
     // ============================================
     // BABY OPERATIONS
     // ============================================
@@ -379,6 +392,8 @@ class BabyDataViewModel @Inject constructor(
         val years = totalMonths / 12
         val months = totalMonths % 12
 
+        setBabyAgeMonths(months.toString())
+
         return BabyAge(years, months)
     }
 
@@ -501,6 +516,7 @@ class BabyDataViewModel @Inject constructor(
         val convertedBirthDate = LocalDate.parse(birthDate, formatter)
         val today = LocalDate.now()
         val timeLapse = Period.between(convertedBirthDate, today)
+        setBabyAgeMonths(timeLapse.months.toString())
         return BabyAge(timeLapse.years, timeLapse.months)
     }
 
