@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,9 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
-class CheckItemsViewModel @Inject constructor() : ViewModel() {
+class CheckItemsViewModel @Inject constructor(
+    private val babyPreferencesRepository: BabyPreferencesRepository,
+) : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -53,8 +56,25 @@ class CheckItemsViewModel @Inject constructor() : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _babyAgeWeeks = MutableStateFlow<String>("")
+    val babyAgeWeeks: StateFlow<String> = _babyAgeWeeks.asStateFlow()
+
     init {
+        observeSelectedBabyFromDataStore()
         fetchCurrentList()
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            babyPreferencesRepository.currentBabyAgeMonthsFlow.collect { savedBabyAgeWeeks ->
+                Log.d("CheckItemsViewModel", "DataStore changed, saved week months: $savedBabyAgeWeeks")
+
+                if (savedBabyAgeWeeks != null) {
+                    // Find the baby in the current list
+                    _babyAgeWeeks.value = savedBabyAgeWeeks
+                }
+            }
+        }
     }
 
     fun fetchCurrentList() {

@@ -78,6 +78,14 @@ fun CheckItemsScreen(
     val topicGroups by checkItemsViewModel.topicGroups.collectAsState()
     val isLoading by checkItemsViewModel.isLoading.collectAsState()
     val error by checkItemsViewModel.error.collectAsState()
+    val babyAgeMonths by checkItemsViewModel.babyAgeWeeks.collectAsState()
+
+    val filteredTopicGroups = remember(topicGroups, babyAgeMonths) {
+        babyAgeMonths?.toIntOrNull()?.let { ageMonths ->
+            topicGroups.filter { it.months == ageMonths }
+        } ?: emptyList()
+    }
+
 
     when {
         isLoading -> {
@@ -104,7 +112,7 @@ fun CheckItemsScreen(
             }
         }
 
-        topicGroups.isEmpty() -> {
+        filteredTopicGroups.isEmpty() -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -112,7 +120,7 @@ fun CheckItemsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No items found",
+                    text = "No hay checklists disponibles para la edad actual del bebé.",
                     textAlign = TextAlign.Center
                 )
             }

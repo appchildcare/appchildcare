@@ -18,6 +18,7 @@ class BabyPreferencesRepository @Inject constructor(
 ) {
     private object PreferencesKeys {
         val SELECTED_BABY_ID = stringPreferencesKey("selected_baby_id")
+        val BABY_AGE_MONTHS = stringPreferencesKey("baby_age_months")
     }
 
     // Save selected baby ID
@@ -41,6 +42,19 @@ class BabyPreferencesRepository @Inject constructor(
             preferences[PreferencesKeys.SELECTED_BABY_ID]
         }
 
+    // Get selected baby ID as Flow (reactive)
+    val currentBabyAgeMonthsFlow: Flow<String?> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[PreferencesKeys.BABY_AGE_MONTHS]
+        }
+
     // Get selected baby ID once (one-time read)
     suspend fun getSelectedBabyId(): String? {
         return dataStore.data.firstOrNull()?.get(PreferencesKeys.SELECTED_BABY_ID)
@@ -52,5 +66,24 @@ class BabyPreferencesRepository @Inject constructor(
             preferences.remove(PreferencesKeys.SELECTED_BABY_ID)
             Log.d("BabyPreferences", "Cleared baby ID")
         }
+    }
+
+    // Save selected baby ID
+    suspend fun saveBabyAgeMonths(babyAgeMonths: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BABY_AGE_MONTHS] = babyAgeMonths
+            Log.d("BabyPreferences", "saveBabyAgeMonths: $babyAgeMonths")
+        }
+    }
+
+    suspend fun clearBabyAgeMonths() {
+        dataStore.edit { preferences ->
+            preferences.remove(PreferencesKeys.BABY_AGE_MONTHS)
+            Log.d("BabyPreferences", "Cleared baby age months")
+        }
+    }
+
+    suspend fun getBabyAgeMonths(): String? {
+        return dataStore.data.firstOrNull()?.get(PreferencesKeys.BABY_AGE_MONTHS)
     }
 }
