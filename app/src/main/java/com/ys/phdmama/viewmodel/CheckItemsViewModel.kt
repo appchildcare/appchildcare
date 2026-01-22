@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.model.ChecklistItemState
 import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,13 +63,12 @@ class CheckItemsViewModel @Inject constructor(
     init {
         observeSelectedBabyFromDataStore()
         fetchCurrentList()
+        observeCheckboxStates()
     }
 
     private fun observeSelectedBabyFromDataStore() {
         viewModelScope.launch {
             babyPreferencesRepository.currentBabyAgeMonthsFlow.collect { savedBabyAgeWeeks ->
-                Log.d("CheckItemsViewModel", "DataStore changed, saved week months: $savedBabyAgeWeeks")
-
                 if (savedBabyAgeWeeks != null) {
                     // Find the baby in the current list
                     _babyAgeWeeks.value = savedBabyAgeWeeks
@@ -90,11 +90,7 @@ class CheckItemsViewModel @Inject constructor(
                     return@launch
                 }
 
-                // Fetch all documents from the checklists collection
-                val querySnapshot = firestore
-                    .collection("checklists")
-                    .get()
-                    .await()
+                val querySnapshot = firestore.collection("checklists").get().await()
 
                 if (querySnapshot.isEmpty) {
                     _topicGroups.value = emptyList()
@@ -102,85 +98,72 @@ class CheckItemsViewModel @Inject constructor(
                     return@launch
                 }
 
-                // Parse all items from all documents
-                val allItems = mutableListOf<Pair<ChecklistItem, Pair<String, Int>>>()
+                val allItems = mutableListOf<ChecklistItem>()
 
-                Log.d("CheckItemsViewModel", "Found ${querySnapshot.documents.size} documents")
-
-                // Iterate through all documents
                 for (document in querySnapshot.documents) {
                     val data = document.data ?: continue
 
-                    Log.d("CheckItemsViewModel", "Processing document: ${document.id}")
+                    // Get root-level topic and months
+                    val rootTopic = data["topic"] as? String ?: ""
+                    val rootMonths = (data["months"] as? Long)?.toInt() ?: 0
 
-                    // Get parent-level topic and months from the document
-                    val parentTopic = data["topic"] as? String ?: ""
-                    val parentMonths = (data["months"] as? Long)?.toInt() ?: 0
-
-                    Log.d("CheckItemsViewModel", "Parent topic: $parentTopic, Parent months: $parentMonths")
-
-                    // Iterate through numbered fields (1, 2, 3, etc.) in each document
                     var index = 1
-                    var itemsInDoc = 0
                     while (data.containsKey(index.toString())) {
                         val itemData = data[index.toString()] as? Map<*, *>
+
                         if (itemData != null) {
-                            // Create unique ID combining document ID and field index
                             val itemId = "${document.id}_$index"
+                            val itemText = itemData["item"] as? String ?: ""
+                            val itemSubtopic = itemData["subtopic"] as? String ?: ""
+
                             val item = ChecklistItem(
                                 id = itemId,
-                                item = itemData["item"] as? String ?: "",
-                                subtopic = itemData["subtopic"] as? String ?: "",
-                                months = (itemData["months"] as? Long)?.toInt() ?: 0,
-                                topic = itemData["topic"] as? String ?: "",
+                                item = itemText,
+                                subtopic = itemSubtopic,
+                                months = rootMonths,
+                                topic = rootTopic,
                                 isChecked = false
                             )
-                            // Store item with its parent-level data
-                            allItems.add(item to (parentTopic to parentMonths))
-                            itemsInDoc++
+
+                            allItems.add(item)
                         }
                         index++
                     }
-                    Log.d("CheckItemsViewModel", "Found $itemsInDoc items in document ${document.id}")
                 }
 
-                // Group items by subtopic and include parent-level data
-                val subtopicGroups = allItems
-                    .groupBy { it.first.subtopic }
-                    .map { (subtopic, itemsWithParentData) ->
-                        // Get parent data from the first item in the group
-                        val (parentTopic, parentMonths) = itemsWithParentData.firstOrNull()?.second ?: ("" to 0)
+                // Load saved checkbox states
+                val savedStates = loadCheckboxStates()
+
+                // Apply states to items
+                val itemsWithStates = allItems.map { item ->
+                    item.copy(isChecked = savedStates[item.id] ?: false)
+                }
+
+                // Group by topic + months
+                val groupedByTopicAndMonths = itemsWithStates.groupBy { "${it.topic}_${it.months}" }
+
+                val topicGroups = groupedByTopicAndMonths.map { (key, items) ->
+                    val topic = items.first().topic
+                    val months = items.first().months
+
+                    val subtopicGroups = items.groupBy { it.subtopic }.map { (subtopic, subtopicItems) ->
                         SubtopicGroup(
                             subtopic = subtopic,
-                            items = itemsWithParentData.map { it.first },
-                            topic = parentTopic,
-                            months = parentMonths
-                        )
-                    }
-                    .sortedBy { it.subtopic }
-
-                // Group subtopics by their parent topic
-                val topicGroups = subtopicGroups
-                    .groupBy { it.topic }
-                    .map { (topic, subtopics) ->
-                        TopicGroup(
+                            items = subtopicItems,
                             topic = topic,
-                            months = subtopics.firstOrNull()?.months ?: 0,
-                            subtopicGroups = subtopics
+                            months = months
                         )
-                    }
-                    .sortedBy { it.topic }
+                    }.sortedBy { it.subtopic }
+
+                    TopicGroup(
+                        topic = topic,
+                        months = months,
+                        subtopicGroups = subtopicGroups
+                    )
+                }.sortedBy { "${it.topic}_${it.months}" }
 
                 _topicGroups.value = topicGroups
                 _isLoading.value = false
-
-                Log.d("CheckItemsViewModel", "Loaded ${topicGroups.size} topic groups")
-                topicGroups.forEach { topicGroup ->
-                    Log.d("CheckItemsViewModel", "Topic: ${topicGroup.topic}, Months: ${topicGroup.months}, Subtopics: ${topicGroup.subtopicGroups.size}")
-                    topicGroup.subtopicGroups.forEach { subtopic ->
-                        Log.d("CheckItemsViewModel", "  - Subtopic: ${subtopic.subtopic}, Items: ${subtopic.items.size}")
-                    }
-                }
 
             } catch (e: Exception) {
                 _error.value = "Error loading checklists: ${e.message}"
@@ -189,12 +172,11 @@ class CheckItemsViewModel @Inject constructor(
         }
     }
 
+
     // Toggle checkbox state for a specific item
     fun toggleItemChecked(itemId: String) {
-        val currentTopicGroups = _topicGroups.value
-
-        // Update the checked state for the specific item
-        val updatedTopicGroups = currentTopicGroups.map { topicGroup ->
+        // Optimistically update UI first
+        val updatedGroups = _topicGroups.value.map { topicGroup ->
             topicGroup.copy(
                 subtopicGroups = topicGroup.subtopicGroups.map { subtopicGroup ->
                     subtopicGroup.copy(
@@ -210,6 +192,157 @@ class CheckItemsViewModel @Inject constructor(
             )
         }
 
-        _topicGroups.value = updatedTopicGroups
+        val newCheckedState = updatedGroups
+            .flatMap { it.subtopicGroups }
+            .flatMap { it.items }
+            .find { it.id == itemId }
+            ?.isChecked ?: false
+
+        _topicGroups.value = updatedGroups
+
+        // Save to Firestore
+        saveCheckboxState(itemId, newCheckedState)
+    }
+
+    fun saveCheckboxState(itemId: String, checked: Boolean) {
+        viewModelScope.launch {
+            try {
+                val userId = auth.currentUser?.uid
+                if (userId == null) {
+                    return@launch
+                }
+
+                // Get baby ID from DataStore
+                val babyId = babyPreferencesRepository.getSelectedBabyId()
+                if (babyId == null) {
+                    _error.value = "No baby selected"
+                    return@launch
+                }
+
+                // Parse itemId: "08eaPOJrd5hcSL1OTfAF_1" -> docId="08eaPOJrd5hcSL1OTfAF", index=1
+                val parts = itemId.split("_")
+                if (parts.size != 2) {
+                    return@launch
+                }
+
+                val checklistDocId = parts[0]
+                val itemIndex = parts[1].toIntOrNull() ?: 0
+
+                val stateData = ChecklistItemState(
+                    checklistDocId = checklistDocId,
+                    itemIndex = itemIndex,
+                    checked = checked,
+                    timestamp = System.currentTimeMillis()
+                )
+
+                // Save to: /users/{userId}/babies/{babyId}/checklist_states/{itemId}
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("babies")
+                    .document(babyId)
+                    .collection("checklist_states")
+                    .document(itemId)
+                    .set(stateData)
+                    .await()
+
+            } catch (e: Exception) {
+                _error.value = "Failed to save: ${e.message}"
+            }
+        }
+    }
+
+    // Load all checkbox states for current baby
+    private suspend fun loadCheckboxStates(): Map<String, Boolean> {
+        return try {
+            val userId = auth.currentUser?.uid
+            val babyId = babyPreferencesRepository.getSelectedBabyId()
+
+            if (userId == null || babyId == null) {
+                return emptyMap()
+            }
+
+            val snapshot = firestore.collection("users")
+                .document(userId)
+                .collection("babies")
+                .document(babyId)
+                .collection("checklist_states")
+                .get()
+                .await()
+
+            val states = snapshot.documents.mapNotNull { doc ->
+                val state = doc.toObject(ChecklistItemState::class.java)
+                if (state != null) {
+                    val itemId = "${state.checklistDocId}_${state.itemIndex}"
+                    itemId to state.checked
+                } else {
+                    null
+                }
+            }.toMap()
+
+            states
+
+        } catch (e: Exception) {
+            Log.e("CheckItemsViewModel", "Error loading checkbox states", e)
+            emptyMap()
+        }
+    }
+
+    // Listen to real-time checkbox state changes
+    private fun observeCheckboxStates() {
+        viewModelScope.launch {
+            try {
+                val userId = auth.currentUser?.uid
+                val babyId = babyPreferencesRepository.getSelectedBabyId()
+
+                if (userId == null || babyId == null) {
+                    Log.w("CheckItemsViewModel", "Cannot observe: user=$userId, baby=$babyId")
+                    return@launch
+                }
+
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("babies")
+                    .document(babyId)
+                    .collection("checklist_states")
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            Log.e("CheckItemsViewModel", "Error observing states", error)
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot != null) {
+                            val states = snapshot.documents.mapNotNull { doc ->
+                                val state = doc.toObject(ChecklistItemState::class.java)
+                                if (state != null) {
+                                    val itemId = "${state.checklistDocId}_${state.itemIndex}"
+                                    itemId to state.checked
+                                } else {
+                                    null
+                                }
+                            }.toMap()
+
+                            applyCheckboxStates(states)
+                        }
+                    }
+            } catch (e: Exception) {
+                Log.e("CheckItemsViewModel", "Error setting up observer", e)
+            }
+        }
+    }
+
+    // Apply checkbox states to current topic groups
+    private fun applyCheckboxStates(states: Map<String, Boolean>) {
+        val updated = _topicGroups.value.map { topicGroup ->
+            topicGroup.copy(
+                subtopicGroups = topicGroup.subtopicGroups.map { subtopicGroup ->
+                    subtopicGroup.copy(
+                        items = subtopicGroup.items.map { item ->
+                            item.copy(isChecked = states[item.id] ?: false)
+                        }
+                    )
+                }
+            )
+        }
+        _topicGroups.value = updated
     }
 }
