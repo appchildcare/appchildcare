@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.model.ChecklistItemState
 import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,13 +63,12 @@ class CheckItemsViewModel @Inject constructor(
     init {
         observeSelectedBabyFromDataStore()
         fetchCurrentList()
+        observeCheckboxStates()
     }
 
     private fun observeSelectedBabyFromDataStore() {
         viewModelScope.launch {
             babyPreferencesRepository.currentBabyAgeMonthsFlow.collect { savedBabyAgeWeeks ->
-                Log.d("CheckItemsViewModel", "DataStore changed, saved week months: $savedBabyAgeWeeks")
-
                 if (savedBabyAgeWeeks != null) {
                     // Find the baby in the current list
                     _babyAgeWeeks.value = savedBabyAgeWeeks
@@ -99,7 +99,6 @@ class CheckItemsViewModel @Inject constructor(
                 }
 
                 val allItems = mutableListOf<ChecklistItem>()
-                Log.d("CheckItemsViewModel", "Found ${querySnapshot.documents.size} documents")
 
                 for (document in querySnapshot.documents) {
                     val data = document.data ?: continue
@@ -107,8 +106,6 @@ class CheckItemsViewModel @Inject constructor(
                     // Get root-level topic and months
                     val rootTopic = data["topic"] as? String ?: ""
                     val rootMonths = (data["months"] as? Long)?.toInt() ?: 0
-
-                    Log.d("CheckItemsViewModel", "Document: ${document.id}, root topic='$rootTopic', root months=$rootMonths")
 
                     var index = 1
                     while (data.containsKey(index.toString())) {
@@ -119,35 +116,35 @@ class CheckItemsViewModel @Inject constructor(
                             val itemText = itemData["item"] as? String ?: ""
                             val itemSubtopic = itemData["subtopic"] as? String ?: ""
 
-                            // Use root-level values for topic and months
                             val item = ChecklistItem(
                                 id = itemId,
                                 item = itemText,
                                 subtopic = itemSubtopic,
-                                months = rootMonths,  // From document root
-                                topic = rootTopic,    // From document root
+                                months = rootMonths,
+                                topic = rootTopic,
                                 isChecked = false
                             )
 
                             allItems.add(item)
-                            Log.d("CheckItemsViewModel", "  Item $index: topic='$rootTopic', months=$rootMonths")
                         }
                         index++
                     }
                 }
 
-                Log.d("CheckItemsViewModel", "Total items: ${allItems.size}")
+                // Load saved checkbox states
+                val savedStates = loadCheckboxStates()
+
+                // Apply states to items
+                val itemsWithStates = allItems.map { item ->
+                    item.copy(isChecked = savedStates[item.id] ?: false)
+                }
 
                 // Group by topic + months
-                val groupedByTopicAndMonths = allItems.groupBy { "${it.topic}_${it.months}" }
-
-                Log.d("CheckItemsViewModel", "Grouped into ${groupedByTopicAndMonths.size} topic+month combinations")
+                val groupedByTopicAndMonths = itemsWithStates.groupBy { "${it.topic}_${it.months}" }
 
                 val topicGroups = groupedByTopicAndMonths.map { (key, items) ->
                     val topic = items.first().topic
                     val months = items.first().months
-
-                    Log.d("CheckItemsViewModel", "Creating group: topic='$topic', months=$months, items=${items.size}")
 
                     val subtopicGroups = items.groupBy { it.subtopic }.map { (subtopic, subtopicItems) ->
                         SubtopicGroup(
@@ -168,25 +165,18 @@ class CheckItemsViewModel @Inject constructor(
                 _topicGroups.value = topicGroups
                 _isLoading.value = false
 
-                Log.d("CheckItemsViewModel", "✅ Loaded ${topicGroups.size} topic groups")
-                topicGroups.forEach { group ->
-                    Log.d("CheckItemsViewModel", "  📋 '${group.topic}' - ${group.months} months - ${group.subtopicGroups.size} subtopics")
-                }
-
             } catch (e: Exception) {
                 _error.value = "Error loading checklists: ${e.message}"
                 _isLoading.value = false
-                Log.e("CheckItemsViewModel", "Error loading checklists", e)
             }
         }
     }
 
+
     // Toggle checkbox state for a specific item
     fun toggleItemChecked(itemId: String) {
-        val currentTopicGroups = _topicGroups.value
-
-        // Update the checked state for the specific item
-        val updatedTopicGroups = currentTopicGroups.map { topicGroup ->
+        // Optimistically update UI first
+        val updatedGroups = _topicGroups.value.map { topicGroup ->
             topicGroup.copy(
                 subtopicGroups = topicGroup.subtopicGroups.map { subtopicGroup ->
                     subtopicGroup.copy(
@@ -202,6 +192,157 @@ class CheckItemsViewModel @Inject constructor(
             )
         }
 
-        _topicGroups.value = updatedTopicGroups
+        val newCheckedState = updatedGroups
+            .flatMap { it.subtopicGroups }
+            .flatMap { it.items }
+            .find { it.id == itemId }
+            ?.isChecked ?: false
+
+        _topicGroups.value = updatedGroups
+
+        // Save to Firestore
+        saveCheckboxState(itemId, newCheckedState)
+    }
+
+    fun saveCheckboxState(itemId: String, checked: Boolean) {
+        viewModelScope.launch {
+            try {
+                val userId = auth.currentUser?.uid
+                if (userId == null) {
+                    return@launch
+                }
+
+                // Get baby ID from DataStore
+                val babyId = babyPreferencesRepository.getSelectedBabyId()
+                if (babyId == null) {
+                    _error.value = "No baby selected"
+                    return@launch
+                }
+
+                // Parse itemId: "08eaPOJrd5hcSL1OTfAF_1" -> docId="08eaPOJrd5hcSL1OTfAF", index=1
+                val parts = itemId.split("_")
+                if (parts.size != 2) {
+                    return@launch
+                }
+
+                val checklistDocId = parts[0]
+                val itemIndex = parts[1].toIntOrNull() ?: 0
+
+                val stateData = ChecklistItemState(
+                    checklistDocId = checklistDocId,
+                    itemIndex = itemIndex,
+                    checked = checked,
+                    timestamp = System.currentTimeMillis()
+                )
+
+                // Save to: /users/{userId}/babies/{babyId}/checklist_states/{itemId}
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("babies")
+                    .document(babyId)
+                    .collection("checklist_states")
+                    .document(itemId)
+                    .set(stateData)
+                    .await()
+
+            } catch (e: Exception) {
+                _error.value = "Failed to save: ${e.message}"
+            }
+        }
+    }
+
+    // Load all checkbox states for current baby
+    private suspend fun loadCheckboxStates(): Map<String, Boolean> {
+        return try {
+            val userId = auth.currentUser?.uid
+            val babyId = babyPreferencesRepository.getSelectedBabyId()
+
+            if (userId == null || babyId == null) {
+                return emptyMap()
+            }
+
+            val snapshot = firestore.collection("users")
+                .document(userId)
+                .collection("babies")
+                .document(babyId)
+                .collection("checklist_states")
+                .get()
+                .await()
+
+            val states = snapshot.documents.mapNotNull { doc ->
+                val state = doc.toObject(ChecklistItemState::class.java)
+                if (state != null) {
+                    val itemId = "${state.checklistDocId}_${state.itemIndex}"
+                    itemId to state.checked
+                } else {
+                    null
+                }
+            }.toMap()
+
+            states
+
+        } catch (e: Exception) {
+            Log.e("CheckItemsViewModel", "Error loading checkbox states", e)
+            emptyMap()
+        }
+    }
+
+    // Listen to real-time checkbox state changes
+    private fun observeCheckboxStates() {
+        viewModelScope.launch {
+            try {
+                val userId = auth.currentUser?.uid
+                val babyId = babyPreferencesRepository.getSelectedBabyId()
+
+                if (userId == null || babyId == null) {
+                    Log.w("CheckItemsViewModel", "Cannot observe: user=$userId, baby=$babyId")
+                    return@launch
+                }
+
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("babies")
+                    .document(babyId)
+                    .collection("checklist_states")
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            Log.e("CheckItemsViewModel", "Error observing states", error)
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot != null) {
+                            val states = snapshot.documents.mapNotNull { doc ->
+                                val state = doc.toObject(ChecklistItemState::class.java)
+                                if (state != null) {
+                                    val itemId = "${state.checklistDocId}_${state.itemIndex}"
+                                    itemId to state.checked
+                                } else {
+                                    null
+                                }
+                            }.toMap()
+
+                            applyCheckboxStates(states)
+                        }
+                    }
+            } catch (e: Exception) {
+                Log.e("CheckItemsViewModel", "Error setting up observer", e)
+            }
+        }
+    }
+
+    // Apply checkbox states to current topic groups
+    private fun applyCheckboxStates(states: Map<String, Boolean>) {
+        val updated = _topicGroups.value.map { topicGroup ->
+            topicGroup.copy(
+                subtopicGroups = topicGroup.subtopicGroups.map { subtopicGroup ->
+                    subtopicGroup.copy(
+                        items = subtopicGroup.items.map { item ->
+                            item.copy(isChecked = states[item.id] ?: false)
+                        }
+                    )
+                }
+            )
+        }
+        _topicGroups.value = updated
     }
 }
