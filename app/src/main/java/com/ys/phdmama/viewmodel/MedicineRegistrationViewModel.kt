@@ -1,8 +1,11 @@
 package com.ys.phdmama.viewmodel
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
@@ -17,12 +20,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.MedicineRecord
 import com.ys.phdmama.repository.BabyPreferencesRepository
+import com.ys.phdmama.workers.MedicineNotificationWorker
+import com.ys.phdmama.workers.MedicineReminderReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,11 +43,13 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class MedicineRegistrationViewModel @Inject constructor(
-    private val preferencesRepository: BabyPreferencesRepository
+    private val preferencesRepository: BabyPreferencesRepository,
+    @ApplicationContext private val context: Context
 ): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -137,6 +148,7 @@ class MedicineRegistrationViewModel @Inject constructor(
             }
     }
 
+    @SuppressLint("ServiceCast")
     private fun scheduleNotification(medicineRecord: MedicineRecord) {
         // This method schedules the push notification
         // You'll need to implement this based on your notification service
@@ -145,7 +157,7 @@ class MedicineRegistrationViewModel @Inject constructor(
         Log.d("MedicineRegistrationVM", "Scheduling notification for ${medicineRecord.medicineName} at ${medicineRecord.reminderDate} ${medicineRecord.timeToTake}")
 
         // Example implementation with WorkManager:
-        /*
+
         val data = workDataOf(
             "medicineId" to medicineRecord.id,
             "medicineName" to medicineRecord.medicineName,
@@ -170,10 +182,7 @@ class MedicineRegistrationViewModel @Inject constructor(
                 Log.d("MedicineRegistrationVM", "Notification scheduled for $delay milliseconds from now")
             }
         }
-        */
 
-        // Example implementation with AlarmManager:
-        /*
         val intent = Intent(context, MedicineReminderReceiver::class.java).apply {
             putExtra("medicineId", medicineRecord.id)
             putExtra("medicineName", medicineRecord.medicineName)
@@ -188,8 +197,6 @@ class MedicineRegistrationViewModel @Inject constructor(
         )
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        val reminderDateTime = dateFormat.parse("${medicineRecord.reminderDate} ${medicineRecord.timeToTake}")
 
         if (reminderDateTime != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -207,7 +214,6 @@ class MedicineRegistrationViewModel @Inject constructor(
             }
             Log.d("MedicineRegistrationVM", "Alarm set for ${reminderDateTime.time}")
         }
-        */
     }
 
     fun loadMedicineRecords() {
