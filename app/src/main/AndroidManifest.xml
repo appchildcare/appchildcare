@@ -11,6 +11,12 @@
     <!-- Notification permission - Required for Android 13+ (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <!-- Required for Android 14+ -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
@@ -40,6 +46,13 @@
             android:permission="android.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
             android:exported="false"
             tools:ignore="Instantiatable" />
+
+        <!-- Register the BroadcastReceiver for AlarmManager -->
+        <receiver
+            android:name=".workers.MedicineReminderReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
 
         <activity
             android:name=".ui.main.MainActivity"
