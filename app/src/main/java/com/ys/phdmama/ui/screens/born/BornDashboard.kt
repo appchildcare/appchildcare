@@ -78,7 +78,6 @@ fun BornDashboardScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Selected baby: ${selectedBaby?.name ?: "None"}")
 
             BabySelectorCard(
                 babies = babyList,
@@ -216,7 +215,7 @@ fun ClickableCard(
             when (type) {
                 "visit" -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.peditrician_baby),
+                        painter = painterResource(id = R.drawable.icono_app_visita_pediatra),
                         contentDescription = "image",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -224,19 +223,17 @@ fun ClickableCard(
                     )
                 }
                 "head_circumference" -> {
-                    // Add an appropriate image for head circumference
-                    // Replace with your actual drawable resource
-//                    Image(
-//                        painter = painterResource(id = R.mipmap.recien_nacido), // You'll need to add this image
-//                        contentDescription = "head circumference image",
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(180.dp)
-//                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.icono_app_perimetro),
+                        contentDescription = "head circumference image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp)
+                    )
                 }
                 "weight" -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.icon_baby_peso),
+                        painter = painterResource(id = R.drawable.mascota_peso_bebe),
                         contentDescription = "weight tracking image",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -254,7 +251,7 @@ fun ClickableCard(
                 }
                 else -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.pediatra),
+                        painter = painterResource(id = R.drawable.icono_app_pediatra),
                         contentDescription = "image",
                         modifier = Modifier
                             .fillMaxWidth()

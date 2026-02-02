@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -58,6 +60,8 @@ fun HeadCircumferenceDetailScreen(
 ) {
     val records = growthMilestonesViewModel.growthRecords.value
     val context = LocalContext.current
+    val selectedBabyProfile by babyDataViewModel.selectedBaby.collectAsState()
+
 
     LaunchedEffect(babyId) {
         growthMilestonesViewModel.fetchBabyId(
@@ -124,12 +128,14 @@ fun HeadCircumferenceDetailScreen(
                 LazyColumn {
                     items(records) { record ->
                         val zScore = record.headCircumference?.let { medida ->
-                            calcularZScorePerimetroCefalico(
-                                headCircumference = record.headCircumference,
-                                edadMeses = record.ageInMonths,
-                                sexo = "girl",
-                                lmsList = lmsTable,
-                            )
+                            selectedBabyProfile?.let { it1 ->
+                                calcularZScorePerimetroCefalico(
+                                    headCircumference = record.headCircumference,
+                                    edadMeses = record.ageInMonths,
+                                    sexo = it1.sex,
+                                    lmsList = lmsTable,
+                                )
+                            }
                         }
 
                         val diagnostico = zScore?.let {
@@ -151,11 +157,6 @@ fun HeadCircumferenceDetailScreen(
                                 Text("Peso: ${record.weight} kg")
                                 Text("Talla: ${record.height} cm")
                                 Text("Perímetro cefálico: ${record.headCircumference} cm")
-
-                                val rango = calcularRangoNormalPerimetroCefalico(record.ageInMonths, "girl", lmsTable)
-                                rango?.let {
-                                    Text("Rango normal: ${it.min} cm - ${it.max} cm")
-                                }
                             }
                         }
                     }
