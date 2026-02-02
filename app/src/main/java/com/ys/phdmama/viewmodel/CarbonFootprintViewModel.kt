@@ -67,23 +67,43 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
         val clothImpact = clothWashes * C_CLOTH_DIAPER_WASH
         val savings = disposableImpact - clothImpact
 
+        val disposableImpactDaily = disposableDiapers * C_DISPOSABLE_DIAPER
+        val clothImpactDaily = clothWashes * C_CLOTH_DIAPER_WASH
+        val dailySavings = disposableImpactDaily - clothImpactDaily
+
+        val monthlySavings = formatProjection(dailySavings, 30)
+        val yearlySavings = formatProjection(dailySavings, 365)
+
         return when {
             clothDiapers > disposableDiapers -> {
                 "🌱 ¡Excelente opción! Usar pañales de tela ahorra aproximadamente ${String.format("%.2f", savings)} kg CO₂e. " +
                         "Cada pañal de tela se puede reutilizar cientos de veces, mientras que los pañales desechables tardan más de 500 años en descomponerse. " +
-                        "¡Tu lavado ecológico con ${clothDiapers} pañales de tela (${clothWashes} lavados eficientes) está haciendo una verdadera diferencia!"
+                        "¡Tu lavado ecológico con ${clothDiapers} pañales de tela (${clothWashes} lavados eficientes) está haciendo una verdadera diferencia!\n" +
+                        "  \uD83D\uDCC6 Si mantienes este hábito puedes reducir la huella de carbono en:\n" +
+                        "• En 30 días: $monthlySavings kg CO₂e\n" +
+                        "• En 1 año: $yearlySavings kg CO₂e\n"
             }
             clothDiapers > 0 -> {
                 "🌿 ¡Gran progreso! Tu ${clothDiapers} Los pañales de tela ayudan a reducir las emisiones de carbono. " +
                         "Considere utilizar más pañales de tela para aumentar su impacto ambiental. " +
-                        "Con un lavado eficiente (${clothWashes} cargas), ¡Ya estás salvando el planeta!"
+                        "Con un lavado eficiente (${clothWashes} cargas), ¡Ya estás salvando el planeta!\n" +
+                        "  \uD83D\uDCC6 Si mantienes este hábito, puedes reducir la huella de carbono en:\n" +
+                        "• En 30 días: $monthlySavings kg CO₂e\n" +
+                        "• En 1 año: $yearlySavings kg CO₂e\n"
             }
             else -> {
                 "💚 ¡Considera cambiar a pañales de tela! Pueden reducir significativamente tu huella de carbono. " +
                         "Solo 8 pañales de tela con un ciclo de lavado ecológico pueden reemplazar muchos pañales desechables " +
-                        "y ayudar a proteger nuestro medio ambiente para las generaciones futuras."
+                        "y ayudar a proteger nuestro medio ambiente para las generaciones futuras.\n" +
+                        "  \uD83D\uDCC6 Si mantienes este hábito puedes reducir la huella de carbono en:\n" +
+                        "• En 30 días: $monthlySavings kg CO₂e\n" +
+                        "• En 1 año: $yearlySavings kg CO₂e\n"
             }
         }
+    }
+
+    private fun formatProjection(valuePerDay: Double, days: Int): String {
+        return String.format("%.2f", valuePerDay * days)
     }
 
     // Calculate carbon footprint without saving
@@ -157,6 +177,8 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
 
         return ecoMessage
     }
+
+
 
     // Clear form and reset calculation
     fun clearForm() {

@@ -41,11 +41,15 @@ class GrowthMilestonesViewModel @Inject constructor(
         currentBabyId = babyId
     }
 
+    private val _babyAgeWeeks = MutableStateFlow<String>("")
+    val babyAgeWeeks: StateFlow<String> = _babyAgeWeeks.asStateFlow()
+
     private val _growthRecords = mutableStateOf<List<GrowthRecord>>(emptyList())
     val growthRecords: State<List<GrowthRecord>> = _growthRecords
 
     init {
         observeSelectedBabyFromDataStore()
+        observeBabyWeeksFromDataStore()
     }
 
     private fun observeSelectedBabyFromDataStore() {
@@ -55,6 +59,16 @@ class GrowthMilestonesViewModel @Inject constructor(
                     _selectedBaby.value = savedBabyId.toString()
                 } else {
                     Log.d("GrowthMilestonesViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
+    }
+
+    private fun observeBabyWeeksFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.currentBabyAgeMonthsFlow.collect { savedBabyAgeWeeks ->
+                if (savedBabyAgeWeeks != null) {
+                    _babyAgeWeeks.value = savedBabyAgeWeeks
                 }
             }
         }
@@ -141,10 +155,16 @@ class GrowthMilestonesViewModel @Inject constructor(
         val currentBabyId = babyId ?: currentBabyId
 
         if (userId != null) {
+
+//            firestore.collection("users")
+//                .document(userId)
+//                .collection("babies")
+//                .document(selectedBaby.toString())
+
             db.collection("users")
                 .document(userId)
                 .collection("babies")
-                .document(currentBabyId.toString())
+                .document(selectedBaby.value.toString())
                 .collection("growth_milestones")
                 .get()
                 .addOnSuccessListener { result ->
