@@ -1,6 +1,5 @@
 package com.ys.phdmama.ui.screens
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -49,18 +48,19 @@ import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.CheckItemsViewModel
 
 @Composable
-fun Resources(navController: NavController, openDrawer: () -> Unit) {
+fun Resources(navController: NavController, userRole: String?, openDrawer: () -> Unit) {
     PhdLayoutMenu(
         title = "Checklist",
         navController = navController,
         openDrawer = openDrawer
     ) {
-        CheckItemsScreen()
+        CheckItemsScreen(userRole)
     }
 }
 
 @Composable
 fun CheckItemsScreen(
+    userRole: String?,
     checkItemsViewModel: CheckItemsViewModel = hiltViewModel(),
 ) {
     val topicGroups by checkItemsViewModel.topicGroups.collectAsState()
@@ -68,9 +68,14 @@ fun CheckItemsScreen(
     val error by checkItemsViewModel.error.collectAsState()
     val babyAgeMonths by checkItemsViewModel.babyAgeWeeks.collectAsState()
 
-    val filteredTopicGroups = remember(topicGroups, babyAgeMonths) {
+    val filteredTopicGroups = remember(topicGroups, babyAgeMonths, userRole) {
+
         babyAgeMonths?.toIntOrNull()?.let { ageMonths ->
-            topicGroups.filter { it.months == ageMonths }
+            val filtered = topicGroups.filter {
+                val matches = it.months == ageMonths && it.role == userRole
+                matches
+            }
+            filtered
         } ?: emptyList()
     }
 
@@ -120,7 +125,7 @@ fun CheckItemsScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(topicGroups.size) { index ->
+                items(filteredTopicGroups.size) { index ->
                     TopicSection(
                         topicGroup = topicGroups[index],
                         onItemCheckedChange = { itemId, checked ->

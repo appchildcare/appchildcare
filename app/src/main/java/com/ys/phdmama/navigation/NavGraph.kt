@@ -103,9 +103,6 @@ object NavRoutes {
     const val PREGNANCY_DASHBOARD = "pregnancyDashboard"
     const val SIDEBAR_BABY_PROFILE = "baby_profile"
     const val SIDEBAR_ADD_BABY = "add_baby"
-    const val SIDEBAR_POLICIES = "policies"
-    const val SIDEBAR_LINK1 = "link1"
-    const val SIDEBAR_LINK2 = "link2"
     const val PEDIATRICIAN_QUESTIONS = "pediatrician_questions"
     const val PEDIATRICIAN_VISITS = "pediatrician_visits"
     const val BORN_GROW_CHART_DETAILS = "born_grow_chart_details"
@@ -257,10 +254,10 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
         }
         composable(NavRoutes.BORN_RESOURCES) {
-            Resources(navController = navController, openDrawer = openDrawer)
+            Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_RESOURCES_CHECKLIST) {
-            Resources(navController = navController, openDrawer = openDrawer)
+            Resources(navController = navController,  userRole = userRole, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_RESOURCES_LEAVE_HOME) {
             BornResourcesLeaveHome(navController = navController, openDrawer = openDrawer)
