@@ -29,6 +29,7 @@ class CheckItemsViewModel @Inject constructor(
         val subtopic: String = "",
         val months: Int = 0,
         val topic: String = "",
+        val role: String = "",
         val isChecked: Boolean = false
     )
 
@@ -37,13 +38,15 @@ class CheckItemsViewModel @Inject constructor(
         val subtopic: String,
         val items: List<ChecklistItem>,
         val topic: String = "", // Parent level topic
-        val months: Int = 0 // Parent level months
+        val months: Int = 0, // Parent level months
+        val role: String = "",
     )
 
     // Group subtopics by topic
     data class TopicGroup(
         val topic: String,
         val months: Int,
+        val role: String = "",
         val subtopicGroups: List<SubtopicGroup>
     )
 
@@ -106,6 +109,8 @@ class CheckItemsViewModel @Inject constructor(
                     // Get root-level topic and months
                     val rootTopic = data["topic"] as? String ?: ""
                     val rootMonths = (data["months"] as? Long)?.toInt() ?: 0
+                    val role = data["role"] as? String ?: ""
+
 
                     var index = 1
                     while (data.containsKey(index.toString())) {
@@ -122,6 +127,7 @@ class CheckItemsViewModel @Inject constructor(
                                 subtopic = itemSubtopic,
                                 months = rootMonths,
                                 topic = rootTopic,
+                                role = role,
                                 isChecked = false
                             )
 
@@ -140,25 +146,28 @@ class CheckItemsViewModel @Inject constructor(
                 }
 
                 // Group by topic + months
-                val groupedByTopicAndMonths = itemsWithStates.groupBy { "${it.topic}_${it.months}" }
+                val groupedByTopicAndMonths = itemsWithStates.groupBy { it.topic }
 
                 val topicGroups = groupedByTopicAndMonths.map { (key, items) ->
                     val topic = items.first().topic
                     val months = items.first().months
+                    val role = items.first().role
 
                     val subtopicGroups = items.groupBy { it.subtopic }.map { (subtopic, subtopicItems) ->
                         SubtopicGroup(
                             subtopic = subtopic,
                             items = subtopicItems,
                             topic = topic,
-                            months = months
+                            months = months,
+                            role = items.first().role
                         )
                     }.sortedBy { it.subtopic }
 
                     TopicGroup(
                         topic = topic,
                         months = months,
-                        subtopicGroups = subtopicGroups
+                        subtopicGroups = subtopicGroups,
+                        role = role
                     )
                 }.sortedBy { "${it.topic}_${it.months}" }
 
