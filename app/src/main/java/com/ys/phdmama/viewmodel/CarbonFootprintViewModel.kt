@@ -73,6 +73,7 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
 
         val monthlySavings = formatProjection(dailySavings, 30)
         val yearlySavings = formatProjection(dailySavings, 365)
+        val yearlyAnalogy = co2Analogy(yearlySavings.toDouble())
 
         return when {
             clothDiapers > disposableDiapers -> {
@@ -81,7 +82,8 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
                         "¡Tu lavado ecológico con ${clothDiapers} pañales de tela (${clothWashes} lavados eficientes) está haciendo una verdadera diferencia!\n" +
                         "  \uD83D\uDCC6 Si mantienes este hábito puedes reducir la huella de carbono en:\n" +
                         "• En 30 días: $monthlySavings kg CO₂e\n" +
-                        "• En 1 año: $yearlySavings kg CO₂e\n"
+                        "• En 1 año: $yearlySavings kg CO₂e\n" +
+                        "  👉 $yearlyAnalogy\n"
             }
             clothDiapers > 0 -> {
                 "🌿 ¡Gran progreso! Tu ${clothDiapers} Los pañales de tela ayudan a reducir las emisiones de carbono. " +
@@ -89,7 +91,8 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
                         "Con un lavado eficiente (${clothWashes} cargas), ¡Ya estás salvando el planeta!\n" +
                         "  \uD83D\uDCC6 Si mantienes este hábito, puedes reducir la huella de carbono en:\n" +
                         "• En 30 días: $monthlySavings kg CO₂e\n" +
-                        "• En 1 año: $yearlySavings kg CO₂e\n"
+                        "• En 1 año: $yearlySavings kg CO₂e\n" +
+                        "  👉 $yearlyAnalogy\n"
             }
             else -> {
                 "💚 ¡Considera cambiar a pañales de tela! Pueden reducir significativamente tu huella de carbono. " +
@@ -97,7 +100,8 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
                         "y ayudar a proteger nuestro medio ambiente para las generaciones futuras.\n" +
                         "  \uD83D\uDCC6 Si mantienes este hábito puedes reducir la huella de carbono en:\n" +
                         "• En 30 días: $monthlySavings kg CO₂e\n" +
-                        "• En 1 año: $yearlySavings kg CO₂e\n"
+                        "• En 1 año: $yearlySavings kg CO₂e\n" +
+                        "  👉 $yearlyAnalogy\n"
             }
         }
     }
@@ -178,6 +182,28 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
         return ecoMessage
     }
 
+    private fun co2Analogy(valueKg: Double): String {
+        return when {
+            valueKg < 100 -> {
+                "Equivale a apagar luces y electrodomésticos innecesarios durante varias semanas 💡"
+            }
+            valueKg in 100.0..400.0 -> {
+                "Equivale a un auto encendido sin moverse durante 10 a 40 horas 🚗"
+            }
+            valueKg in 400.0..800.0 -> {
+                "Equivale a conducir un auto durante 1 a 2 meses 🚘"
+            }
+            valueKg in 800.0..1000.0 -> {
+                "Equivale a un vuelo internacional corto ✈️"
+            }
+            valueKg in 1000.0..4000.0 -> {
+                "Equivale a uno o dos vuelos internacionales o un año de uso de un auto 🚗✈️"
+            }
+            else -> {
+                "Equivale a la huella de carbono anual completa de una persona promedio 🌍"
+            }
+        }
+    }
 
 
     // Clear form and reset calculation
