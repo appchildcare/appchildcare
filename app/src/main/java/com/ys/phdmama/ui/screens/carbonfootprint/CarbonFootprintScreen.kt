@@ -76,7 +76,7 @@ fun DataEntryScreen(viewModel: CarbonFootprintViewModel) {
         )
 
         InputField(
-            label = "Alimentación con fórmula",
+            label = "Sólo si usas leche de fórmula (tomas)",
             value = viewModel.formulaFeedings,
             onValueChange = { viewModel.formulaFeedings = it },
         )

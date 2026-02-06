@@ -524,7 +524,7 @@ private fun DrawScope.drawAxes(
 
     // X-axis title
     drawContext.canvas.nativeCanvas.drawText(
-        "Edad (semanas)",
+        "Edad (meses)",
         chartStartX + chartWidth/2 - 60f,
         chartStartY + chartHeight + 70f,
         titlePaint
