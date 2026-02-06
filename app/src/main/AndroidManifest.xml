@@ -53,6 +53,10 @@
             android:enabled="true"
             android:exported="false" />
 
+        <receiver
+            android:name=".workers.PediatricVisitNotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity
             android:name=".ui.main.MainActivity"
