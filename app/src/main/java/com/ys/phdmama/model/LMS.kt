@@ -33,6 +33,14 @@ data class LMSHeadCircumference(
     val SD3: Double
 )
 
+data class LMSHeightLength(
+    val month: Int,
+    val sex: String,
+    val L: Double,
+    val M: Double,
+    val S: Double
+)
+
 data class LMSHeightWeight(
     val week: Int,
     val sex: String, // Por ejemplo: "girl" o "boy"

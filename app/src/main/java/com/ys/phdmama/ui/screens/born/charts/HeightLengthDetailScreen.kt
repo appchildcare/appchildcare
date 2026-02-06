@@ -1,7 +1,9 @@
 package com.ys.phdmama.ui.screens.born.charts
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.provider.MediaStore
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +21,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -31,9 +38,9 @@ import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.util.LmsUtils
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
-import com.ys.phdmama.viewmodel.UserDataViewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ys.phdmama.services.GraphicChartRenderer
 import com.ys.phdmama.viewmodel.GrowthRecord
 import kotlin.math.exp
 import kotlin.math.ln
@@ -43,14 +50,14 @@ import kotlin.math.pow
 fun HeightLengthDetailScreen(
     navController: NavHostController,
     growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel(),
-    userViewModel: UserDataViewModel = hiltViewModel(),
-    dashboardViewModel: BabyDataViewModel = hiltViewModel(),
     babyDataViewModel: BabyDataViewModel = hiltViewModel(),
     openDrawer: () -> Unit,
     babyId: String?
 ) {
     val records = growthMilestonesViewModel.growthRecords.value
     val context = LocalContext.current
+    val selectedBabyProfile by babyDataViewModel.selectedBaby.collectAsState()
+    var babySex by remember { mutableStateOf("") }
 
     LaunchedEffect(babyId) {
         growthMilestonesViewModel.fetchBabyId(
@@ -64,6 +71,16 @@ fun HeightLengthDetailScreen(
         )
     }
 
+    LaunchedEffect(selectedBabyProfile?.id) {
+        selectedBabyProfile?.let { baby ->
+            if (baby.sex == "Masculino") {
+                babySex = "boy"
+            } else {
+                babySex = "girl"
+            }
+        }
+    }
+
     PhdLayoutMenu(
         title = "Reporte de Longuitud/peso",
         navController = navController,
@@ -75,6 +92,15 @@ fun HeightLengthDetailScreen(
                 .padding(20.dp)
         ) {
             Spacer(Modifier.height(16.dp))
+
+            HeightLengthChart(
+                records = records,
+                sex = babySex,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .padding(16.dp)
+            )
 
             if (records.isNotEmpty()) {
 
@@ -99,7 +125,6 @@ fun HeightLengthDetailScreen(
                     )
                 }
 
-                val sexo = "girl" // O usa el valor real desde el ViewModel si está disponible
                 val lmsTable = LmsUtils.lmsDataHeightWeightGirls
 
                 LazyColumn {
@@ -147,6 +172,25 @@ fun HeightLengthDetailScreen(
     }
 }
 
+@SuppressLint("RememberReturnType")
+@Composable
+fun HeightLengthChart(
+    records: List<GrowthRecord>,
+    sex: String,
+    modifier: Modifier = Modifier
+) {
+    val chartRenderer = remember { GraphicChartRenderer() }
+
+    Canvas(modifier = modifier) {
+        chartRenderer.drawChart(
+            drawScope = this,
+            records = records,
+            sex = sex,
+            size = size
+        )
+    }
+}
+
 fun generateHeightLengthDF(
     context: android.content.Context,
     records: List<GrowthRecord>, // Replace with your actual record type
@@ -155,7 +199,8 @@ fun generateHeightLengthDF(
     try {
         // Create PDF document
         val pdfDocument = android.graphics.pdf.PdfDocument()
-        val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+        val pageInfo =
+            android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
         val page = pdfDocument.startPage(pageInfo)
         val canvas = page.canvas
         val paint = android.graphics.Paint()
@@ -172,7 +217,8 @@ fun generateHeightLengthDF(
         canvas.drawText("ID del Bebé: $babyId", 50f, 120f, paint)
 
         // Date
-        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            .format(java.util.Date())
         canvas.drawText("Fecha: $currentDate", 50f, 150f, paint)
 
         // Table title
@@ -260,12 +306,17 @@ fun generateHeightLengthDF(
 
             // Calculate normal range
             val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
-            val rangoText = rango?.let { "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}" } ?: "N/A"
+            val rangoText =
+                rango?.let { "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}" }
+                    ?: "N/A"
 
             // Draw data
             canvas.drawText("${record.ageInMonths} m", colPositions[0], yPosition, paint)
             canvas.drawText("${record.height ?: "N/A"}", colPositions[1], yPosition, paint)
-            canvas.drawText(zScore?.let { String.format("%.2f", it) } ?: "N/A", colPositions[2], yPosition, paint)
+            canvas.drawText(zScore?.let { String.format("%.2f", it) } ?: "N/A",
+                colPositions[2],
+                yPosition,
+                paint)
             canvas.drawText(rangoText, colPositions[3], yPosition, paint)
 
 
@@ -437,7 +488,10 @@ private fun sharePDF(context: android.content.Context, uri: android.net.Uri, fil
             type = "application/pdf"
             putExtra(android.content.Intent.EXTRA_STREAM, uri)
             putExtra(android.content.Intent.EXTRA_SUBJECT, "Reporte de Longitud/Altura")
-            putExtra(android.content.Intent.EXTRA_TEXT, "Compartiendo reporte de crecimiento del bebé")
+            putExtra(
+                android.content.Intent.EXTRA_TEXT,
+                "Compartiendo reporte de crecimiento del bebé"
+            )
             addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
@@ -464,7 +518,10 @@ private fun sharePDF(context: android.content.Context, uri: android.net.Uri, fil
         }
 
         if (whatsappAvailable) {
-            chooserIntent.putExtra(android.content.Intent.EXTRA_INITIAL_INTENTS, arrayOf(whatsappIntent))
+            chooserIntent.putExtra(
+                android.content.Intent.EXTRA_INITIAL_INTENTS,
+                arrayOf(whatsappIntent)
+            )
         }
 
         // Start the share activity
