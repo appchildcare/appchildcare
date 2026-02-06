@@ -7,5 +7,6 @@ data class PediatricianVisit(
     val weight: String = "",
     val height: String = "",
     val headCircumference: String = "",
-    val timestamp: String = ""
+    val timestamp: String = "",
+    val nextVisit: String? = ""
 )
