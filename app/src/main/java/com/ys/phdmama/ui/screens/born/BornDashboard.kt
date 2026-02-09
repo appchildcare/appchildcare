@@ -29,6 +29,7 @@ import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.navigation.NavRoutes.BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS
 import com.ys.phdmama.navigation.NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS
+import com.ys.phdmama.navigation.NavRoutes.BORN_WEIGHT_CHART_DETAILS
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.theme.primaryGray
 import com.ys.phdmama.ui.theme.secondaryAqua
@@ -135,7 +136,7 @@ fun WeightHeightCardsRow(navController: NavController) {
                 title = "Peso",
                 description = "Seguimiento del peso del bebé",
                 onClick = {
-                    navController.navigate(BORN_HEIGHT_WEIGHT_CHART_DETAILS)
+                    navController.navigate(BORN_WEIGHT_CHART_DETAILS) // Create new screen
                 },
                 color = secondaryAqua,
                 type = "weight"
@@ -150,7 +151,7 @@ fun WeightHeightCardsRow(navController: NavController) {
                 title = "Altura",
                 description = "Seguimiento de la altura del bebé",
                 onClick = {
-                    navController.navigate(BORN_HEIGHT_WEIGHT_CHART_DETAILS) //TODO: Separate screen for height
+                    navController.navigate(BORN_HEIGHT_WEIGHT_CHART_DETAILS)
                 },
                 color = secondaryAqua,
                 type = "height"
@@ -242,7 +243,7 @@ fun ClickableCard(
                 }
                 "height" -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.icon_baby_height),
+                        painter = painterResource(id = R.drawable.icono_app_altura),
                         contentDescription = "height tracking image",
                         modifier = Modifier
                             .fillMaxWidth()
