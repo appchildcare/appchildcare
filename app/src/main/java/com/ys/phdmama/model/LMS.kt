@@ -62,3 +62,5 @@ data class LMS(
     val SD2: Double,
     val SD3: Double
 )
+
+data class LengthRange(val min: Double, val max: Double)

@@ -31,6 +31,7 @@ import com.ys.phdmama.ui.screens.born.BornResourcesLeaveHome
 import com.ys.phdmama.ui.screens.born.GrowthDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeightLengthDetailScreen
+import com.ys.phdmama.ui.screens.born.charts.WeightDetailScreen
 import com.ys.phdmama.ui.screens.carbonfootprint.CarbonFootprintScreen
 import com.ys.phdmama.ui.screens.counters.SleepingCounterScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
@@ -108,6 +109,7 @@ object NavRoutes {
     const val BORN_GROW_CHART_DETAILS = "born_grow_chart_details"
     const val BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS = "born_head_circumference_chart_details"
     const val BORN_HEIGHT_WEIGHT_CHART_DETAILS = "born_height_weight_chart_details"
+    const val BORN_WEIGHT_CHART_DETAILS = "born_weight_chart_details"
     const val BORN_SNAP_COUNTER_REPORTS = "born_snap_counter_reports"
     const val BORN_LACTATION_COUNTER_REPORTS = "born_lactation_counter_reports"
     const val POOP_REGISTER = "poop_register"
@@ -214,7 +216,6 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabyStatusScreen(navController = navController)
         }
         composable(NavRoutes.BABY_PROFILE) {
-//            BabyDataScreen(navController = navController, openDrawer = openDrawer)
             AddBabyDataScreen(navController = navController, babyId = babyId, openDrawer = openDrawer,)
         }
         composable(NavRoutes.BABY_ALREADY_BORN) {
@@ -307,6 +308,9 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS) {
                 HeightLengthDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
+            }
+            composable(NavRoutes.BORN_WEIGHT_CHART_DETAILS) {
+                WeightDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
             }
             composable(NavRoutes.TERMS_CONDITIONS) {
                 TermsConditions (navController = navController, openDrawer = openDrawer)
