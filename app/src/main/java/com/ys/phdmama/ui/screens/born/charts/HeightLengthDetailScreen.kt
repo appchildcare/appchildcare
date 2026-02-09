@@ -2,6 +2,8 @@ package com.ys.phdmama.ui.screens.born.charts
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.provider.MediaStore
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -24,9 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
-import com.ys.phdmama.model.LMSHeightWeight
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.util.LmsUtils
 import com.ys.phdmama.viewmodel.BabyDataViewModel
@@ -60,7 +59,6 @@ fun HeightLengthDetailScreen(
     val records = growthMilestonesViewModel.growthRecords.value
     val context = LocalContext.current
     val selectedBabyProfile by babyDataViewModel.selectedBaby.collectAsState()
-//    var babySex by remember { mutableStateOf("") }
 
     val babySex = remember(selectedBabyProfile) {
         when (selectedBabyProfile?.sex) {
@@ -68,6 +66,10 @@ fun HeightLengthDetailScreen(
             "Femenino" -> "girl"  // assuming this is the other option
             else -> ""
         }
+    }
+
+    val babyName = remember(selectedBabyProfile) {
+        return@remember selectedBabyProfile?.name
     }
 
     LaunchedEffect(babyId) {
@@ -110,7 +112,8 @@ fun HeightLengthDetailScreen(
                             generateHeightLengthDF(
                                 context = context,
                                 records = records,
-                                babyId = babyId ?: "unknown"
+                                babyName = babyName ?: "unknown",
+                                sex = babySex // Pass the sex parameter
                             )
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -129,7 +132,7 @@ fun HeightLengthDetailScreen(
                     val lmsTable = if (babySex.lowercase() == "girl") {
                         LmsUtils.lmdGirlsHeightLengthData
                     } else {
-                        LmsUtils.lmdBoysHeightLengthData
+                        LmsUtils.lmsBoysHeightLengthData
                     }
 
                     LazyColumn {
@@ -202,205 +205,217 @@ fun HeightLengthChart(
 
 fun generateHeightLengthDF(
     context: android.content.Context,
-    records: List<GrowthRecord>, // Replace with your actual record type
-    babyId: String
+    records: List<GrowthRecord>,
+    babyName: String,
+    sex: String
 ) {
-//    try {
-//        // Create PDF document
-//        val pdfDocument = android.graphics.pdf.PdfDocument()
-//        val pageInfo =
-//            android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
-//        val page = pdfDocument.startPage(pageInfo)
-//        val canvas = page.canvas
-//        val paint = android.graphics.Paint()
-//
-//        // Title
-//        paint.textSize = 24f
-//        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-//        paint.color = android.graphics.Color.BLACK
-//        canvas.drawText("Reporte de Longitud/Altura", 50f, 80f, paint)
-//
-//        // Baby ID
-//        paint.textSize = 16f
-//        paint.typeface = android.graphics.Typeface.DEFAULT
-//        canvas.drawText("ID del Bebé: $babyId", 50f, 120f, paint)
-//
-//        // Date
-//        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-//            .format(java.util.Date())
-//        canvas.drawText("Fecha: $currentDate", 50f, 150f, paint)
-//
-//        // Table title
-//        paint.textSize = 18f
-//        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-//        canvas.drawText("Tabla de Mediciones", 50f, 200f, paint)
-//
-//        // Table setup
-//        var yPosition = 240f
-//        paint.textSize = 12f
-//        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-//
-//        // Draw table border
-//        paint.style = android.graphics.Paint.Style.STROKE
-//        paint.strokeWidth = 2f
-//        paint.color = android.graphics.Color.BLACK
-//        val tableLeft = 50f
-//        val tableRight = 545f
-//        val tableTop = yPosition - 15f
-//
-//        // Calculate table height based on number of records
-//        val rowHeight = 30f
-//        val headerHeight = 30f
-//        val maxRows = kotlin.math.min(records.size, 18) // Limit rows to fit page
-//        val tableBottom = tableTop + headerHeight + (maxRows * rowHeight)
-//
-//        canvas.drawRect(tableLeft, tableTop, tableRight, tableBottom, paint)
-//
-//        // Column positions (adjusted for height/length report)
-//        val colPositions = floatArrayOf(60f, 120f, 200f, 300f) // Edad, Talla, Z-Score, Rango OMS
-//
-//        // Draw column separators
-//        for (i in 1 until colPositions.size) {
-//            canvas.drawLine(colPositions[i], tableTop, colPositions[i], tableBottom, paint)
-//        }
-//
-//        // Table headers
-//        paint.style = android.graphics.Paint.Style.FILL
-//        paint.color = android.graphics.Color.BLACK
-//        paint.textSize = 11f
-//        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-//
-//        canvas.drawText("Edad", colPositions[0], yPosition, paint)
-//        canvas.drawText("Talla (cm)", colPositions[1], yPosition, paint)
-//        canvas.drawText("Z-Score", colPositions[2], yPosition, paint)
-//        canvas.drawText("Rango OMS (cm)", colPositions[3], yPosition, paint)
-//
-//        // Draw header separator line
-//        yPosition += 15f
-//        paint.style = android.graphics.Paint.Style.STROKE
-//        paint.strokeWidth = 1f
-//        canvas.drawLine(tableLeft, yPosition, tableRight, yPosition, paint)
-//
-//        yPosition += 15f
-//        paint.style = android.graphics.Paint.Style.FILL
-//        paint.textSize = 9f
-//        paint.typeface = android.graphics.Typeface.DEFAULT
-//
-//        // Get LMS table (adjust based on baby's sex if available)
-//        val lmsTable = LmsUtils.lmsDataHeightWeightGirls // Or use actual sex from baby data
-//
-//        // Data rows
-//        records.take(maxRows).forEachIndexed { index, record ->
-//            // Draw alternating row background
-//            if (index % 2 == 0) {
-//                paint.color = android.graphics.Color.parseColor("#F5F5F5")
-//                canvas.drawRect(
-//                    tableLeft + 1f,
-//                    yPosition - 12f,
-//                    tableRight - 1f,
-//                    yPosition + 13f,
-//                    paint
-//                )
-//            }
-//
-//            paint.color = android.graphics.Color.BLACK
-//
-//            // Calculate Z-Score
-//            val zScore = calcularZScoreTallaEdad(
-//                talla = record.height,
-//                edadMeses = record.ageInMonths,
-//                lmsList = lmsTable
-//            )
-//
-//
-//            // Calculate normal range
-//            val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
-//            val rangoText =
-//                rango?.let { "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}" }
-//                    ?: "N/A"
-//
-//            // Draw data
-//            canvas.drawText("${record.ageInMonths} m", colPositions[0], yPosition, paint)
-//            canvas.drawText("${record.height ?: "N/A"}", colPositions[1], yPosition, paint)
-//            canvas.drawText(zScore?.let { String.format("%.2f", it) } ?: "N/A",
-//                colPositions[2],
-//                yPosition,
-//                paint)
-//            canvas.drawText(rangoText, colPositions[3], yPosition, paint)
-//
-//
-//            // Draw row separator
-//            yPosition += rowHeight
-//            if (index < maxRows - 1) {
-//                paint.style = android.graphics.Paint.Style.STROKE
-//                paint.strokeWidth = 0.5f
-//                paint.color = android.graphics.Color.LTGRAY
-//                canvas.drawLine(tableLeft, yPosition - 17f, tableRight, yPosition - 17f, paint)
-//                paint.style = android.graphics.Paint.Style.FILL
-//                paint.color = android.graphics.Color.BLACK
-//            }
-//        }
-//
-//        // Summary section
-//        yPosition += 30f
-//        paint.textSize = 14f
-//        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-//        paint.color = android.graphics.Color.BLACK
-//        canvas.drawText("Resumen:", 50f, yPosition, paint)
-//
-//        yPosition += 25f
-//        paint.textSize = 12f
-//        paint.typeface = android.graphics.Typeface.DEFAULT
-//
-//        // Calculate statistics
-//        val totalMeasurements = records.size
-//        val lastRecord = records.lastOrNull()
-//        val lastHeight = lastRecord?.height?.let { String.format("%.1f", it) } ?: "N/A"
-//        val lastAge = lastRecord?.ageInMonths ?: 0
-//
-//        // Count diagnoses
-////        val normalCount = records.count { record ->
-////            val zScore = calcularZScoreTallaEdad(
-////                talla = record.height,
-////                edadMeses = record.ageInMonths,
-////                lmsList = lmsTable
-////            )
-////            zScore?.let { it >= -2 && it <= 2 } ?: false
-////        }
-//
-//        canvas.drawText("• Total de mediciones: $totalMeasurements", 70f, yPosition, paint)
-//        yPosition += 20f
-//        canvas.drawText("• Última medición: $lastHeight cm ($lastAge meses)", 70f, yPosition, paint)
-//        yPosition += 20f
-//
-//
-//        // Legend section
-//        yPosition += 35f
-//        paint.textSize = 12f
-//        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-//
-//        // Footer
-//        yPosition = 800f
-//        paint.textSize = 10f
-//        paint.color = android.graphics.Color.GRAY
-//        canvas.drawText("Generado por PhD Mama App", 50f, yPosition, paint)
-//        canvas.drawText("Basado en estándares OMS", 250f, yPosition, paint)
-//        canvas.drawText("Página 1 de 1", 450f, yPosition, paint)
-//
-//        pdfDocument.finishPage(page)
-//
-//        // Create and save PDF, then share
-//        val fileName = "reporte_longitud_altura_${babyId}_${System.currentTimeMillis()}.pdf"
-//        savePDFAndShare(context, pdfDocument, fileName)
-//
-//    } catch (e: Exception) {
-//        android.widget.Toast.makeText(
-//            context,
-//            "Error al generar PDF: ${e.message}",
-//            android.widget.Toast.LENGTH_LONG
-//        ).show()
-//        e.printStackTrace()
-//    }
+    try {
+        // Create PDF document
+        val pdfDocument = android.graphics.pdf.PdfDocument()
+        val pageWidth = 595f
+        val pageHeight = 842f
+        val pageInfo =
+            android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+        val page = pdfDocument.startPage(pageInfo)
+        val canvas = page.canvas
+        val paint = android.graphics.Paint()
+
+        // Load and draw image/logo at the top
+        val logo = BitmapFactory.decodeResource(context.resources, R.drawable.app_child_care_logo)
+        val scaledLogo = Bitmap.createScaledBitmap(logo, 100, 100, false)
+        val centerX = (pageWidth - 100) / 2f
+        canvas.drawBitmap(scaledLogo, centerX, 20f, paint)
+
+        // Title
+        paint.textSize = 20f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        paint.color = android.graphics.Color.BLACK
+        canvas.drawText("Reporte de Longitud/Altura", 50f, 150f, paint)
+
+        // Baby Name
+        paint.textSize = 12f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.NORMAL)
+        canvas.drawText("Nombre del Bebé: $babyName", 50f, 175f, paint)
+
+        // Date
+        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+            .format(java.util.Date())
+        canvas.drawText("Fecha de generación: $currentDate", 50f, 195f, paint)
+
+        // Table setup
+        var yPosition = 240f
+        paint.textSize = 12f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+
+        // Draw table border
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = android.graphics.Color.BLACK
+        val tableLeft = 50f
+        val tableRight = 545f
+        val tableTop = yPosition - 15f
+
+        // Calculate table height based on number of records
+        val rowHeight = 30f
+        val headerHeight = 30f
+        val maxRows = kotlin.math.min(records.size, 18) // Limit rows to fit page
+        val tableBottom = tableTop + headerHeight + (maxRows * rowHeight)
+
+        canvas.drawRect(tableLeft, tableTop, tableRight, tableBottom, paint)
+
+        // Column positions (adjusted for height/length report)
+        val colPositions = floatArrayOf(60f, 135f, 230f, 330f) // Edad, Talla, Z-Score, Rango OMS
+
+        // Draw column separators
+        for (i in 1 until colPositions.size) {
+            canvas.drawLine(colPositions[i], tableTop, colPositions[i], tableBottom, paint)
+        }
+
+        // Table headers
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.BLACK
+        paint.textSize = 11f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+
+        canvas.drawText("Edad", colPositions[0], yPosition, paint)
+        canvas.drawText("Talla (cm)", colPositions[1], yPosition, paint)
+        canvas.drawText("Z-Score", colPositions[2], yPosition, paint)
+        canvas.drawText("Rango OMS (cm)", colPositions[3], yPosition, paint)
+
+        // Draw header separator line
+        yPosition += 15f
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 1f
+        canvas.drawLine(tableLeft, yPosition, tableRight, yPosition, paint)
+
+        yPosition += 15f
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.textSize = 9f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.NORMAL)
+
+        // Get LMS table based on sex
+        val lmsTable = if (sex.lowercase() == "girl") {
+            LmsUtils.lmdGirlsHeightLengthData
+        } else {
+            LmsUtils.lmsBoysHeightLengthData
+        }
+
+        // Data rows
+        records.take(maxRows).forEachIndexed { index, record ->
+            // Draw alternating row background
+            if (index % 2 == 0) {
+                paint.color = android.graphics.Color.parseColor("#F5F5F5")
+                canvas.drawRect(
+                    tableLeft + 1f,
+                    yPosition - 12f,
+                    tableRight - 1f,
+                    yPosition + 13f,
+                    paint
+                )
+            }
+
+            paint.color = android.graphics.Color.BLACK
+
+            // Calculate Z-Score
+            val zScore = calcularZScoreTallaEdad(
+                talla = record.height,
+                edadMeses = record.ageInMonths,
+                lmsList = lmsTable
+            )
+
+            // Calculate normal range
+            val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
+            val rangoText =
+                rango?.let { "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}" }
+                    ?: "N/A"
+
+            // Draw data
+            canvas.drawText("${record.ageInMonths} m", colPositions[0], yPosition, paint)
+            canvas.drawText("${record.height ?: "N/A"}", colPositions[1], yPosition, paint)
+            canvas.drawText(
+                zScore?.let { String.format("%.2f", it) } ?: "N/A",
+                colPositions[2],
+                yPosition,
+                paint
+            )
+            canvas.drawText(rangoText, colPositions[3], yPosition, paint)
+
+            // Draw row separator
+            yPosition += rowHeight
+            if (index < maxRows - 1) {
+                paint.style = android.graphics.Paint.Style.STROKE
+                paint.strokeWidth = 0.5f
+                paint.color = android.graphics.Color.LTGRAY
+                canvas.drawLine(tableLeft, yPosition - 17f, tableRight, yPosition - 17f, paint)
+                paint.style = android.graphics.Paint.Style.FILL
+                paint.color = android.graphics.Color.BLACK
+            }
+        }
+
+        // Summary section
+        yPosition += 30f
+        paint.textSize = 14f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD)
+        paint.color = android.graphics.Color.BLACK
+        canvas.drawText("Resumen:", 50f, yPosition, paint)
+
+        yPosition += 25f
+        paint.textSize = 12f
+        paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.NORMAL)
+
+        // Calculate statistics
+        val totalMeasurements = records.size
+        val lastRecord = records.lastOrNull()
+        val lastHeight = lastRecord?.height?.let { String.format("%.1f", it) } ?: "N/A"
+        val lastAge = lastRecord?.ageInMonths ?: 0
+
+        // Count normal measurements
+        val normalCount = records.count { record ->
+            val zScore = calcularZScoreTallaEdad(
+                talla = record.height,
+                edadMeses = record.ageInMonths,
+                lmsList = lmsTable
+            )
+            zScore?.let { it >= -2 && it <= 2 } ?: false
+        }
+
+        canvas.drawText("• Total de mediciones: $totalMeasurements", 70f, yPosition, paint)
+        yPosition += 20f
+        canvas.drawText("• Última medición: $lastHeight cm ($lastAge meses)", 70f, yPosition, paint)
+        yPosition += 20f
+        canvas.drawText("• Mediciones en rango normal: $normalCount de $totalMeasurements", 70f, yPosition, paint)
+
+        // Footer (matching generatePdfReport style)
+        val footerPaint = android.graphics.Paint().apply {
+            textSize = 10f
+            typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.NORMAL)
+            color = android.graphics.Color.GRAY
+        }
+
+        // Draw line above footer
+        canvas.drawLine(50f, 800f, 545f, 800f, footerPaint)
+
+        // Left side: "Generado por Child Care App"
+        canvas.drawText("Generado por Child Care App", 50f, 820f, footerPaint)
+
+        // Right side: "Página 1 de 1"
+        footerPaint.textAlign = android.graphics.Paint.Align.RIGHT
+        canvas.drawText("Página 1 de 1", 545f, 820f, footerPaint)
+
+        pdfDocument.finishPage(page)
+
+        // Create and save PDF, then share
+        val fileName = "Reporte_Longitud_Altura_${java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.getDefault()).format(java.util.Date())}.pdf"
+        savePDFAndShare(context, pdfDocument, fileName)
+
+    } catch (e: Exception) {
+        android.widget.Toast.makeText(
+            context,
+            "Error al generar PDF: ${e.message}",
+            android.widget.Toast.LENGTH_LONG
+        ).show()
+        e.printStackTrace()
+    }
 }
 
 private fun savePDFAndShare(

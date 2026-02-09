@@ -105,7 +105,8 @@ fun WeightDetailScreen(
                             generateHeightLengthDF(
                                 context = context,
                                 records = records,
-                                babyId = babyId ?: "unknown"
+                                babyName = babyId ?: "unknown",
+                                sex = babySex
                             )
                         },
                         colors = ButtonDefaults.buttonColors(

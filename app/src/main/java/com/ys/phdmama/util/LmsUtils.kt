@@ -697,7 +697,7 @@ object LmsUtils {
         LMSHeightLength(13, "girl", 1.0, 75.2176, 0.0299)
     )
 
-    val lmdBoysHeightLengthData = listOf(
+    val lmsBoysHeightLengthData = listOf(
         LMSHeightLength(0, "boy", 1.0, 49.8842, 0.0379),
         LMSHeightLength(1, "boy", 1.0, 54.7244, 0.0364),
         LMSHeightLength(2, "boy", 1.0, 58.4249, 0.0352),
