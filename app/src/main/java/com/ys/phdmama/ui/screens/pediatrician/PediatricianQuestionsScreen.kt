@@ -57,7 +57,7 @@ fun PediatricianQuestionsScreen(navController: NavHostController,
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(secondaryCream)
+//                .background(secondaryCream)
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
