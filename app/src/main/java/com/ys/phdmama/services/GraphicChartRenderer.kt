@@ -34,7 +34,7 @@ class GraphicChartRenderer {
             val referenceData = if (sex.lowercase() == "girl") {
                 LmsUtils.lmdGirlsHeightLengthData
             } else {
-                LmsUtils.lmdBoysHeightLengthData
+                LmsUtils.lmsBoysHeightLengthData
             }
 
             // Draw all chart elements

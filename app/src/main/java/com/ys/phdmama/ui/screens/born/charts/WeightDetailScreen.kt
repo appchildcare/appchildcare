@@ -1,6 +1,7 @@
 package com.ys.phdmama.ui.screens.born.charts
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -34,8 +35,8 @@ import androidx.navigation.NavHostController
 import com.ys.phdmama.R
 import com.ys.phdmama.model.LMS
 import com.ys.phdmama.model.LengthRange
-import com.ys.phdmama.services.GraphicChartRenderer
 import com.ys.phdmama.services.GraphicWeightChartRenderer
+import com.ys.phdmama.services.PdfGeneratorUtils
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.util.LmsUtils
 import com.ys.phdmama.viewmodel.BabyDataViewModel
@@ -63,6 +64,10 @@ fun WeightDetailScreen(
             "Femenino" -> "girl"
             else -> ""
         }
+    }
+
+    val babyName = remember(selectedBabyProfile) {
+        return@remember selectedBabyProfile?.name
     }
 
     LaunchedEffect(babyId) {
@@ -102,10 +107,11 @@ fun WeightDetailScreen(
                 if (records.isNotEmpty()) {
                     Button(
                         onClick = {
-                            generateHeightLengthDF(
+                            generateWeightPDF(
                                 context = context,
                                 records = records,
-                                babyId = babyId ?: "unknown"
+                                babyName = babyName ?: "unknown",
+                                sex = babySex
                             )
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -191,6 +197,75 @@ fun WeightChart(
             sex = sex,
             size = size
         )
+    }
+}
+
+fun generateWeightPDF(
+    context: Context,
+    records: List<GrowthRecord>,
+    babyName: String,
+    sex: String
+) {
+    val lmsTable = if (sex.lowercase() == "girl") {
+        LmsUtils.lmsWeightGirlsData
+    } else {
+        LmsUtils.lmsWeightBoysData
+    }
+
+    PdfGeneratorUtils.generateAndSharePdf(
+        context = context,
+        fileName = "Reporte_Peso",
+        title = "Reporte de Peso",
+        subtitle = "Nombre del Bebé: $babyName",
+        logoResId = R.drawable.app_child_care_logo
+    ) {
+        // Draw table
+        val headers = listOf("Edad", "Peso (kg)", "Z-Score", "Rango OMS (kg)")
+        val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
+
+        val tableData = records.map { record ->
+            val zScore = calcularZScoreTallaEdad(
+                talla = record.weight,  // Using weight instead of height
+                edadMeses = record.ageInMonths,
+                lmsList = lmsTable
+            )
+
+            val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
+            val rangoText = rango?.let {
+                "${String.format("%.2f", it.min)}-${String.format("%.2f", it.max)}"
+            } ?: "N/A"
+
+            listOf(
+                "${record.ageInMonths} m",
+                "${record.weight ?: "N/A"}",
+                zScore?.let { String.format("%.2f", it) } ?: "N/A",
+                rangoText
+            )
+        }
+
+        drawTable(headers, columnPositions, tableData)
+
+        // Add summary section
+        addSectionTitle("Resumen:")
+
+        val totalMeasurements = records.size
+        val lastRecord = records.lastOrNull()
+        val lastWeight = lastRecord?.weight?.let { String.format("%.2f", it) } ?: "N/A"
+        val lastAge = lastRecord?.ageInMonths ?: 0
+
+        val normalCount = records.count { record ->
+            val zScore = calcularZScoreTallaEdad(
+                talla = record.weight,
+                edadMeses = record.ageInMonths,
+                lmsList = lmsTable
+            )
+            zScore?.let { it >= -2 && it <= 2 } ?: false
+        }
+
+        addText("• Total de mediciones: $totalMeasurements", indent = 20f)
+        addText("• Última medición: $lastWeight kg ($lastAge meses)", indent = 20f)
+        addText("• Mediciones en rango normal: $normalCount de $totalMeasurements", indent = 20f)
+
     }
 }
 
