@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -62,7 +61,6 @@ import com.ys.phdmama.model.PoopColor
 import com.ys.phdmama.model.PoopSize
 import com.ys.phdmama.model.PoopTexture
 import com.ys.phdmama.ui.components.AppChildAlert
-import com.ys.phdmama.ui.components.PhdButtons
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
@@ -87,7 +85,6 @@ fun PoopRegistrationScreen(
         if (uiState.isSuccess) {
             showSuccessAlert = true
             viewModel.clearSuccess()
-//            Toast.makeText(context, "Registro guardado exitosamente", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -151,19 +148,6 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
-
-//            babyDataViewModel.addBabyToUser(
-//                babyData = babyData,
-//                onSuccess = {
-//                    successMessage = "Bebé agregado exitosamente"
-//                    showSuccessAlert = true
-//                },
-//                onError = { errorMessage ->
-//                    Log.e("BabySummary", "Failed to save baby data: $errorMessage")
-//                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-//                }
-//            )
-
             // Save Button
             Button(
                 onClick = {
@@ -177,7 +161,6 @@ fun PoopRegistrationScreen(
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }
                     )
-                    // viewModel.updateQuestion(updated)
                 },
                 enabled = !uiState.isLoading && uiState.isValid(),
                 modifier = Modifier
@@ -206,7 +189,7 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Add the Alert and Back Button
+            // Add the Alert
             AppChildAlert(
                 showAlert = showSuccessAlert,
                 onDismiss = { showSuccessAlert = false },
@@ -218,46 +201,6 @@ fun PoopRegistrationScreen(
             )
         }
 
-    }
-
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color(0xFF7DD3C0))
-//    ) {
-//        // Content
-//
-//    }
-}
-
-
-@Composable
-private fun BabyInfoSection(babyName: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .background(Color(0xFF7DD3C0), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = babyName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.Black.copy(alpha = 0.7f)
-        )
     }
 }
 
@@ -296,9 +239,9 @@ private fun TimeSection(
             )
         ) {
             Text(
-                text = selectedTime.ifEmpty { "12:40" },
+                text = selectedTime,
                 fontSize = 16.sp,
-                color = if (selectedTime.isEmpty()) Color.Gray else Color.Black
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -468,7 +411,7 @@ private fun TextureOption(
             text = texture.displayName,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
-            color = if (isSelected) Color(0xFF7DD3C0) else Color.Gray
+            color = if (isSelected) Color(0xFF7DD3C0) else Color.Black
         )
     }
 }

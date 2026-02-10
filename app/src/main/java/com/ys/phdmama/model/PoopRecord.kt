@@ -1,7 +1,6 @@
 package com.ys.phdmama.model
 
 data class PoopRecord(
-    val id: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val time: String = "",
     val color: String = "",

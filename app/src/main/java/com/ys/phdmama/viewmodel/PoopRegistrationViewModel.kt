@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +34,21 @@ class PoopRegistrationViewModel @Inject constructor(
 
     init {
         observeSelectedBabyFromDataStore()
+        setDefaultValues()
+    }
+
+    private fun setDefaultValues() {
+        val calendar = Calendar.getInstance()
+        val currentTime = String.format(
+            "%02d:%02d",
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE)
+        )
+
+        _uiState.value = _uiState.value.copy(
+            selectedTime = currentTime,
+            selectedSize = PoopSize.MONEDA
+        )
     }
 
     private fun observeSelectedBabyFromDataStore() {
