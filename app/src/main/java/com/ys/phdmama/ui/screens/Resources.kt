@@ -127,7 +127,7 @@ fun CheckItemsScreen(
             ) {
                 items(filteredTopicGroups.size) { index ->
                     TopicSection(
-                        topicGroup = topicGroups[index],
+                        topicGroup = filteredTopicGroups[index],
                         onItemCheckedChange = { itemId, checked ->
                             checkItemsViewModel.toggleItemChecked(itemId)
                         }
