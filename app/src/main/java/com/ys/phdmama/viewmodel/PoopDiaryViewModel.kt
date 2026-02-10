@@ -1,24 +1,30 @@
 package com.ys.phdmama.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.ys.phdmama.ui.screens.poop.DayPoopEntry
-import com.ys.phdmama.ui.screens.poop.PoopRecord
-import com.ys.phdmama.ui.screens.poop.WeekDay
+import com.ys.phdmama.model.DayPoopEntry
+import com.ys.phdmama.model.PoopRecord
+import com.ys.phdmama.model.WeekDay
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class PoopDiaryViewModel @Inject constructor(): ViewModel() {
+class PoopDiaryViewModel @Inject constructor(
+    private val preferencesRepository: BabyPreferencesRepository
+): ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val _poopEntries = MutableStateFlow<List<DayPoopEntry>>(emptyList())
     val poopEntries: StateFlow<List<DayPoopEntry>> = _poopEntries.asStateFlow()
@@ -35,14 +41,32 @@ class PoopDiaryViewModel @Inject constructor(): ViewModel() {
     private val _weekDays = MutableStateFlow<List<WeekDay>>(emptyList())
     val weekDays: StateFlow<List<WeekDay>> = _weekDays.asStateFlow()
 
-    private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val dayNameFormatter = SimpleDateFormat("EEEE dd", Locale.getDefault())
+    private val spanishLocale = Locale("es", "ES")
+    private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", spanishLocale)
+    private val dayNameFormatter = SimpleDateFormat("EEEE dd", spanishLocale)
+
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
 
     init {
         generateCurrentWeek()
+        observeSelectedBabyFromDataStore()
     }
 
-    fun fetchPoopData(babyId: String) {
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("PoopRegistrationViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
+    }
+
+    fun fetchPoopData() {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -55,9 +79,14 @@ class PoopDiaryViewModel @Inject constructor(): ViewModel() {
                 calendar.add(Calendar.DAY_OF_WEEK, 6)
                 val endOfWeek = calendar.timeInMillis
 
-                firestore.collection("babies")
-                    .document(babyId)
-                    .collection("poopRecords")
+                val userId = firebaseAuth.currentUser?.uid
+
+                firestore
+                    .collection("users")
+                    .document(userId.toString())
+                    .collection("babies")
+                    .document(selectedBaby.value.toString())
+                    .collection("poop_records")
                     .whereGreaterThanOrEqualTo("timestamp", startOfWeek)
                     .whereLessThanOrEqualTo("timestamp", endOfWeek)
                     .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -66,7 +95,6 @@ class PoopDiaryViewModel @Inject constructor(): ViewModel() {
                         val poopRecords = documents.mapNotNull { doc ->
                             try {
                                 PoopRecord(
-                                    id = doc.id,
                                     timestamp = doc.getLong("timestamp") ?: System.currentTimeMillis(),
                                     time = doc.getString("time") ?: "",
                                     color = doc.getString("color") ?: "",
@@ -233,11 +261,11 @@ class PoopDiaryViewModel @Inject constructor(): ViewModel() {
 
                 firestore.collection("babies")
                     .document(babyId)
-                    .collection("poopRecords")
+                    .collection("poop_records")
                     .add(recordData)
                     .addOnSuccessListener {
                         // Refresh data after adding
-                        fetchPoopData(babyId)
+                        fetchPoopData()
                     }
                     .addOnFailureListener { exception ->
                         _errorMessage.value = "Error al guardar registro: ${exception.message}"
@@ -259,12 +287,12 @@ class PoopDiaryViewModel @Inject constructor(): ViewModel() {
             try {
                 firestore.collection("babies")
                     .document(babyId)
-                    .collection("poopRecords")
+                    .collection("poop_records")
                     .document(recordId)
                     .delete()
                     .addOnSuccessListener {
                         // Refresh data after deleting
-                        fetchPoopData(babyId)
+                        fetchPoopData()
                     }
                     .addOnFailureListener { exception ->
                         _errorMessage.value = "Error al eliminar registro: ${exception.message}"
@@ -296,12 +324,12 @@ class PoopDiaryViewModel @Inject constructor(): ViewModel() {
 
                 firestore.collection("babies")
                     .document(babyId)
-                    .collection("poopRecords")
+                    .collection("poop_records")
                     .document(recordId)
                     .update(recordData as Map<String, Any>)
                     .addOnSuccessListener {
                         // Refresh data after updating
-                        fetchPoopData(babyId)
+                        fetchPoopData()
                     }
                     .addOnFailureListener { exception ->
                         _errorMessage.value = "Error al actualizar registro: ${exception.message}"

@@ -140,7 +140,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val carbonFootViewModel: CarbonFootprintViewModel = hiltViewModel()
 
     var userRole by rememberSaveable { mutableStateOf<String?>(null) }
-    var babyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var babyId by rememberSaveable { mutableStateOf<String?>(null) } // TODO: remove and use viewmodel
     var isUserLoggedIn by remember { mutableStateOf(false) }
     var wizardFinished by remember { mutableStateOf(false) }
     Log.d("NavGraph", "userRole = $userRole")
@@ -264,7 +264,8 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BornResourcesLeaveHome(navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.PREGNANCY_RESOURCES) {
-            PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+//            PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+            Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
         }
         composable(NavRoutes.WAITING_GYNECOLOGIST) {
             GynecologistScreen(navController = navController, openDrawer = openDrawer)
@@ -316,29 +317,17 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 TermsConditions (navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.POOP_REGISTER) {
-                babyId?.let { it1 ->
-                    PoopRegistrationScreen(
-                        navController = navController, openDrawer = openDrawer,
-                        userId = it1,
-                        babyId = it1,
-                        babyName = "",
-                        viewModel = poopRegisterViewModel
-                    )
-                }
+                PoopRegistrationScreen(
+                    navController = navController, openDrawer = openDrawer,
+                    viewModel = poopRegisterViewModel
+                )
             }
-//            babyId: String?,
-//            viewModel: PoopDiaryViewModel = hiltViewModel(),
-//            navController: NavHostController,
-//            openDrawer: () -> Unit
             composable(NavRoutes.POOP_TRACKING) {
-                babyId?.let { it1 ->
-                    PoopDiaryScreen (
-                        babyId = it1,
-                        viewModel = poopDiaryViewModel,
-                        navController = navController,
-                        openDrawer = openDrawer,
-                    )
-                }
+                PoopDiaryScreen (
+                    viewModel = poopDiaryViewModel,
+                    navController = navController,
+                    openDrawer = openDrawer,
+                )
             }
             composable(NavRoutes.POO_MAIN_SELECTION) {
                 PoopMainScreen(
@@ -361,15 +350,10 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 SleepingCounterScreen(babyId = babyId, navController = navController, counterViewModel, openDrawer = openDrawer)
             }
             composable(NavRoutes.POOP_REGISTER) {
-                babyId?.let { it1 ->
-                    PoopRegistrationScreen(
-                        navController = navController, openDrawer = openDrawer,
-                        userId = it1,
-                        babyId = it1,
-                        babyName = "",
-                        viewModel = poopRegisterViewModel
-                    )
-                }
+                PoopRegistrationScreen(
+                    navController = navController, openDrawer = openDrawer,
+                    viewModel = poopRegisterViewModel
+                )
             }
         }
 
@@ -384,7 +368,8 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 GynecologistScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.PREGNANCY_RESOURCES) {
-                PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+//                PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+                Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
             }
         }
 

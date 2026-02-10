@@ -10,6 +10,17 @@ data class PoopRecord(
     val createdAt: Long = System.currentTimeMillis()
 )
 
+data class DayPoopEntry(
+    val dayName: String,
+    val poops: List<PoopRecord>
+)
+
+data class WeekDay(
+    val name: String,
+    val isSelected: Boolean = false,
+    val poopCount: Int = 0
+)
+
 enum class PoopColor(val displayName: String, val value: String) {
     MUY_OSCURO("Muy oscuro", "muy_oscuro"),
     VERDE_OSCURO("Verde oscuro", "verde_oscuro"),

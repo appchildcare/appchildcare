@@ -37,45 +37,26 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.ys.phdmama.model.PoopRecord
+import com.ys.phdmama.model.WeekDay
 import com.ys.phdmama.viewmodel.PoopDiaryViewModel
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
-
-data class PoopRecord(
-    val id: String = "",
-    val timestamp: Long = System.currentTimeMillis(),
-    val time: String = "",
-    val color: String = "",
-    val texture: String = "",
-    val size: String = "",
-    val notes: String = "",
-    val createdAt: Long = System.currentTimeMillis()
-)
-
-data class DayPoopEntry(
-    val dayName: String,
-    val poops: List<PoopRecord>
-)
-
-data class WeekDay(
-    val name: String,
-    val isSelected: Boolean = false,
-    val poopCount: Int = 0
-)
+import java.util.Locale
 
 @Composable
 fun PoopDiaryScreen(
-    babyId: String?,
     viewModel: PoopDiaryViewModel = hiltViewModel(),
     navController: NavHostController,
     openDrawer: () -> Unit
 ) {
     val poopEntries by viewModel.poopEntries.collectAsStateWithLifecycle()
+    val weekDays by viewModel.weekDays.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        if (babyId != null) {
-            viewModel.fetchPoopData(babyId)
-        }
+        viewModel.fetchPoopData()
     }
 
     PhdLayoutMenu(
@@ -93,11 +74,15 @@ fun PoopDiaryScreen(
             val darkBrown = Color(0xFF8D6E63)
             val backgroundColor = Color(0xFFFFF8E1)
 
+            val today = LocalDate.now()
+
+            val formatter = DateTimeFormatter.ofPattern("EEEE dd", Locale("es", "ES"))
+
             // Header Section
             PoopHeaderSection(
-                userName = "Héctor",
-                selectedDate = "Lunes 25",
-                lightBrown = lightBrown
+                selectedDate = today.format(formatter),
+                lightBrown = lightBrown,
+                weekDays = weekDays
             )
 
             // Poop Records
@@ -134,9 +119,9 @@ fun PoopDiaryScreen(
 
 @Composable
 fun PoopHeaderSection(
-    userName: String,
     selectedDate: String,
-    lightBrown: Color
+    lightBrown: Color,
+    weekDays: List<WeekDay> = emptyList()
 ) {
     Column(
         modifier = Modifier
@@ -174,7 +159,7 @@ fun PoopHeaderSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Week Calendar
-        PoopWeekCalendar()
+        PoopWeekCalendar(weekDays = weekDays)
         Spacer(modifier = Modifier.height(12.dp))
 
         // Time Scale
@@ -229,18 +214,9 @@ fun PoopHeaderSection(
 }
 
 @Composable
-fun PoopWeekCalendar() {
-    // TODO: Replace with actual week data from ViewModel
-    val weekDays = listOf(
-        WeekDay("Martes 19", false, 2),
-        WeekDay("Miércoles 20", false, 3),
-        WeekDay("Jueves 21", false, 1),
-        WeekDay("Viernes 22", false, 4),
-        WeekDay("Sábado 23", false, 2),
-        WeekDay("Domingo 24", false, 1),
-        WeekDay("Lunes 25", true, 3)
-    )
-
+fun PoopWeekCalendar(
+    weekDays: List<WeekDay> = emptyList()
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
