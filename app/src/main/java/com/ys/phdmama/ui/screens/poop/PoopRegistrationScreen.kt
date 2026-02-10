@@ -1,6 +1,7 @@
 package com.ys.phdmama.ui.screens.poop
 
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -60,6 +61,8 @@ import com.ys.phdmama.R
 import com.ys.phdmama.model.PoopColor
 import com.ys.phdmama.model.PoopSize
 import com.ys.phdmama.model.PoopTexture
+import com.ys.phdmama.ui.components.AppChildAlert
+import com.ys.phdmama.ui.components.PhdButtons
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
@@ -69,19 +72,22 @@ import java.util.Calendar
 fun PoopRegistrationScreen(
     navController: NavHostController,
     openDrawer: () -> Unit,
-    userId: String,
-    babyId: String,
-    babyName: String = "Benjamín",
     viewModel: PoopRegistrationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val selectedBaby by viewModel.selectedBaby.collectAsState() // TODO: pass this value to repo
 
+    var showSuccessAlert by remember { mutableStateOf(false) }
+    var successMessage = "Registro guardado exitosamente"
+
+
     // Handle success state
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            Toast.makeText(context, "Registro guardado exitosamente", Toast.LENGTH_SHORT).show()
+            showSuccessAlert = true
+            viewModel.clearSuccess()
+//            Toast.makeText(context, "Registro guardado exitosamente", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -145,12 +151,34 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
+
+//            babyDataViewModel.addBabyToUser(
+//                babyData = babyData,
+//                onSuccess = {
+//                    successMessage = "Bebé agregado exitosamente"
+//                    showSuccessAlert = true
+//                },
+//                onError = { errorMessage ->
+//                    Log.e("BabySummary", "Failed to save baby data: $errorMessage")
+//                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+//                }
+//            )
+
             // Save Button
             Button(
                 onClick = {
-                    viewModel.savePoopRecord(userId, babyId)
+                    viewModel.savePoopRecord(
+                        onSuccess = {
+                            successMessage = "Bebé agregado exitosamente"
+                            showSuccessAlert = true
+                        },
+                        onError = { errorMessage ->
+                            Log.e("BabySummary", "Failed to save baby data: $errorMessage")
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    )
                     // viewModel.updateQuestion(updated)
-                          },
+                },
                 enabled = !uiState.isLoading && uiState.isValid(),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,6 +203,19 @@ fun PoopRegistrationScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Add the Alert and Back Button
+            AppChildAlert(
+                showAlert = showSuccessAlert,
+                onDismiss = { showSuccessAlert = false },
+                message = successMessage,
+                onConfirm = {
+                    showSuccessAlert = false
+                    navController.navigate("bornDashboard")
+                }
+            )
         }
 
     }

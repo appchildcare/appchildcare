@@ -1,26 +1,51 @@
 package com.ys.phdmama.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.ys.phdmama.datastore.PoopRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.model.PoopColor
 import com.ys.phdmama.model.PoopRecord
 import com.ys.phdmama.model.PoopSize
 import com.ys.phdmama.model.PoopTexture
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
-class PoopRegistrationViewModel @Inject constructor() :
+class PoopRegistrationViewModel @Inject constructor(
+    private val preferencesRepository: BabyPreferencesRepository
+) :
     ViewModel() {
-    private val repository: PoopRepository = PoopRepository()
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val _uiState = MutableStateFlow(PoopRegistrationUiState())
     val uiState: StateFlow<PoopRegistrationUiState> = _uiState.asStateFlow()
+
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
+
+    init {
+        observeSelectedBabyFromDataStore()
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("PoopRegistrationViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
+    }
 
     fun updateTime(time: String) {
         _uiState.value = _uiState.value.copy(selectedTime = time)
@@ -42,8 +67,12 @@ class PoopRegistrationViewModel @Inject constructor() :
         _uiState.value = _uiState.value.copy(notes = notes)
     }
 
-    fun savePoopRecord(userId: String, babyId: String) {
+    fun savePoopRecord(
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit
+    ) {
         val currentState = _uiState.value
+        val selectedBaby = selectedBaby.value
 
         if (!currentState.isValid()) {
             _uiState.value = currentState.copy(
@@ -63,20 +92,22 @@ class PoopRegistrationViewModel @Inject constructor() :
                 notes = currentState.notes
             )
 
-            repository.savePoopRecord(userId, babyId, poopRecord)
-                .onSuccess {
-                    _uiState.value = currentState.copy(
-                        isLoading = false,
-                        isSuccess = true
-                    )
-                    resetForm()
-                }
-                .onFailure { exception ->
-                    _uiState.value = currentState.copy(
-                        isLoading = false,
-                        error = "Error al guardar: ${exception.message}"
-                    )
-                }
+            try {
+                val userId = firebaseAuth.currentUser?.uid
+                val documentReference = firestore
+                    .collection("users")
+                    .document(userId.toString())
+                    .collection("babies")
+                    .document(selectedBaby.toString())
+                    .collection("poop_records")
+                    .add(poopRecord)
+                    .await() // Wait for the operation to complete
+
+                Log.d("PoopRepository", "Poop saved successfully with ID: ${documentReference.id}")
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.localizedMessage ?: "Error al añadir bebé")
+            }
         }
     }
 
