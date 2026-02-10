@@ -119,6 +119,7 @@ class PoopRegistrationViewModel @Inject constructor(
                     .add(poopRecord)
                     .await() // Wait for the operation to complete
 
+                resetForm()
                 Log.d("PoopRepository", "Poop saved successfully with ID: ${documentReference.id}")
                 onSuccess()
             } catch (e: Exception) {

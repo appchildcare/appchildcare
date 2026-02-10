@@ -196,7 +196,6 @@ fun PoopRegistrationScreen(
                 message = successMessage,
                 onConfirm = {
                     showSuccessAlert = false
-                    navController.navigate("bornDashboard")
                 }
             )
         }
