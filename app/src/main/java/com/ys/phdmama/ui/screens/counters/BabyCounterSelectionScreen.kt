@@ -150,53 +150,7 @@ fun TrackingOptionCard(
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(
-                            Color.White.copy(alpha = 0.2f),
-                            RoundedCornerShape(30.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = emoji,
-                        fontSize = 32.sp
-                    )
-                }
             }
         }
-    }
-}
-
-@Composable
-fun QuickStatItem(
-    icon: String,
-    title: String,
-    value: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = icon,
-            fontSize = 32.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Text(
-            text = title,
-            fontSize = 12.sp,
-            color = Color.Gray,
-            fontWeight = FontWeight.Medium
-        )
-
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF424242)
-        )
     }
 }
