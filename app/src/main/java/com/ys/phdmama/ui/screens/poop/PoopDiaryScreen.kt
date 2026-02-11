@@ -25,11 +25,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -84,6 +87,17 @@ fun PoopDiaryScreen(
                 lightBrown = lightBrown,
                 weekDays = weekDays
             )
+
+            val context = LocalContext.current
+
+            Button(
+                onClick = { viewModel.generatePoopPdfReport(context) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Reporte")
+            }
 
             // Poop Records
             LazyColumn(
