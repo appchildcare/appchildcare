@@ -1,7 +1,6 @@
 package com.ys.phdmama.model
 
 data class PoopRecord(
-    val id: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val time: String = "",
     val color: String = "",
@@ -9,6 +8,17 @@ data class PoopRecord(
     val size: String = "",
     val notes: String = "",
     val createdAt: Long = System.currentTimeMillis()
+)
+
+data class DayPoopEntry(
+    val dayName: String,
+    val poops: List<PoopRecord>
+)
+
+data class WeekDay(
+    val name: String,
+    val isSelected: Boolean = false,
+    val poopCount: Int = 0
 )
 
 enum class PoopColor(val displayName: String, val value: String) {

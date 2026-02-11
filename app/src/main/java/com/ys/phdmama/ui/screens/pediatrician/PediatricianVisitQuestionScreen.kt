@@ -35,12 +35,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.model.PediatricianVisit
 import com.ys.phdmama.ui.components.EditableField
@@ -52,7 +50,6 @@ import com.ys.phdmama.ui.components.PhdLabelText
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.components.PhdNormalText
 import com.ys.phdmama.ui.components.PhdSubtitle
-import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.PediatricVisitViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -126,7 +123,6 @@ fun PediatricVisitScreen(navController: NavHostController,
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(secondaryCream)
                 .padding(16.dp)
         ) {
             PhdLabelText("Fecha visita")
@@ -152,7 +148,7 @@ fun PediatricVisitScreen(navController: NavHostController,
                 onValueChange = { weight = it },
                 label = { Text("Peso (kg)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().background(Color.White)
             )
 
             OutlinedTextField(
@@ -160,7 +156,7 @@ fun PediatricVisitScreen(navController: NavHostController,
                 onValueChange = { height = it },
                 label = { Text("Talla (cm)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().background(Color.White)
             )
 
             OutlinedTextField(
@@ -168,7 +164,7 @@ fun PediatricVisitScreen(navController: NavHostController,
                 onValueChange = { headCircumference = it },
                 label = { Text("Perímetro cefálico (cm)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().background(Color.White)
             )
 
             Spacer(modifier = Modifier.height(8.dp))

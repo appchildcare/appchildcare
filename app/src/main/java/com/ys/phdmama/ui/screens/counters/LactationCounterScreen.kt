@@ -25,14 +25,13 @@ fun LactationCounterScreen(babyId: String?, navController: NavController,
                            viewModel: LactationViewModel = hiltViewModel(),
                            openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Contador de Lactancia",
+        title = "Lactancia",
         navController = navController,
         openDrawer = openDrawer
-    ) { innerPadding ->
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) {
             LactationComponent(babyId, navController, viewModel)
         }
@@ -58,7 +57,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.mipmap.lactancia_bebe),
+            painter = painterResource(id = R.drawable.icono_app_gota),
             contentDescription = "lactancia image",
             modifier = Modifier
                 .fillMaxWidth()

@@ -1,6 +1,7 @@
 package com.ys.phdmama.ui.screens.poop
 
 import android.app.TimePickerDialog
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -30,8 +31,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -39,6 +42,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +60,7 @@ import com.ys.phdmama.R
 import com.ys.phdmama.model.PoopColor
 import com.ys.phdmama.model.PoopSize
 import com.ys.phdmama.model.PoopTexture
+import com.ys.phdmama.ui.components.AppChildAlert
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.theme.secondaryCream
 import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
@@ -63,20 +70,21 @@ import java.util.Calendar
 fun PoopRegistrationScreen(
     navController: NavHostController,
     openDrawer: () -> Unit,
-    userId: String,
-    babyId: String,
-    babyName: String = "Benjamín",
     viewModel: PoopRegistrationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val selectedBaby by viewModel.selectedBaby.collectAsState() // TODO: pass this value to repo
+
+    var showSuccessAlert by remember { mutableStateOf(false) }
+    var successMessage = "Registro guardado exitosamente"
+
 
     // Handle success state
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            Toast.makeText(context, "Registro guardado exitosamente", Toast.LENGTH_SHORT).show()
-//            viewModel.clearSuccess()
-//            onNavigateBack()
+            showSuccessAlert = true
+            viewModel.clearSuccess()
         }
     }
 
@@ -96,14 +104,9 @@ fun PoopRegistrationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-//                .background(
-//                    Color.White,
-//                    RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-//                )
                 .padding(24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
 
             // Time Selection
             TimeSection(
@@ -148,9 +151,17 @@ fun PoopRegistrationScreen(
             // Save Button
             Button(
                 onClick = {
-                    viewModel.savePoopRecord(userId, babyId)
-                    // viewModel.updateQuestion(updated)
-                          },
+                    viewModel.savePoopRecord(
+                        onSuccess = {
+                            successMessage = "Bebé agregado exitosamente"
+                            showSuccessAlert = true
+                        },
+                        onError = { errorMessage ->
+                            Log.e("BabySummary", "Failed to save baby data: $errorMessage")
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                },
                 enabled = !uiState.isLoading && uiState.isValid(),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -175,49 +186,20 @@ fun PoopRegistrationScreen(
                     )
                 }
             }
-        }
 
-    }
+            Spacer(modifier = Modifier.height(16.dp))
 
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color(0xFF7DD3C0))
-//    ) {
-//        // Content
-//
-//    }
-}
-
-
-
-@Composable
-private fun BabyInfoSection(babyName: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .background(Color(0xFF7DD3C0), CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(32.dp)
+            // Add the Alert
+            AppChildAlert(
+                showAlert = showSuccessAlert,
+                onDismiss = { showSuccessAlert = false },
+                message = successMessage,
+                onConfirm = {
+                    showSuccessAlert = false
+                }
             )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Text(
-            text = babyName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.Black.copy(alpha = 0.7f)
-        )
     }
 }
 
@@ -256,9 +238,9 @@ private fun TimeSection(
             )
         ) {
             Text(
-                text = selectedTime.ifEmpty { "12:40" },
+                text = selectedTime,
                 fontSize = 16.sp,
-                color = if (selectedTime.isEmpty()) Color.Gray else Color.Black
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -329,9 +311,9 @@ private fun ColorOption(
 
         Text(
             text = color.displayName,
-            fontSize = 12.sp,
+            fontSize = 16.sp,
             textAlign = TextAlign.Center,
-            color = if (isSelected) Color(0xFF7DD3C0) else Color.Gray
+            color = if (isSelected) Color(0xFF7DD3C0) else Color.Black
         )
     }
 }
@@ -372,53 +354,51 @@ private fun TextureOption(
     ) {
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(106.dp)
                 .background(
                     if (isSelected) Color(0xFF7DD3C0) else secondaryCream,
                     CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
-            // Option 1: Using Image with drawable resource
             when (texture) {
                 PoopTexture.LIQUIDA -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.caca_liquida),
+                        painter = painterResource(id = R.drawable.iconos_popo_liquida),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-//                        colorFilter = if (isSelected) ColorFilter.tint(Color.White) else ColorFilter.tint(Color.Gray)
+                        modifier = Modifier.size(94.dp),
                     )
                 }
+
                 PoopTexture.PASTOSA -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.caca_pastosa),
+                        painter = painterResource(id = R.drawable.iconos_popo_pastosa),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-//                        colorFilter = if (isSelected) ColorFilter.tint(Color.White) else ColorFilter.tint(Color.Gray)
+                        modifier = Modifier.size(94.dp),
                     )
                 }
+
                 PoopTexture.DURA -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.caca_dura),
+                        painter = painterResource(id = R.drawable.iconos_popo_dura),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-//                        colorFilter = if (isSelected) ColorFilter.tint(Color.White) else ColorFilter.tint(Color.Gray)
+                        modifier = Modifier.size(94.dp),
                     )
                 }
+
                 PoopTexture.CON_MOCOS -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.caca_moco),
+                        painter = painterResource(id = R.drawable.iconos_popo_moco),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-//                        colorFilter = if (isSelected) ColorFilter.tint(Color.White) else ColorFilter.tint(Color.Gray)
+                        modifier = Modifier.size(94.dp),
                     )
                 }
+
                 PoopTexture.CON_SANGRE -> {
                     Image(
-                        painter = painterResource(id = R.mipmap.caca_sangre),
+                        painter = painterResource(id = R.drawable.iconos_popo_sangre),
                         contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-//                        colorFilter = if (isSelected) ColorFilter.tint(Color.White) else ColorFilter.tint(Color.Gray)
+                        modifier = Modifier.size(94.dp),
                     )
                 }
             }
@@ -430,7 +410,7 @@ private fun TextureOption(
             text = texture.displayName,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
-            color = if (isSelected) Color(0xFF7DD3C0) else Color.Gray
+            color = if (isSelected) Color(0xFF7DD3C0) else Color.Black
         )
     }
 }
@@ -445,72 +425,66 @@ private fun SizeSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(PoopSize.values()) { size ->
-                SizeOption(
-                    size = size,
-                    isSelected = selectedSize == size,
-                    onSelected = { onSizeSelected(size) }
-                )
-            }
-        }
+        SizeOption(
+            selectedSize = selectedSize ?: PoopSize.MONEDA,
+            onSizeSelected = onSizeSelected
+        )
     }
 }
 
 @Composable
 private fun SizeOption(
-    size: PoopSize,
-    isSelected: Boolean,
-    onSelected: () -> Unit
+    selectedSize: PoopSize,
+    onSizeSelected: (PoopSize) -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onSelected() }
-    ) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
         Box(
             modifier = Modifier
-                .size(56.dp)
-                .background(
-                    if (isSelected) Color(0xFF7DD3C0) else secondaryCream,
-                    CircleShape
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .background(secondaryCream, RoundedCornerShape(8.dp))
+                .clickable { expanded = true }
+                .padding(16.dp)
         ) {
-            when (size) {
-                PoopSize.MONEDA -> {
-                    Image(
-                        painter = painterResource(id = R.mipmap.caca_tamano_moneda),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-                PoopSize.CUCHARA_SOPERA -> {
-                    Image(
-                        painter = painterResource(id = R.mipmap.caca_tamano_moneda),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-                PoopSize.MAS_GRANDE -> {
-                    Image(
-                        painter = painterResource(id = R.mipmap.caca_tamano_moneda),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedSize.displayName,
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = Color.Gray
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = size.displayName,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-            color = if (isSelected) Color(0xFF7DD3C0) else Color.Gray
-        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            PoopSize.values().forEach { size ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = size.displayName,
+                            fontSize = 16.sp,
+                            color = if (size == selectedSize) Color(0xFF7DD3C0) else Color.Black
+                        )
+                    },
+                    onClick = {
+                        onSizeSelected(size)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -535,6 +509,7 @@ private fun NotesSection(
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .background(secondaryCream, RoundedCornerShape(8.dp))
                 .height(120.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF7DD3C0),
@@ -554,7 +529,7 @@ private fun SectionTitle(title: String) {
             text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            style = MaterialTheme.typography.titleMedium,
         )
 
         Spacer(modifier = Modifier.width(8.dp))

@@ -1,5 +1,6 @@
 package com.ys.phdmama.ui.screens.poop
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,9 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -24,12 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes.POOP_REGISTER
 import com.ys.phdmama.navigation.NavRoutes.POOP_TRACKING
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -59,10 +60,12 @@ fun PoopMainScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 48.dp)
             ) {
-                Text(
-                    text = "👶",
-                    fontSize = 72.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                Image(
+                    painter = painterResource(id = R.drawable.icono_app_panal),
+                    contentDescription = "poop",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
                 )
 
                 Text(
@@ -86,12 +89,11 @@ fun PoopMainScreen(
             TrackingOptionCard(
                 title = "Registrar cacas",
                 subtitle = "Registrar detalles de las cacas",
-                icon = Icons.Default.Info,
+                icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,
                     secondaryAqua
                 ),
-                emoji = "💩",
                 onClick = {
                     navController.navigate(POOP_REGISTER)
                 }
@@ -102,12 +104,11 @@ fun PoopMainScreen(
             TrackingOptionCard(
                 title = "Reportes",
                 subtitle = "Información detallada de cacas",
-                icon = Icons.Default.Favorite,
+                icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,
                     secondaryAqua
                 ),
-                emoji = "📝",
                 onClick = {
                     navController.navigate(POOP_TRACKING)
                 }
@@ -122,9 +123,8 @@ fun PoopMainScreen(
 fun TrackingOptionCard(
     title: String,
     subtitle: String,
-    icon: ImageVector,
+    icon: Painter,
     gradientColors: List<Color>,
-    emoji: String,
     onClick: () -> Unit
 ) {
     Card(
@@ -174,9 +174,11 @@ fun TrackingOptionCard(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = emoji,
-                        fontSize = 32.sp
+                    Image(
+                        painter = icon,
+                        contentDescription = title,
+                        modifier = Modifier.size(32.dp),
+                        contentScale = ContentScale.Fit
                     )
                 }
             }
@@ -184,33 +186,3 @@ fun TrackingOptionCard(
     }
 }
 
-@Composable
-fun QuickStatItem(
-    icon: String,
-    title: String,
-    value: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = icon,
-            fontSize = 32.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Text(
-            text = title,
-            fontSize = 12.sp,
-            color = Color.Gray,
-            fontWeight = FontWeight.Medium
-        )
-
-        Text(
-            text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF424242)
-        )
-    }
-}
