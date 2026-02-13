@@ -24,6 +24,9 @@ import com.ys.phdmama.model.Lactation
 import com.ys.phdmama.model.LactationWeekDay
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun LactationDiaryScreen(
@@ -58,7 +61,6 @@ fun LactationDiaryScreen(
 
             // Header Section - Now passing lactancyEntries
             LactancyHeaderSection(
-                selectedDate = "Lunes 25",
                 lightGreen = lightGreen,
                 weekDays = weekDays
             )
@@ -96,11 +98,18 @@ fun LactationDiaryScreen(
 
 @Composable
 fun LactancyHeaderSection(
-    selectedDate: String,
     lightGreen: Color,
     weekDays: List<LactationWeekDay> = emptyList()
 
 ) {
+    val selectedDate = remember {
+        val calendar = Calendar.getInstance()
+        val dayName = SimpleDateFormat("EEEE", Locale("es")).format(calendar.time)
+            .replaceFirstChar { it.uppercase() }
+        val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)
+        "$dayName $dayNumber"
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
