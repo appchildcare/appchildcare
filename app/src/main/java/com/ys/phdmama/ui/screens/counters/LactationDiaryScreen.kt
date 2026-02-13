@@ -81,9 +81,9 @@ fun LactationDiaryScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                     }
-                    items(dayEntry.naps) { nap ->
+                    items(dayEntry.items) { lactation ->
                         LactancyRecordCard(
-                            session = nap,
+                            entry = lactation,
                             backgroundColor = backgroundColor,
                             darkGreen = darkGreen
                         )
@@ -235,16 +235,16 @@ fun LactancyTimeScale() {
 
 @Composable
 fun LactancyRecordCard(
-    session: Lactation,
+    entry: Lactation,
     backgroundColor: Color,
     darkGreen: Color
 ) {
-    val startTime = formatHourFraction(session.startHourFraction)
-    val endTime = formatHourFraction(session.startHourFraction + (session.durationHours / 60f))
-    val durationFormatted = formatLactancyDuration(session.durationHours)
+    val startTime = formatHourFraction(entry.startHourFraction)
+    val endTime = formatHourFraction(entry.startHourFraction + (entry.durationHours / 60f))
+    val durationFormatted = formatLactancyDuration(entry.durationHours)
 
     // Get lactation type info
-    val lactationType = getLactationTypeInfo(session.lactancyType ?: "natural")
+    val lactationType = getLactationTypeInfo(entry.lactancyType ?: "natural")
 
     Card(
         modifier = Modifier.fillMaxWidth(),

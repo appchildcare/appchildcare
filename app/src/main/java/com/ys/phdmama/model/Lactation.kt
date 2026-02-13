@@ -10,7 +10,7 @@ data class LactationSession(
 
 data class LactationEntry(
     val dayName: String,           // e.g., "Lunes 25", "Martes 19"
-    val naps: List<Lactation>,           // List of lactation sessions for that day
+    val items: List<Lactation>,           // List of lactation sessions for that day
     val date: String? = null       // Optional: actual date in a parseable format
 )
 

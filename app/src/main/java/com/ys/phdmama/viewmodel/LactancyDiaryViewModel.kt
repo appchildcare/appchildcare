@@ -7,7 +7,6 @@ import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.Lactation
 import com.ys.phdmama.model.LactationEntry
 import com.ys.phdmama.model.LactationWeekDay
-import com.ys.phdmama.model.WeekDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -94,7 +93,7 @@ class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
                     val dayEntries = groupedByDay.map { (day, docs) ->
                         LactationEntry(
                             dayName = day,
-                            naps = docs.map { doc ->
+                            items = docs.map { doc ->
                                 val ts = doc.getTimestamp("timestamp")?.toDate()
                                 val timeParts = doc.getString("time")?.split(":") ?: listOf("0", "0")
                                 val durationSec = timeParts[0].toInt() * 60 + timeParts[1].toInt()
@@ -102,9 +101,11 @@ class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
                                     val cal = Calendar.getInstance().apply { time = it }
                                     cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f
                                 } ?: 0f
+
                                 Lactation(
                                     startHourFraction = startHour,
-                                    durationHours = durationSec / 60f
+                                    durationHours = durationSec / 60f,
+                                    lactancyType = doc.getString("lactancy_type")
                                 )
                             }
                         )
@@ -133,7 +134,7 @@ class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
 
             // Update the count if we found matching data
             weekDay.copy(
-                lactationCount = matchingEntry?.naps?.size ?: 0
+                lactationCount = matchingEntry?.items?.size ?: 0
             )
         }
 
