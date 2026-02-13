@@ -1,16 +1,20 @@
 package com.ys.phdmama.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.ys.phdmama.model.Lactation
 import com.ys.phdmama.model.LactationEntry
 import com.ys.phdmama.model.LactationWeekDay
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -18,7 +22,9 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
+class LactancyDiaryViewModel @Inject constructor(
+    private val preferencesRepository: BabyPreferencesRepository
+): ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val _lactationEntries = MutableStateFlow<List<LactationEntry>>(emptyList())
     val lactationEntries: StateFlow<List<LactationEntry>> = _lactationEntries
@@ -32,9 +38,25 @@ class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", spanishLocale)
     private val dayNameFormatter = SimpleDateFormat("EEEE dd", spanishLocale)
 
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
+
 
     init {
+        observeSelectedBabyFromDataStore()
         generateCurrentWeek()
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("LactancyDiaryViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
     }
 
 
@@ -77,10 +99,12 @@ class LactancyDiaryViewModel @Inject constructor(): ViewModel() {
         val userId = auth.currentUser?.uid ?: return
 
         if (babyId != null) {
+            val selectedBaby = selectedBaby.value
+
             db.collection("users")
                 .document(userId)
                 .collection("babies")
-                .document(babyId)
+                .document(selectedBaby.toString())
                 .collection("lactation_counter_time")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
