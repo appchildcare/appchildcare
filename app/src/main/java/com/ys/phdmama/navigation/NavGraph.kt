@@ -2,7 +2,6 @@ package com.ys.phdmama.navigation
 
 import BabyCounterSelectionScreen
 import SleepDiaryScreen
-import SleepDiaryViewModel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -68,6 +67,7 @@ import com.ys.phdmama.viewmodel.LactationViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 import com.ys.phdmama.viewmodel.PoopDiaryViewModel
 import com.ys.phdmama.viewmodel.PoopRegistrationViewModel
+import com.ys.phdmama.viewmodel.SleepReportViewModel
 import com.ys.phdmama.viewmodel.WizardViewModel
 
 object NavRoutes {
@@ -132,7 +132,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val wizardViewModel: WizardViewModel = hiltViewModel()
     val growthMilestonesViewModel: GrowthMilestonesViewModel = hiltViewModel()
     val poopRegisterViewModel: PoopRegistrationViewModel = hiltViewModel()
-    val sleepDiaryViewModel: SleepDiaryViewModel = viewModel()
+    val sleepDiaryViewModel: SleepReportViewModel = hiltViewModel()
     val lactationDiaryViewModel: LactancyDiaryViewModel = hiltViewModel()
     val lactationViewModel: LactationViewModel = hiltViewModel()
     val counterViewModel: CounterViewModel = hiltViewModel()

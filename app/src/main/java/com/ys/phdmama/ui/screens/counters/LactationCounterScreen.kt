@@ -157,20 +157,6 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         ) {
             Text("Ver Reportes")
         }
-
-//        // Add notification check button
-//        val context = androidx.compose.ui.platform.LocalContext.current
-//        Button(
-//            onClick = {
-//                val activity = context as Activity
-//                com.ys.phdmama.utils.NotificationPermissionHelper.checkAndRequestNotificationPermission(activity)
-//            },
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = MaterialTheme.colorScheme.tertiary
-//            )
-//        ) {
-//            Text("Verificar Notificaciones")
-//        }
     }
 }
 

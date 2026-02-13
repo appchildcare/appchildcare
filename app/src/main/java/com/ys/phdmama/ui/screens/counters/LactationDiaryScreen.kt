@@ -1,7 +1,5 @@
 package com.ys.phdmama.ui.screens.counters
 
-import Nap
-import WeekDay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,14 +12,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.ys.phdmama.model.Lactation
+import com.ys.phdmama.model.LactationWeekDay
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun LactationDiaryScreen(
@@ -31,6 +36,7 @@ fun LactationDiaryScreen(
     openDrawer: () -> Unit
 ) {
     val lactancyEntries by viewModel.lactationEntries.collectAsStateWithLifecycle()
+    val weekDays by viewModel.weekDays.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         if (babyId != null) {
@@ -50,15 +56,13 @@ fun LactationDiaryScreen(
         ) {
 
             val lightGreen = Color(0xFF8BC34A)
-//            val darkPink = Color(0xFFC2185B)
             val darkGreen = Color(0xFF4CAF50)
             val backgroundColor = Color(0xFFFCE4EC)
 
-            // Header Section
+            // Header Section - Now passing lactancyEntries
             LactancyHeaderSection(
-                userName = "Héctor",
-                selectedDate = "Lunes 25",
-                lightGreen = lightGreen
+                lightGreen = lightGreen,
+                weekDays = weekDays
             )
 
             // Lactancy Records
@@ -79,9 +83,9 @@ fun LactationDiaryScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                     }
-                    items(dayEntry.naps) { nap ->
+                    items(dayEntry.items) { lactation ->
                         LactancyRecordCard(
-                            session = nap,
+                            entry = lactation,
                             backgroundColor = backgroundColor,
                             darkGreen = darkGreen
                         )
@@ -94,10 +98,18 @@ fun LactationDiaryScreen(
 
 @Composable
 fun LactancyHeaderSection(
-    userName: String,
-    selectedDate: String,
-    lightGreen: Color
+    lightGreen: Color,
+    weekDays: List<LactationWeekDay> = emptyList()
+
 ) {
+    val selectedDate = remember {
+        val calendar = Calendar.getInstance()
+        val dayName = SimpleDateFormat("EEEE", Locale("es")).format(calendar.time)
+            .replaceFirstChar { it.uppercase() }
+        val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)
+        "$dayName $dayNumber"
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,34 +119,11 @@ fun LactancyHeaderSection(
             )
             .padding(16.dp)
     ) {
-        // Top Bar
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Menu indicator
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                repeat(3) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(width = 20.dp, height = 3.dp)
-                            .background(
-                                Color.White.copy(alpha = if (index == 0) 0.8f else 0.4f),
-                                RoundedCornerShape(2.dp)
-                            )
-                    )
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Week Calendar for Lactancy
-        LactancyWeekCalendar()
+        // Week Calendar for Lactancy - Now using actual data
+        LactancyWeekCalendar(weekDays = weekDays)
         Spacer(modifier = Modifier.height(12.dp))
 
         // Time Scale
@@ -154,18 +143,11 @@ fun LactancyHeaderSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Previous",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
-
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Fecha seleccionada",
+                        text = "Fecha actual",
                         color = Color.White,
                         fontSize = 12.sp
                     )
@@ -176,31 +158,15 @@ fun LactancyHeaderSection(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Next",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
             }
         }
     }
 }
 
 @Composable
-fun LactancyWeekCalendar() {
-    // TODO: Replace with actual week data from ViewModel
-    val weekDays = listOf(
-        WeekDay("Martes 19", false, 0.4f),
-        WeekDay("Miércoles 20", false, 0.9f),
-        WeekDay("Jueves 21", false, 0.7f),
-        WeekDay("Viernes 22", false, 0.6f),
-        WeekDay("Sábado 23", false, 0.3f),
-        WeekDay("Domingo 24", false, 0.8f),
-        WeekDay("Lunes 25", true, 0.6f)
-    )
-
+fun LactancyWeekCalendar(
+    weekDays: List<LactationWeekDay> = emptyList()
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -212,35 +178,51 @@ fun LactancyWeekCalendar() {
             ) {
                 Text(
                     text = day.name,
-                    color = if (day.isSelected) Color(0xFF2E7D32) else Color.Gray,
+                    color = if (day.isSelected) Color(0xFF5D4037) else Color.Gray,
                     fontSize = 12.sp,
                     fontWeight = if (day.isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     modifier = Modifier.width(80.dp)
                 )
 
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(8.dp)
-                        .background(
-                            Color.White.copy(alpha = 0.5f),
-                            RoundedCornerShape(4.dp)
-                        )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(day.sleepPercentage)
-                            .background(
-                                Color(0xFF4CAF50),
-                                RoundedCornerShape(4.dp)
-                            )
-                    )
+                    repeat(day.lactationCount) { index ->
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(
+                                    Color(0xFF8D6E63),
+                                    RoundedCornerShape(6.dp)
+                                )
+                        )
+                    }
+
+                    if (day.lactationCount == 0) {
+                        Text(
+                            text = "Sin registros",
+                            color = Color.Gray,
+                            fontSize = 10.sp,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
                 }
+
+                Text(
+                    text = "${day.lactationCount}",
+                    color = if (day.isSelected) Color(0xFF5D4037) else Color.Gray,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.width(20.dp),
+                    textAlign = TextAlign.End
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun LactancyTimeScale() {
@@ -262,16 +244,16 @@ fun LactancyTimeScale() {
 
 @Composable
 fun LactancyRecordCard(
-    session: Nap, // Note: You'll need to update this data class to include lactancy_type
+    entry: Lactation,
     backgroundColor: Color,
     darkGreen: Color
 ) {
-    val startTime = formatHourFraction(session.startHourFraction)
-    val endTime = formatHourFraction(session.startHourFraction + (session.durationHours / 60f))
-    val durationFormatted = formatLactancyDuration(session.durationHours)
+    val startTime = formatHourFraction(entry.startHourFraction)
+    val endTime = formatHourFraction(entry.startHourFraction + (entry.durationHours / 60f))
+    val durationFormatted = formatLactancyDuration(entry.durationHours)
 
     // Get lactation type info
-    val lactationType = getLactationTypeInfo(session.lactancyType ?: "natural")
+    val lactationType = getLactationTypeInfo(entry.lactancyType ?: "natural")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -350,7 +332,7 @@ fun LactancyRecordCard(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = "Ha comido de",
+                    text = "Ha tomando leche de",
                     color = Color(0xFFE91E63),
                     fontSize = 12.sp
                 )

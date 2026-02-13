@@ -22,8 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -146,29 +144,6 @@ fun PoopHeaderSection(
             )
             .padding(16.dp)
     ) {
-        // Top Bar
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Menu indicator
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                repeat(3) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(width = 20.dp, height = 3.dp)
-                            .background(
-                                Color.White.copy(alpha = if (index == 0) 0.8f else 0.4f),
-                                RoundedCornerShape(2.dp)
-                            )
-                    )
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -193,20 +168,12 @@ fun PoopHeaderSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Previous",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column{
                     Text(
-                        text = "Fecha seleccionada",
+                        text = "Fecha actual",
                         color = Color.White,
-                        fontSize = 12.sp
+                        fontSize = 14.sp
                     )
                     Text(
                         text = selectedDate,
@@ -215,13 +182,6 @@ fun PoopHeaderSection(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Next",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
             }
         }
     }
@@ -355,13 +315,6 @@ fun PoopRecordCard(
                         fontSize = 12.sp
                     )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Details",
-                    tint = Color(0xFF8D6E63),
-                    modifier = Modifier.size(20.dp)
-                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

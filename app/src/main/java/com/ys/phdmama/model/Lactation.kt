@@ -8,16 +8,21 @@ data class LactationSession(
     val amount: Float? = null // Optional amount in ml for bottle feeding
 )
 
-data class DayLactationEntry(
-    val dayName: String,
-    val sessions: List<LactationSession>
+data class LactationEntry(
+    val dayName: String,           // e.g., "Lunes 25", "Martes 19"
+    val items: List<Lactation>,           // List of lactation sessions for that day
+    val date: String? = null       // Optional: actual date in a parseable format
 )
 
-data class LactationRecord(
-    val id: String = "",
-    val time: String = "", // Duration like "00:15"
-    val timestamp: String = "", // Firebase timestamp string
-    val side: String = "left", // "left", "right", or "both"
-    val amount: String = "", // Amount in ml (optional)
-    val type: String = "breastfeeding" // "breastfeeding" or "bottle"
+data class Lactation(
+    val startHourFraction: Float,  // e.g., 14.5 for 2:30 PM
+    val durationHours: Float,      // Duration in minutes (despite the name)
+    val lactancyType: String? = null, // "natural" or "formula"
+    val breast: String? = null     // "left", "right", or "both" (if applicable)
+)
+
+data class LactationWeekDay(
+    val name: String,
+    val isSelected: Boolean = false,
+    val lactationCount: Int = 0
 )

@@ -1,31 +1,32 @@
 package com.ys.phdmama.viewmodel
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ys.phdmama.repository.BabyPreferencesRepository
 import com.ys.phdmama.services.CounterService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LactationViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val preferencesRepository: BabyPreferencesRepository
 ) : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
 
@@ -41,10 +42,26 @@ class LactationViewModel @Inject constructor(
     )
     val selectedLactationType: StateFlow<String> = _selectedLactationType
 
+    private val _selectedBaby = MutableStateFlow<String?>(null)
+    val selectedBaby: StateFlow<String?> = _selectedBaby.asStateFlow()
+
     init {
+        observeSelectedBabyFromDataStore()
         observeCounterChanges()
         // Load initial running state
         _isRunning.value = sharedPreferences.getBoolean("counter_running", false)
+    }
+
+    private fun observeSelectedBabyFromDataStore() {
+        viewModelScope.launch {
+            preferencesRepository.selectedBabyIdFlow.collect { savedBabyId ->
+                if (savedBabyId != null) {
+                    _selectedBaby.value = savedBabyId.toString()
+                } else {
+                    Log.d("LactationViewModel", "Saved baby ID not found in list")
+                }
+            }
+        }
     }
 
     private fun observeCounterChanges() {
@@ -81,7 +98,6 @@ class LactationViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun startCounter() {
         Log.d("LactationViewModel", "Starting counter service")
-//        val context = getApplication<Application>().Application
 
         try {
             val intent = Intent(context, CounterService::class.java).apply {
@@ -102,7 +118,6 @@ class LactationViewModel @Inject constructor(
 
     fun stopCounter(babyId: String?) {
         Log.d("CounterViewModel", "Stopping counter service")
-//        val context = getApplication<Application>().applicationContext
 
         try {
             val intent = Intent(context, CounterService::class.java).apply {
@@ -144,6 +159,8 @@ class LactationViewModel @Inject constructor(
         val db = FirebaseFirestore.getInstance()
 
         if (babyId != null) {
+            val selectedBaby = selectedBaby.value
+
             val lactationData = hashMapOf(
                 "time" to formattedTime,
                 "timestamp" to timestamp,
@@ -153,7 +170,7 @@ class LactationViewModel @Inject constructor(
             db.collection("users")
                 .document(userId)
                 .collection("babies")
-                .document(babyId)
+                .document(selectedBaby.toString())
                 .collection("lactation_counter_time")
                 .add(lactationData)
                 .addOnSuccessListener {
