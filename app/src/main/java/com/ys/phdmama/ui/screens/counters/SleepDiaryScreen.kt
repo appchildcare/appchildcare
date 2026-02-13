@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -28,14 +29,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.viewmodel.SleepReportViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
-
+// Data classes
 data class Nap(
     val startHourFraction: Float, // e.g. 14.5 means 14:30
     val durationHours: Float,
@@ -54,21 +62,39 @@ data class SleepRecord(
     val type: String = "nap" // "nap" or "sleep"
 )
 
-data class WeekDay(
+data class SleepWeekDay(
     val name: String,
     val isSelected: Boolean = false,
-    val sleepPercentage: Float = 0.5f
+    val sleepPercentage: Float = 0f,
+    val napCount: Int = 0
 )
 
 @Composable
-fun SleepDiaryScreen(babyId: String?, viewModel: SleepDiaryViewModel = hiltViewModel(), navController: NavHostController,  openDrawer: () -> Unit) {
+fun SleepDiaryScreen(
+    babyId: String?,
+    viewModel: SleepReportViewModel = hiltViewModel(),
+//    newViewModel: SleepReportViewModel = hiltViewModel(),
+    navController: NavHostController,
+    openDrawer: () -> Unit
+) {
     val napEntries by viewModel.napEntries.collectAsStateWithLifecycle()
+    val weekDays by viewModel.weekDays.collectAsStateWithLifecycle()
+
+    // Get current date in Spanish format
+    val currentDate = remember {
+        val calendar = Calendar.getInstance()
+        val dayName = SimpleDateFormat("EEEE", Locale("es")).format(calendar.time)
+            .replaceFirstChar { it.uppercase() }
+        val dayNumber = calendar.get(Calendar.DAY_OF_MONTH)
+        "$dayName $dayNumber"
+    }
 
     LaunchedEffect(Unit) {
         if (babyId != null) {
             viewModel.fetchNapData(babyId)
         }
     }
+
     PhdLayoutMenu(
         title = "Reporte de siestas",
         navController = navController,
@@ -84,11 +110,11 @@ fun SleepDiaryScreen(babyId: String?, viewModel: SleepDiaryViewModel = hiltViewM
             val darkGreen = Color(0xFF4CAF50)
             val backgroundColor = Color(0xFFF1F8E9)
 
-            // Header Section
-            HeaderSection(
-                userName = "Héctor",
-                selectedDate = "Lunes 25",
-                lightGreen = lightGreen
+            // Header Section - Pass weekDays and current date
+            SleepHeaderSection(
+                selectedDate = currentDate,
+                lightGreen = lightGreen,
+                weekDays = weekDays
             )
 
             // Sleep Records
@@ -123,12 +149,11 @@ fun SleepDiaryScreen(babyId: String?, viewModel: SleepDiaryViewModel = hiltViewM
     }
 }
 
-
 @Composable
-fun HeaderSection(
-    userName: String,
+fun SleepHeaderSection(
     selectedDate: String,
-    lightGreen: Color
+    lightGreen: Color,
+    weekDays: List<SleepWeekDay> = emptyList()
 ) {
     Column(
         modifier = Modifier
@@ -139,34 +164,11 @@ fun HeaderSection(
             )
             .padding(16.dp)
     ) {
-        // Top Bar
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Menu indicator
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                repeat(3) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(width = 20.dp, height = 3.dp)
-                            .background(
-                                Color.White.copy(alpha = if (index == 0) 0.8f else 0.4f),
-                                RoundedCornerShape(2.dp)
-                            )
-                    )
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
         Spacer(modifier = Modifier.height(16.dp))
 
         // Week Calendar
-        WeekCalendar()
+        SleepWeekCalendar(weekDays = weekDays)
         Spacer(modifier = Modifier.height(12.dp))
 
         // Time Scale
@@ -186,13 +188,6 @@ fun HeaderSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Previous",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
-
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -208,31 +203,15 @@ fun HeaderSection(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Next",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
             }
         }
     }
 }
 
 @Composable
-fun WeekCalendar() {
-    // TODO: Replace with actual week data from ViewModel
-    val weekDays = listOf(
-        WeekDay("Martes 19", false, 0.3f),
-        WeekDay("Miércoles 20", false, 0.8f),
-        WeekDay("Jueves 21", false, 0.6f),
-        WeekDay("Viernes 22", false, 0.7f),
-        WeekDay("Sábado 23", false, 0.4f),
-        WeekDay("Domingo 24", false, 0.9f),
-        WeekDay("Lunes 25", true, 0.5f)
-    )
-
+fun SleepWeekCalendar(
+    weekDays: List<SleepWeekDay> = emptyList()
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -240,8 +219,9 @@ fun WeekCalendar() {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Day name
                 Text(
                     text = day.name,
                     color = if (day.isSelected) Color(0xFF2E7D32) else Color.Gray,
@@ -250,30 +230,47 @@ fun WeekCalendar() {
                     modifier = Modifier.width(80.dp)
                 )
 
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(8.dp)
-                        .background(
-                            Color.White.copy(alpha = 0.5f),
-                            RoundedCornerShape(4.dp)
-                        )
+                // Circles representing nap sessions (instead of progress bar)
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(day.sleepPercentage)
-                            .background(
-                                Color(0xFF4CAF50),
-                                RoundedCornerShape(4.dp)
+                    if (day.napCount > 0) {
+                        repeat(day.napCount) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .padding(end = 4.dp)
+                                    .background(
+                                        color = Color(0xFF4CAF50),
+                                        shape = CircleShape
+                                    )
                             )
-                    )
+                        }
+                    } else {
+                        Text(
+                            text = "Sin registros",
+                            color = Color.Gray,
+                            fontSize = 10.sp,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
                 }
+
+                // Count number on the right
+                Text(
+                    text = day.napCount.toString(),
+                    color = if (day.isSelected) Color(0xFF2E7D32) else Color.Gray,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.width(24.dp),
+                    textAlign = TextAlign.End
+                )
             }
         }
     }
 }
-
 @Composable
 fun TimeScale() {
     val times = listOf("8h", "10h", "12h", "14h", "16h", "18h", "20h", "22h", "0h", "2h", "4h", "6h", "8h")
@@ -396,7 +393,6 @@ fun SleepRecordCard(
         }
     }
 }
-
 
 fun formatHourFraction(hourFraction: Float): String {
     val hours = hourFraction.toInt()
