@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
@@ -30,7 +31,6 @@ class GraphicChartRenderer {
             val minHeight = 45f
             val maxHeight = 85f
 
-            //TODO: to make it generic pass the values referenceData as parameter
             val referenceData = if (sex.lowercase() == "girl") {
                 LmsUtils.lmdGirlsHeightLengthData
             } else {
@@ -41,8 +41,74 @@ class GraphicChartRenderer {
             drawBackground(sex, chartStartX, chartStartY, chartWidth, chartHeight)
             drawGrid(chartStartX, chartStartY, chartWidth, chartHeight, maxMonths, minHeight, maxHeight)
             drawPercentileLines(referenceData, chartStartX, chartStartY, chartWidth, chartHeight, maxMonths, minHeight, maxHeight, sex)
+
+            // ADD THIS: Draw the actual baby's data
+            drawBabyData(records, chartStartX, chartStartY, chartWidth, chartHeight, maxMonths, minHeight, maxHeight)
+
             drawZScoreLabels(chartStartX, chartStartY, chartWidth, chartHeight, referenceData, maxMonths, minHeight, maxHeight)
             drawAxes(chartStartX, chartStartY, chartWidth, chartHeight, maxMonths, minHeight, maxHeight)
+        }
+    }
+
+    private fun DrawScope.drawBabyData(
+        records: List<GrowthRecord>,
+        chartStartX: Float,
+        chartStartY: Float,
+        chartWidth: Float,
+        chartHeight: Float,
+        maxMonths: Float,
+        minHeight: Float,
+        maxHeight: Float
+    ) {
+        if (records.isEmpty()) return
+
+        val sortedRecords = records.sortedBy { it.ageInMonths }
+        val path = Path()
+        var isFirstPoint = true
+
+        // Draw line connecting points
+        sortedRecords.forEach { record ->
+            val x = chartStartX + (record.ageInMonths / maxMonths) * chartWidth
+            val y = chartStartY + chartHeight -
+                    ((record.height.toFloat() - minHeight) / (maxHeight - minHeight)) * chartHeight
+
+            if (isFirstPoint) {
+                path.moveTo(x, y)
+                isFirstPoint = false
+            } else {
+                path.lineTo(x, y)
+            }
+        }
+
+        // Draw the connecting line
+        drawPath(
+            path = path,
+            color = Color.Blue,
+            style = Stroke(
+                width = 3f,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f)) // Optional: dashed line
+            )
+        )
+
+        // Draw data points as circles
+        sortedRecords.forEach { record ->
+            val x = chartStartX + (record.ageInMonths / maxMonths) * chartWidth
+            val y = chartStartY + chartHeight -
+                    ((record.height.toFloat() - minHeight) / (maxHeight - minHeight)) * chartHeight
+
+            // Draw outer circle (border)
+            drawCircle(
+                color = Color.Blue,
+                radius = 8f,
+                center = Offset(x, y)
+            )
+
+            // Draw inner circle (fill)
+            drawCircle(
+                color = Color.White,
+                radius = 5f,
+                center = Offset(x, y)
+            )
         }
     }
 
