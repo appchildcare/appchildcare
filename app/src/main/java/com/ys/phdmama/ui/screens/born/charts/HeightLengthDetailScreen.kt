@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -191,13 +192,17 @@ fun HeightLengthChart(
 ) {
     val chartRenderer = remember { GraphicChartRenderer() }
 
-    Canvas(modifier = modifier) {
-        chartRenderer.drawChart(
-            drawScope = this,
-            records = records,
-            sex = sex,
-            size = size
-        )
+    if (records.isNotEmpty()) {
+        key(records.size, records.hashCode()) {
+            Canvas(modifier = modifier) {
+                chartRenderer.drawChart(
+                    drawScope = this,
+                    records = records,
+                    sex = sex,
+                    size = size
+                )
+            }
+        }
     }
 }
 

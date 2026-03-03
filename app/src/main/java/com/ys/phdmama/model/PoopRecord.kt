@@ -34,7 +34,9 @@ enum class PoopTexture(val displayName: String, val value: String) {
     PASTOSA("Pastosa", "pastosa"),
     DURA("Dura", "dura"),
     CON_MOCOS("Con mocos", "con_mocos"),
-    CON_SANGRE("Con sangre", "con_sangre")
+    CON_SANGRE("Con sangre", "con_sangre"),
+    AGRIETADA("Agrietada", "agrietada"),
+    SEPARADA("Separada", "separada")
 }
 
 enum class PoopSize(val displayName: String, val value: String) {
