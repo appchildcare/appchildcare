@@ -44,4 +44,16 @@
     <string name="welcome_slider_slide_3_1">¡Welcome to ChildCare!</string>
     <string name="welcome_slider_button_next">Next</string>
     <string name="welcome_slider_button_start">Start</string>
+    <string name="baby_menu_vaccine_title">Vaccines</string>
+    <string name="baby_menu_vaccine_desc">Track your baby´s vaccines</string>
+
+    <string name="baby_menu_growth_title">Growth</string>
+    <string name="baby_menu_growth_desc">Check your baby´s growth</string>
+
+    <string name="baby_menu_food_title">Food Log</string>
+    <string name="baby_menu_food_desc">Keep track of the foods your baby eats</string>
+
+    <string name="baby_menu_mediccine_title">Medication Log</string>
+    <string name="baby_menu_mediccine_desc">Keep track of the medications your baby takes</string>
+    <string name="baby_menu_screen_label">Baby</string>
 </resources>

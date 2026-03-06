@@ -44,4 +44,13 @@
     <string name="welcome_slider_slide_3_1">¡Bienvenidos a ChildCare!</string>
     <string name="welcome_slider_button_next">Siguiente</string>
     <string name="welcome_slider_button_start">Comenzar</string>
+    <string name="baby_menu_vaccine_title">Vacunas</string>
+    <string name="baby_menu_vaccine_desc">Controla las vacunas del bebé</string>
+    <string name="baby_menu_growth_title">Crecimiento</string>
+    <string name="baby_menu_growth_desc">Verifica el crecimiento del bebé</string>
+    <string name="baby_menu_food_title">Registro de alimentos</string>
+    <string name="baby_menu_food_desc">Ten al día los alimentos que consume tu bebé</string>
+    <string name="baby_menu_mediccine_title">Registro de medicinas</string>
+    <string name="baby_menu_mediccine_desc">Ten al día las medicinas que consume tu bebé</string>
+    <string name="baby_menu_screen_label">Bebé</string>
 </resources>
