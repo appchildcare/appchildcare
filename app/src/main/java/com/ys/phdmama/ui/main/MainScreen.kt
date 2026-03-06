@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ys.phdmama.R
@@ -24,21 +25,21 @@ import com.ys.phdmama.ui.components.PhdBoldText
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.LoginViewModel
 
-data class NavBarItem(val route: String, val label: String, val icon: ImageVector,
+data class NavBarItem(val route: String, val label: Int, val icon: ImageVector,
                       val isPremium: Boolean = false)
 
 val navItems = listOf(
-    NavBarItem("home", "Inicio", Icons.Default.Home),
-    NavBarItem("counters", "Controles", Icons.Default.AddCircle),
-    NavBarItem("resources", "Checklist", Icons.Default.Menu),
-    NavBarItem("baby", "Bebé", Icons.Default.Face)
+    NavBarItem("home", R.string.side_navigation_home_label, Icons.Default.Home),
+    NavBarItem("counters", R.string.side_navigation_controls_label, Icons.Default.AddCircle),
+    NavBarItem("resources", R.string.side_navigation_checklist_label, Icons.Default.Menu),
+    NavBarItem("baby", R.string.side_navigation_baby_label, Icons.Default.Face)
 )
 
 val sideNavItems = listOf(
-    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, "Perfil de bebé", Icons.Default.Edit, isPremium = true),
-    NavBarItem(NavRoutes.POO_MAIN_SELECTION, "Registro de cacas",Icons.Default.Add),
-    NavBarItem(NavRoutes.TERMS_CONDITIONS, "Políticas de uso", Icons.Default.Info),
-    NavBarItem(NavRoutes.CARBON_FOOTPRINT, "Huella de carbono", Icons.Default.Star),
+    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, isPremium = true),
+    NavBarItem(NavRoutes.POO_MAIN_SELECTION, R.string.side_navigation_poop_label,Icons.Default.Add),
+    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Info),
+    NavBarItem(NavRoutes.CARBON_FOOTPRINT, R.string.side_navigation_carbon_label, Icons.Default.Star),
 )
 
 
@@ -83,9 +84,10 @@ fun BottomNavigationBar(navController: NavController) {
         val currentRoute = navBackStackEntry?.destination?.route
 
         navItems.forEach { screen ->
+            val label = stringResource(screen.label)
             NavigationBarItem(
-                icon = { Icon(screen.icon, contentDescription = screen.label) },
-                label = { Text(screen.label) },
+                icon = { Icon(screen.icon, contentDescription = label) },
+                label = { Text(label) },
                 selected = currentRoute == screen.route,
                 onClick = {
                     navController.navigate(screen.route) {
@@ -117,12 +119,13 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
     }
 
     ModalDrawerSheet {
-        Text("Menú de Navegación", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+        Text(stringResource(R.string.side_navigation_label), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
         HorizontalDivider()
         val Gold = Color(0xFFA28834)
         sideNavItems.forEach { item ->
+            val label = stringResource(item.label)
             NavigationDrawerItem(
-                label = { Text(item.label, style = MaterialTheme.typography.labelMedium) },
+                label = { Text(label, style = MaterialTheme.typography.labelMedium) },
                 icon = {
                     if (item.isPremium && showPremiumOption) {
                         BadgedBox(
@@ -141,11 +144,11 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                                 }
                             }
                         ) {
-                            Icon(item.icon, contentDescription = item.label)
+                            Icon(item.icon, contentDescription = label)
                         }
                     } else {
                         // Regular icon for non-premium items
-                        Icon(item.icon, contentDescription = item.label)
+                        Icon(item.icon, contentDescription = label)
                     }
                 },
                 selected = false,
@@ -163,7 +166,7 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                 loginViewModel.logout(navController, loginViewModel, babyDataViewModel)
                 closeDrawer()
             }) {
-                PhdBoldText("Logout")
+                PhdBoldText(stringResource(R.string.side_navigation_logout_label))
             }
         }
     }

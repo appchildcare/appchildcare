@@ -185,13 +185,31 @@ class PediatricVisitViewModel @Inject constructor(
 
         // Parse reminder date and time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        val reminderDateTime = dateFormat.parse("${pediatrician.nextVisit}")
+        val reminderDateTime = try {
+            dateFormat.parse("${pediatrician.nextVisit}")
+        } catch (e: Exception) {
+            Log.e("PediatricianVM", "Failed to parse nextVisit: ${pediatrician.nextVisit}", e)
+            null
+        }
 
         if (reminderDateTime != null) {
             // Subtract 1 day (24 hours) from the reminder date
             val oneDayInMillis = 24 * 60 * 60 * 1000L // 24 hours in milliseconds
-            val notificationTime = reminderDateTime.time - oneDayInMillis
+            val notificationTime = reminderDateTime.time  //- oneDayInMillis
             val delay = notificationTime - System.currentTimeMillis()
+
+            // ADD THESE LOGS
+            Log.d("PediatricianVM", "nextVisit raw value: ${pediatrician.nextVisit}")
+            Log.d("PediatricianVM", "Parsed reminderDateTime: $reminderDateTime")
+            Log.d("PediatricianVM", "Notification time: ${Date(notificationTime)}")
+            Log.d("PediatricianVM", "Current time: ${Date(System.currentTimeMillis())}")
+            Log.d("PediatricianVM", "Delay in minutes: ${delay / 1000 / 60}")
+
+            if (delay > 0) {
+                Log.d("PediatricianVM", "✅ Scheduling notification...")
+            } else {
+                Log.d("PediatricianVM", "❌ Delay is negative, notification NOT scheduled. Set nextVisit further in the future.")
+            }
 
             if (delay > 0) {
                 // WorkManager notification
@@ -201,7 +219,15 @@ class PediatricVisitViewModel @Inject constructor(
                     .addTag("pediatrician_visit_reminder_${pediatrician.id}")
                     .build()
 
-                WorkManager.getInstance(context).enqueue(notificationWork)
+//                WorkManager.getInstance(context).enqueue(notificationWork)
+
+                WorkManager.getInstance(context)
+                    .getWorkInfosByTagLiveData("pediatrician_visit_reminder_${pediatrician.id}")
+                    .observeForever { workInfoList ->
+                        workInfoList?.forEach { workInfo ->
+                            Log.d("PediatricianVM", "WorkInfo state: ${workInfo.state}")
+                        }
+                    }
 
                 val notificationDate = Date(notificationTime)
                 Log.d("PediatricianVM", "Notification scheduled for ${dateFormat.format(notificationDate)} (1 day before visit)")

@@ -13,39 +13,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 
-data class MenuItemData(val label: String, val description: String, val icon: ImageVector, val route: String, @DrawableRes val image: Int)
+data class MenuItemData(val label: Int, val description: Int, val icon: ImageVector, val route: String, @DrawableRes val image: Int)
 
 val menuItems = listOf(
     MenuItemData(
-        label = "Vacunas",
-        description = "Controla las vacunas del bebé",
+        label = R.string.baby_menu_vaccine_title,
+        description = R.string.baby_menu_vaccine_desc,
         icon = Icons.Default.Build,
         route = NavRoutes.BORN_VACCINES,
         image = R.mipmap.vacuna_icon_color
     ),
     MenuItemData(
-        label = "Crecimiento",
-        description = "Verifica el crecimiento del bebé",
+        label = R.string.baby_menu_growth_title,
+        description = R.string.baby_menu_growth_desc,
         icon = Icons.Default.Create,
         route = NavRoutes.BORN_GROWTHMILESTONES,
         image = R.mipmap.crecimiento
     ),
     MenuItemData(
-        label = "Registro de alimentos",
-        description = "Ten al día los alimentos que consume tu bebé",
+        label = R.string.baby_menu_food_title,
+        description = R.string.baby_menu_food_desc,
         icon = Icons.Default.Create,
         route = NavRoutes.FOOD_REGISTRATION,
         image = R.mipmap.registro_alimento
     ),
     MenuItemData(
-        label = "Registro de medicinas",
-        description = "Ten al día las medicinas que consume tu bebé",
+        label = R.string.baby_menu_mediccine_title,
+        description = R.string.baby_menu_mediccine_desc,
         icon = Icons.Default.Create,
         route = NavRoutes.MEDICINE_REGISTRATION,
         image = R.mipmap.medicina_registro
@@ -55,7 +56,7 @@ val menuItems = listOf(
 @Composable
 fun BabyMenuScreen(navController: NavController, openDrawer: () -> Unit,) {
     PhdLayoutMenu(
-        title = "Bebé",
+        title = stringResource(R.string.baby_menu_screen_label),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -76,9 +77,11 @@ fun BabyMenuScreen(navController: NavController, openDrawer: () -> Unit,) {
 
 @Composable
 fun MenuListItem(item: MenuItemData, navController: NavController, @DrawableRes imageResId: Int) {
+    val label = stringResource(item.label)
+    val desc = stringResource(item.description)
     ListItem(
-        headlineContent = { Text(item.label) },
-        supportingContent = { Text(item.description) },
+        headlineContent = { Text(label) },
+        supportingContent = { Text(desc) },
         leadingContent = {
             Image(
                 painter = painterResource(id = imageResId),
