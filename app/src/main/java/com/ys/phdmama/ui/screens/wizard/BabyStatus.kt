@@ -94,19 +94,19 @@ fun BabyStatusScreen(navController: NavHostController) {
         Button(
             onClick = {
                 isLoadingBorn = true
-                babyStatusViewModel.updateUserRole(
-                    role = "waiting",
-                    onSuccess = {
-                        isLoadingBorn = false
-                        navController.navigate(NavRoutes.BABY_PROFILE) {
-                            popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
-                        }
-                    },
-                    onError = { errorMessage ->
-                        isLoadingBorn = false
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-                    }
-                )
+//                babyStatusViewModel.updateUserRole(
+//                    role = "waiting",
+//                    onSuccess = {
+//                        isLoadingBorn = false
+//                        navController.navigate(NavRoutes.BABY_PROFILE) {
+//                            popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
+//                        }
+//                    },
+//                    onError = { errorMessage ->
+//                        isLoadingBorn = false
+//                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+//                    }
+//                )
             },
             colors = ButtonDefaults.buttonColors(containerColor = primaryYellow),
             enabled = !isLoadingBorn,

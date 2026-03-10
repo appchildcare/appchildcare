@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,7 +43,7 @@ import kotlinx.coroutines.launch
 data class SlideData(
     val title: String,
     val content: String,
-    val bulletPoints: List<String>? = null
+    val bulletPoints: Array<String>? = null
 )
 
 
@@ -49,21 +51,17 @@ data class SlideData(
 fun WelcomeSlider(navController: NavHostController) {
     val slides = listOf(
         SlideData(
-            title = "¡Felicidades!",
-            content = "El viaje más increíble de su vida ha comenzado. Esta aplicación será su apoyo en cada paso, desde la dulce espera, el nacimiento y crianza."
+            title = stringResource(R.string.welcome_slider_title),
+            content = stringResource(R.string.welcome_slider_slide_1)
         ),
         SlideData(
-            title = "Aquí encontrarás:",
+            title = stringResource(R.string.welcome_slider_title_2),
             content = "",
-            bulletPoints = listOf(
-                "Información confiable",
-                "Apoyo y conexión",
-                "Bienestar emocional"
-            )
+            bulletPoints = stringArrayResource(R.array.welcome_slider_slide_bullet_points)
         ),
         SlideData(
-            title = "Recuerden, no están solos.",
-            content = "Estamos aquí para acompañarlos.\n¡Bienvenidos a ChildCare!"
+            title =  stringResource(R.string.welcome_slider_title_3),
+            content = "${stringResource(R.string.welcome_slider_slide_3)}\n${stringResource(R.string.welcome_slider_slide_3_1)}"
         )
     )
 
@@ -73,10 +71,9 @@ fun WelcomeSlider(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-//            .background(Color(0xFFF5F9FF))
     ) {
         Image(
-            painter = painterResource(id = R.drawable.background1_sun),
+            painter = painterResource(id = R.drawable.background_slider),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -92,15 +89,12 @@ fun WelcomeSlider(navController: NavHostController) {
                 SlideContent(slide = slides[page])
             }
 
-            Row(){
+            Row{
                 Image(
                     painter = painterResource(id = R.drawable.mascota_relax),
                     contentDescription = "Baby icon",
-//                    modifier = Modifier
-//                        .size(40.dp)
                 )
             }
-
 
 
             // Indicadores de página
@@ -144,7 +138,7 @@ fun WelcomeSlider(navController: NavHostController) {
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
-                    text = if (pagerState.currentPage < slides.size - 1) "Siguiente" else "Comenzar",
+                    text = if (pagerState.currentPage < slides.size - 1) stringResource(R.string.welcome_slider_button_next) else stringResource(R.string.welcome_slider_button_start),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White

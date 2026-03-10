@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Phdmama</string>
+    <string name="default_web_client_id">545527532287-21q92qgk75rii447v35pkdd9lm1nfs2a.apps.googleusercontent.com</string>
+    <string name="sign_out">Cerrar sesión</string>
+    <string name="sign_out_title">¿Cerrar sesión?</string>
+    <string name="sign_out_description">Estás a punto de cerrar sesión. ¿Deseas continuar?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="head_circumference_label">Perímetro cefálico</string>
+    <string name="head_circumference_description">Seguimiento del crecimiento del perímetro cefálico</string>
+    <string name="weight_label">Peso</string>
+    <string name="weight_description">Seguimiento del peso del bebé</string>
+    <string name="height_label">Altura</string>
+    <string name="height_description">Seguimiento de la altura del bebé</string>
+    <string name="pediatrician_question_label">Preguntas al pediatra</string>
+    <string name="pediatrician_visit_label">Visitas al pediatra</string>
+    <string name="baby_selector_label">Seleccionar bebé</string>
+    <string name="baby_selector_years">años</string>
+    <string name="baby_selector_months">meses</string>
+    <string name="baby_selector_and">y</string>
+    <string name="bottom_navigation_panel_label">Panel</string>
+    <string name="bottom_navigation_counters_label">Contadores</string>
+    <string name="bottom_navigation_checklist_label">Checklist</string>
+    <string name="bottom_navigation_baby_label">Bebé</string>
+    <string name="side_navigation_label">Menú de Navegación</string>
+    <string name="side_navigation_baby_profile_label">Perfil de Bebé</string>
+    <string name="side_navigation_poop_label">Registro de cacas</string>
+    <string name="side_navigation_terms_label">Políticas de uso</string>
+    <string name="side_navigation_carbon_label">Huella de carbono</string>
+    <string name="side_navigation_home_label">Inicio</string>
+    <string name="side_navigation_controls_label">Controles</string>
+    <string name="side_navigation_checklist_label">Checklist</string>
+    <string name="side_navigation_baby_label">Bebé</string>
+    <string name="side_navigation_logout_label">Cerrar sesión</string>
+    <string name="welcome_slider_title">¡Felicidades!</string>
+    <string name="welcome_slider_slide_1">El viaje más increíble de su vida ha comenzado. Esta aplicación será su apoyo en cada paso, desde la dulce espera, el nacimiento y crianza.</string>
+    <string name="welcome_slider_title_2">Aquí encontrarás:</string>
+    <string-array name="welcome_slider_slide_bullet_points">
+        <item>Información confiable</item>
+        <item>Apoyo y conexión</item>
+        <item>Bienestar emocional</item>
+    </string-array>
+    <string name="welcome_slider_title_3">Recuerden, no están solos</string>
+    <string name="welcome_slider_slide_3">Estamos aquí para acompañarlos.</string>
+    <string name="welcome_slider_slide_3_1">¡Bienvenidos a ChildCare!</string>
+    <string name="welcome_slider_button_next">Siguiente</string>
+    <string name="welcome_slider_button_start">Comenzar</string>
+    <string name="baby_menu_vaccine_title">Vacunas</string>
+    <string name="baby_menu_vaccine_desc">Controla las vacunas del bebé</string>
+    <string name="baby_menu_growth_title">Crecimiento</string>
+    <string name="baby_menu_growth_desc">Verifica el crecimiento del bebé</string>
+    <string name="baby_menu_food_title">Registro de alimentos</string>
+    <string name="baby_menu_food_desc">Ten al día los alimentos que consume tu bebé</string>
+    <string name="baby_menu_mediccine_title">Registro de medicinas</string>
+    <string name="baby_menu_mediccine_desc">Ten al día las medicinas que consume tu bebé</string>
+    <string name="baby_menu_screen_label">Bebé</string>
+</resources>

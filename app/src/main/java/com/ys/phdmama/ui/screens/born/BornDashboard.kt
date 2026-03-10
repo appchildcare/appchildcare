@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.ys.phdmama.R
@@ -108,8 +109,8 @@ fun BornDashboardScreen(
 fun HeadCircumferenceCard(navController: NavController) {
     Column(modifier = Modifier.fillMaxWidth(0.90f)) {
         ClickableCard(
-            title = "Perímetro cefálico",
-            description = "Seguimiento del crecimiento del perímetro cefálico",
+            title = stringResource(R.string.head_circumference_label),
+            description = stringResource(R.string.head_circumference_description),
             onClick = {
                 navController.navigate(BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS)
             },
@@ -133,8 +134,8 @@ fun WeightHeightCardsRow(navController: NavController) {
             modifier = Modifier.weight(1f)
         ) {
             ClickableCard(
-                title = "Peso",
-                description = "Seguimiento del peso del bebé",
+                title = stringResource(R.string.weight_label),
+                description = stringResource(R.string.weight_description),
                 onClick = {
                     navController.navigate(BORN_WEIGHT_CHART_DETAILS) // Create new screen
                 },
@@ -148,8 +149,8 @@ fun WeightHeightCardsRow(navController: NavController) {
             modifier = Modifier.weight(1f)
         ) {
             ClickableCard(
-                title = "Altura",
-                description = "Seguimiento de la altura del bebé",
+                title = stringResource(R.string.height_label),
+                description =  stringResource(R.string.height_description),
                 onClick = {
                     navController.navigate(BORN_HEIGHT_WEIGHT_CHART_DETAILS)
                 },
@@ -164,7 +165,7 @@ fun WeightHeightCardsRow(navController: NavController) {
 fun PediatricianQuestionsScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxWidth(0.90f)) {
         ClickableCard(
-            title = "Preguntas al pediatra",
+            title =  stringResource(R.string.pediatrician_question_label),
             description = "",
             onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) },
             color = secondaryAqua,
@@ -177,7 +178,7 @@ fun PediatricianQuestionsScreen(navController: NavController) {
 fun PediatricianVisitQuestionsScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxWidth(0.90f)) {
         ClickableCard(
-            title = "Visitas al pediatra",
+            title = stringResource(R.string.pediatrician_visit_label),
             description = "",
             onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) },
             color = secondaryAqua,
@@ -311,7 +312,7 @@ fun BabySelectorCard(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = selectedBaby?.name ?: "Seleccionar bebé",
+                                text = selectedBaby?.name ?: stringResource(R.string.baby_selector_label),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = primaryGray
                             )
@@ -325,7 +326,9 @@ fun BabySelectorCard(
                         }
                         if (babyAgeInMonths != null) {
                             Text(
-                                text = "${babyAgeInMonths.years} años y ${babyAgeInMonths.months} meses",
+                                text = "${babyAgeInMonths.years} ${stringResource(R.string.baby_selector_years)} " +
+                                        "${stringResource(R.string.baby_selector_and)} " +
+                                        "${babyAgeInMonths.months} ${stringResource(R.string.baby_selector_months)}",
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }

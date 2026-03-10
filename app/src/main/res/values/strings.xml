@@ -5,5 +5,55 @@
     <string name="sign_out_title">¿Cerrar sesión?</string>
     <string name="sign_out_description">Estás a punto de cerrar sesión. ¿Deseas continuar?</string>
     <string name="cancel">Cancelar</string>
+    <string name="head_circumference_label">Head circumference</string>
+    <string name="head_circumference_description">Monitoring head circumference growth</string>
+    <string name="weight_label">Weight</string>
+    <string name="weight_description">Baby weight tracking</string>
+    <string name="height_label">Height</string>
+    <string name="height_description">Baby Height Tracking</string>
+    <string name="pediatrician_question_label">Questions for the Pediatrician</string>
+    <string name="pediatrician_visit_label">Pediatrician Visits</string>
+    <string name="baby_selector_label">Select baby</string>
+    <string name="baby_selector_years">years</string>
+    <string name="baby_selector_months">months</string>
+    <string name="baby_selector_and">and</string>
+    <string name="bottom_navigation_panel_label">Panel</string>
+    <string name="bottom_navigation_counters_label">Counters</string>
+    <string name="bottom_navigation_checklist_label">Checklist</string>
+    <string name="bottom_navigation_baby_label">Baby</string>
+    <string name="side_navigation_label">Navigation Menu</string>
+    <string name="side_navigation_baby_profile_label">Baby Profile</string>
+    <string name="side_navigation_poop_label">Poop Log</string>
+    <string name="side_navigation_terms_label">Terms of Use</string>
+    <string name="side_navigation_carbon_label">Carbon Footprint</string>
+    <string name="side_navigation_home_label">Home</string>
+    <string name="side_navigation_controls_label">Controls</string>
+    <string name="side_navigation_checklist_label">Checklist</string>
+    <string name="side_navigation_baby_label">Baby</string>
+    <string name="side_navigation_logout_label">Logout</string>
+    <string name="welcome_slider_title">Congratulations!</string>
+    <string name="welcome_slider_slide_1">The most incredible journey of your life has begun. This app will support you every step of the way, from pregnancy to birth and parenting.</string>
+    <string name="welcome_slider_title_2">Here you will find:</string>
+    <string-array name="welcome_slider_slide_bullet_points">
+        <item>Reliable information</item>
+        <item>Support and connection</item>
+        <item>Emotional well-being</item>
+    </string-array>
+    <string name="welcome_slider_title_3">Remember, you are not alone</string>
+    <string name="welcome_slider_slide_3">We are here to support you.</string>
+    <string name="welcome_slider_slide_3_1">¡Welcome to ChildCare!</string>
+    <string name="welcome_slider_button_next">Next</string>
+    <string name="welcome_slider_button_start">Start</string>
+    <string name="baby_menu_vaccine_title">Vaccines</string>
+    <string name="baby_menu_vaccine_desc">Track your baby´s vaccines</string>
 
+    <string name="baby_menu_growth_title">Growth</string>
+    <string name="baby_menu_growth_desc">Check your baby´s growth</string>
+
+    <string name="baby_menu_food_title">Food Log</string>
+    <string name="baby_menu_food_desc">Keep track of the foods your baby eats</string>
+
+    <string name="baby_menu_mediccine_title">Medication Log</string>
+    <string name="baby_menu_mediccine_desc">Keep track of the medications your baby takes</string>
+    <string name="baby_menu_screen_label">Baby</string>
 </resources>

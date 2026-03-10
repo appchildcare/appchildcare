@@ -63,7 +63,7 @@ fun PhdLayoutMenu(
             modifier = Modifier
                 .fillMaxHeight()
                 .paint(
-                    painter = painterResource(R.drawable.background_sun),
+                    painter = painterResource(R.drawable.background_stars),
                     contentScale = ContentScale.Crop
                 )
                 .padding(innerPadding),

@@ -2,6 +2,7 @@
 
 package com.ys.phdmama.ui.screens.carbonfootprint
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,8 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavController
+import com.ys.phdmama.R
 import com.ys.phdmama.ui.components.PhdLayoutMenu
 import com.ys.phdmama.ui.components.PhdSubtitle
 import com.ys.phdmama.ui.theme.primaryYellow
@@ -102,6 +105,14 @@ fun DataEntryScreen(viewModel: CarbonFootprintViewModel) {
                     text = viewModel.successMessage,
                     modifier = Modifier.padding(16.dp),
                     color = Color(0xFF2E7D32)
+                )
+
+                Image(
+                    painter = painterResource(id = R.drawable.iconos_arbol),
+                    contentDescription = "image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
                 )
             }
         }

@@ -35,7 +35,7 @@ val menuBornItems = listOf(
         description = "Información necesaria para el postparto",
         icon = Icons.Default.Edit,
         route = NavRoutes.BORN_RESOURCES_CHECKLIST,
-        image = R.drawable.recien_nacido_check
+        image = R.drawable.viajes
     ),
     MenuBornItem(
         label = "Checklist de viaje",
