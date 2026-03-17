@@ -32,6 +32,8 @@ import com.ys.phdmama.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.HeightLengthDetailScreen
 import com.ys.phdmama.ui.screens.born.charts.WeightDetailScreen
 import com.ys.phdmama.ui.screens.carbonfootprint.CarbonFootprintScreen
+import com.ys.phdmama.ui.screens.counters.ContractionCounterScreen
+import com.ys.phdmama.ui.screens.counters.ContractionReportScreen
 import com.ys.phdmama.ui.screens.counters.SleepingCounterScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricVisitScreen
 import com.ys.phdmama.ui.screens.pediatrician.PediatricianQuestionsScreen
@@ -60,6 +62,7 @@ import com.ys.phdmama.ui.splash.SplashScreen
 import com.ys.phdmama.ui.welcome.WelcomeSlider
 import com.ys.phdmama.viewmodel.BabyDataViewModel
 import com.ys.phdmama.viewmodel.CarbonFootprintViewModel
+import com.ys.phdmama.viewmodel.ContractionCounterViewModel
 import com.ys.phdmama.viewmodel.CounterViewModel
 import com.ys.phdmama.viewmodel.GrowthMilestonesViewModel
 import com.ys.phdmama.viewmodel.LactancyDiaryViewModel
@@ -119,6 +122,8 @@ object NavRoutes {
     const val POOP_TRACKING = "poop_tracking"
     const val TERMS_CONDITIONS = "terms_conditions"
     const val CARBON_FOOTPRINT = "carbon_footprint"
+    const val CONTRACTION_COUNTER = "contraction_counter"
+    const val CONTRACTION_COUNTER_REPORTS = "contraction_reports"
     const val FOOD_REGISTRATION = "food_registration"
     const val MEDICINE_REGISTRATION = "medicine_registration"
 }
@@ -135,6 +140,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     val sleepDiaryViewModel: SleepReportViewModel = hiltViewModel()
     val lactationDiaryViewModel: LactancyDiaryViewModel = hiltViewModel()
     val lactationViewModel: LactationViewModel = hiltViewModel()
+    val contractionCounterViewModel: ContractionCounterViewModel = hiltViewModel()
     val counterViewModel: CounterViewModel = hiltViewModel()
     val poopDiaryViewModel: PoopDiaryViewModel = hiltViewModel()
     val carbonFootViewModel: CarbonFootprintViewModel = hiltViewModel()
@@ -196,6 +202,12 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
         composable(NavRoutes.CARBON_FOOTPRINT) {
             CarbonFootprintScreen (viewModel = carbonFootViewModel, navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.CONTRACTION_COUNTER) {
+            ContractionCounterScreen (viewModel = contractionCounterViewModel, navController = navController, openDrawer = openDrawer)
+        }
+        composable(NavRoutes.CONTRACTION_COUNTER_REPORTS) {
+            ContractionReportScreen(viewModel = contractionCounterViewModel, navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.FOOD_REGISTRATION) {
             FoodRegistrationScreen(navController = navController, openDrawer = openDrawer)

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ys.phdmama.R
+import com.ys.phdmama.navigation.NavRoutes.CONTRACTION_COUNTER
 import com.ys.phdmama.navigation.NavRoutes.LACTATION_TRACKING
 import com.ys.phdmama.navigation.NavRoutes.SLEEP_TRACKING
 import com.ys.phdmama.ui.components.PhdLayoutMenu
@@ -99,7 +100,24 @@ fun BabyCounterSelectionScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Lactation Option
+            TrackingOptionCard(
+                title = "Contracciones",
+                subtitle = "Registrar contracciones en embarazo",
+                icon = Icons.Default.Favorite,
+                gradientColors = listOf(
+                    primaryTeal,
+                    secondaryAqua
+                ),
+                emoji = "🤱",
+                onClick = {
+                    navController.navigate(CONTRACTION_COUNTER)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
