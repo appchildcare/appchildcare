@@ -1,6 +1,5 @@
 package com.ys.phdmama.viewmodel
 
-import java.time.LocalTime
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -32,7 +31,7 @@ import javax.inject.Inject
 data class ContractionEntry(
     val start: LocalDateTime,
     val end: LocalDateTime,
-    val durationMinutes: Long
+    val durationSeconds: Long
 )
 
 data class ContractionInterval(
@@ -129,8 +128,8 @@ class ContractionCounterViewModel @Inject constructor(
             val startTime = currentContractionStart
 
             if (startTime != null) {
-                val durationMinutes = java.time.Duration.between(startTime, endTime).toMinutes()
-                val entry = ContractionEntry(startTime, endTime, durationMinutes)
+                val durationSeconds = java.time.Duration.between(startTime, endTime).seconds
+                val entry = ContractionEntry(startTime, endTime, durationSeconds)
                 _contractionEntries.value = _contractionEntries.value + entry
                 saveCounterTime(_counter.value, startTime, endTime)
             }
@@ -181,10 +180,10 @@ class ContractionCounterViewModel @Inject constructor(
         val db = FirebaseFirestore.getInstance()
         val babyId = selectedBaby.value ?: return
 
-        val data = hashMapOf(
-            "time" to formatTime(counterSeconds),
-            "startTime" to start.format(formatter),
-            "endTime" to end.format(formatter),
+        val data = hashMapOf<String, Any>(
+            "time" to formatTime(counterSeconds.toLong()),
+            "startTime" to start.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
+            "endTime" to end.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
             "timestamp" to Timestamp.now()
         )
 
@@ -230,42 +229,57 @@ class ContractionCounterViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun parseFirestoreEntry(doc: com.google.firebase.firestore.DocumentSnapshot): ContractionEntry? {
         return try {
-            val timestamp = doc.getTimestamp("timestamp") ?: return null
-            val startTimeStr = doc.getString("startTime") ?: return null
-            val endTimeStr = doc.getString("endTime") ?: return null
+            val startMillis = doc.getLong("startTime")
+            val endMillis = doc.getLong("endTime")
 
-            // Use the Firestore timestamp date + the HH:mm strings for start/end
-            val date = timestamp.toDate()
-            val calendar = java.util.Calendar.getInstance().apply { time = date }
-            val year = calendar.get(java.util.Calendar.YEAR)
-            val month = calendar.get(java.util.Calendar.MONTH) + 1
-            val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+            // Fallback to old HH:mm string format for existing documents
+            if (startMillis != null && endMillis != null) {
+                // New format: milliseconds
+                val start = LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochMilli(startMillis),
+                    java.time.ZoneId.systemDefault()
+                )
+                val end = LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochMilli(endMillis),
+                    java.time.ZoneId.systemDefault()
+                )
+                val durationSeconds = java.time.Duration.between(start, end).seconds
+                ContractionEntry(start, end, durationSeconds)
+            } else {
+                // Old format: HH:mm strings + timestamp for the date
+                val timestamp = doc.getTimestamp("timestamp") ?: return null
+                val startTimeStr = doc.getString("startTime") ?: return null
+                val endTimeStr = doc.getString("endTime") ?: return null
 
-            val formatter = DateTimeFormatter.ofPattern("HH:mm")
-            val startHour = LocalTime.parse(startTimeStr, formatter)
-            val endHour = LocalTime.parse(endTimeStr, formatter)
+                val date = timestamp.toDate()
+                val calendar = java.util.Calendar.getInstance().apply { time = date }
+                val year = calendar.get(java.util.Calendar.YEAR)
+                val month = calendar.get(java.util.Calendar.MONTH) + 1
+                val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
 
-            val start = LocalDateTime.of(year, month, day, startHour.hour, startHour.minute)
-            // Handle midnight crossover: if end is before start, add 1 day
-            val endDay = if (endHour.isBefore(startHour)) day + 1 else day
-            val end = LocalDateTime.of(year, month, endDay, endHour.hour, endHour.minute)
+                val formatter = DateTimeFormatter.ofPattern("HH:mm")
+                val startHour = java.time.LocalTime.parse(startTimeStr, formatter)
+                val endHour = java.time.LocalTime.parse(endTimeStr, formatter)
 
-            val durationMinutes = java.time.Duration.between(start, end).toMinutes()
-            ContractionEntry(start, end, durationMinutes)
+                val start = LocalDateTime.of(year, month, day, startHour.hour, startHour.minute)
+                val endDay = if (endHour.isBefore(startHour)) day + 1 else day
+                val end = LocalDateTime.of(year, month, endDay, endHour.hour, endHour.minute)
+
+                val durationSeconds = java.time.Duration.between(start, end).seconds
+                ContractionEntry(start, end, durationSeconds)
+            }
         } catch (e: Exception) {
             Log.e("ContractionCounterViewModel", "Error parsing document ${doc.id}", e)
             null
         }
     }
 
-    private fun formatTime(seconds: Int): String {
-        val hours = seconds / 3600
-        val minutes = (seconds % 3600) / 60
-        val remainingSeconds = seconds % 60
+    private fun formatTime(durationSeconds: Long): String {
+        val minutes = durationSeconds / 60
+        val seconds = durationSeconds % 60
         return when {
-            hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
-            minutes > 0 -> String.format("%02d:%02d", minutes, remainingSeconds)
-            else -> String.format("00:%02d", seconds)
+            minutes >= 1 -> "$minutes minuto${if (minutes != 1L) "s" else ""}"
+            else         -> "$seconds segundo${if (seconds != 1L) "s" else ""}"
         }
     }
 

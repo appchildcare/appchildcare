@@ -43,7 +43,7 @@ fun ContractionReportScreen(
 
         val intervals by viewModel.firestoreIntervals.collectAsState()
         val isLoading by viewModel.isLoadingReport.collectAsState()
-        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
         Box(
@@ -188,7 +188,7 @@ fun ContractionIntervalCard(
                     TableCell(contraction.start.format(timeFormatter), Modifier.weight(1f))
                     TableCell(contraction.end.format(timeFormatter), Modifier.weight(1f))
                     TableCell(
-                        formatDuration(contraction.durationMinutes),
+                        formatDuration(contraction.durationSeconds),
                         Modifier.weight(1f)
                     )
                 }
@@ -221,10 +221,9 @@ private fun TableCell(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-fun formatDuration(durationMinutes: Long): String {
-    val totalSeconds = durationMinutes * 60
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
+fun formatDuration(durationSeconds: Long): String {
+    val minutes = durationSeconds / 60
+    val seconds = durationSeconds % 60
     return when {
         minutes >= 1 -> "$minutes minuto${if (minutes != 1L) "s" else ""}"
         else         -> "$seconds segundo${if (seconds != 1L) "s" else ""}"
