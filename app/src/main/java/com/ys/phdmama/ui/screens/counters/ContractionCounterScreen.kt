@@ -66,7 +66,7 @@ fun CounterContractionComponent(navController: NavController, viewModel: Contrac
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.icono_app_sueno),
+            painter = painterResource(id = R.drawable.icono_app_contraction),
             contentDescription = "Counter image",
             modifier = Modifier
                 .fillMaxWidth()
