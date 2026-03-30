@@ -38,7 +38,7 @@ enum class PoopTexture(val displayName: String, val value: String) {
 }
 
 enum class PoopSize(val displayName: String, val value: String) {
-    MONEDA("Moneda", "moneda"),
-    CUCHARA_SOPERA("Cuchara sopera", "cuchara_sopera"),
-    MAS_GRANDE("Más grande", "mas_grande")
+    POCO("Poco", "poco"),
+    MITAD_PANAL("Mitad del pañal", "mitad_panal"),
+    PANAL_DESBORDADO("¡Pañal desbordado!", "panal_desbordado")
 }

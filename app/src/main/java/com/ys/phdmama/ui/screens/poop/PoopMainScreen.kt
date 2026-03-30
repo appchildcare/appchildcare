@@ -44,7 +44,7 @@ fun PoopMainScreen(
     openDrawer: () -> Unit
 ) {
     PhdLayoutMenu(
-        title = "Registro de cacas",
+        title = "Registro de popos",
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -87,8 +87,8 @@ fun PoopMainScreen(
 
             // Sleep Option
             TrackingOptionCard(
-                title = "Registrar cacas",
-                subtitle = "Registrar detalles de las cacas",
+                title = "Registrar popos",
+                subtitle = "Registrar detalles de las popos",
                 icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,
@@ -103,7 +103,7 @@ fun PoopMainScreen(
 
             TrackingOptionCard(
                 title = "Reportes",
-                subtitle = "Información detallada de cacas",
+                subtitle = "Información detallada de popos",
                 icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,

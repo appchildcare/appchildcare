@@ -47,7 +47,7 @@ class PoopRegistrationViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(
             selectedTime = currentTime,
-            selectedSize = PoopSize.MONEDA
+            selectedSize = PoopSize.POCO
         )
     }
 
