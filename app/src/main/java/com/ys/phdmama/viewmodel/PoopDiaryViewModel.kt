@@ -272,7 +272,7 @@ class PoopDiaryViewModel @Inject constructor(
                 // Title
                 paint.textSize = 20f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                canvas.drawText("Reporte de Deposiciones", 50f, 150f, paint)
+                canvas.drawText("Reporte de popos", 50f, 150f, paint)
 
                 // Date
                 paint.textSize = 12f

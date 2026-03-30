@@ -61,7 +61,7 @@ fun PoopDiaryScreen(
     }
 
     PhdLayoutMenu(
-        title = "Reporte de deposiciones",
+        title = "Reporte de popos",
         navController = navController,
         openDrawer = openDrawer
     ) {

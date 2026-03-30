@@ -97,7 +97,7 @@ fun PoopRegistrationScreen(
     }
 
     PhdLayoutMenu(
-        title = "Registro Cacas",
+        title = "Registro Popos",
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -426,7 +426,7 @@ private fun SizeSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         SizeOption(
-            selectedSize = selectedSize ?: PoopSize.MONEDA,
+            selectedSize = selectedSize ?: PoopSize.POCO,
             onSizeSelected = onSizeSelected
         )
     }
@@ -503,7 +503,7 @@ private fun NotesSection(
             onValueChange = onNotesChanged,
             placeholder = {
                 Text(
-                    text = "Escribe aquí más sobre la caca de tu bebé",
+                    text = "Escribe aquí más sobre la popó de tu bebé",
                     color = Color.Gray
                 )
             },

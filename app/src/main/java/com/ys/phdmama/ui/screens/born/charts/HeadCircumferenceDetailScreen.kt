@@ -166,13 +166,13 @@ fun HeadCircumferenceDetailScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = painterResource(id = R.mipmap.ilustraciones_baby),
-                contentDescription = "Auth image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
+            //Image(
+              //  painter = painterResource(id = R.mipmap.ilustraciones_baby),
+               // contentDescription = "Auth image",
+                // modifier = Modifier
+                   // .fillMaxWidth()
+                   // .height(180.dp)
+            //)
         }
     }
 }
