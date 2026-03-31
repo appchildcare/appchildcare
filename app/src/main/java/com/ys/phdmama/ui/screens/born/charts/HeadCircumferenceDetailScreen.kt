@@ -429,26 +429,24 @@ private fun DrawScope.drawGrid(
     minHeadCircumference: Float,
     maxHeadCircumference: Float
 ) {
-    // Líneas verticales - solo cada 2 meses para menos densidad
-    val gridColorLight = Color(0x18B0B0B0)   // muy tenue, casi invisible
-    val gridColorMid   = Color(0x30A0A0A0)   // un poco más visible en divisiones principales
 
-    // Vertical: solo en meses pares (0, 2, 4, 6, 8, 10, 12)
+    val gridColorLight = Color(0x18B0B0B0)
+    val gridColorMid   = Color(0x30A0A0A0)
+
     for (week in 0..maxWeeks.toInt()) {
-        if (week % 2 != 0) continue          // saltar impares
+        if (week % 2 != 0) continue
         val x = chartStartX + (week / maxWeeks) * chartWidth
-        val isMajor = week % 4 == 0          // líneas "principales" cada 4 meses
+        val isMajor = week % 4 == 0
         drawLine(
             color = if (isMajor) gridColorMid else gridColorLight,
-            start = Offset(x, chartStartY + 8f),           // margen superior
-            end   = Offset(x, chartStartY + chartHeight - 8f), // margen inferior
+            start = Offset(x, chartStartY + 8f),
+            end   = Offset(x, chartStartY + chartHeight - 8f),
             strokeWidth = if (isMajor) 1.2f else 0.8f,
             pathEffect = if (isMajor) null
             else PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
         )
     }
 
-    // Horizontal: cada 2 cm, dash suave
     val stepSize = 2f
     val steps = ((maxHeadCircumference - minHeadCircumference) / stepSize).toInt()
     for (step in 0..steps) {

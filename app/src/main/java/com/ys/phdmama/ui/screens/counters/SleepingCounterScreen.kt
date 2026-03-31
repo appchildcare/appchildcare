@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,8 @@ import androidx.navigation.NavController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.theme.primaryYellow
+import com.ys.phdmama.ui.theme.secondaryAqua
 import com.ys.phdmama.viewmodel.CounterViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -75,7 +78,6 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Display counter with better formatting
         Text(
             text = formatTime(counter),
             style = MaterialTheme.typography.headlineLarge.copy(
@@ -99,9 +101,16 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
             Button(
                 onClick = { viewModel.startCounter() },
                 enabled = !isRunning,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = primaryYellow
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp
                 )
             ) {
                 Text("Iniciar")
@@ -110,9 +119,16 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
             Button(
                 onClick = { viewModel.stopCounter(babyId) },
                 enabled = isRunning,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = secondaryAqua
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp
                 )
             ) {
                 Text("Detener")
@@ -124,26 +140,15 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
         Button(
             onClick = { navController.navigate(NavRoutes.BORN_SNAP_COUNTER_REPORTS) },
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = primaryYellow,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            ),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .height(44.dp),
         ) {
-            Text("Ver Reportes")
+            Text("Ver Reportes",  fontSize = 14.sp)
         }
-
-//        // Add notification check button
-//        val context = androidx.compose.ui.platform.LocalContext.current
-//        Button(
-//            onClick = {
-//                val activity = context as Activity
-//                com.ys.phdmama.utils.NotificationPermissionHelper.checkAndRequestNotificationPermission(activity)
-//            },
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = MaterialTheme.colorScheme.tertiary
-//            )
-//        ) {
-//            Text("Verificar Notificaciones")
-//        }
     }
 }
 
