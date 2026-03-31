@@ -39,7 +39,7 @@ fun ContractionReportScreen(
         title = "Reporte de Contracciones",
         navController = navController,
         openDrawer = openDrawer
-    ) { innerPadding ->
+    ) {
 
         val intervals by viewModel.firestoreIntervals.collectAsState()
         val isLoading by viewModel.isLoadingReport.collectAsState()
@@ -49,7 +49,6 @@ fun ContractionReportScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) {
             when {
                 // Loading state

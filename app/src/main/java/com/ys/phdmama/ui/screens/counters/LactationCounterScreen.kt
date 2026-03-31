@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,8 @@ import androidx.navigation.NavController
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import com.ys.phdmama.ui.components.PhdLayoutMenu
+import com.ys.phdmama.ui.theme.primaryYellow
+import com.ys.phdmama.ui.theme.secondaryAqua
 import com.ys.phdmama.viewmodel.LactationViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -126,9 +129,16 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
             Button(
                 onClick = { viewModel.startCounter() },
                 enabled = !isRunning,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = primaryYellow
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp
                 )
             ) {
                 Text("Iniciar")
@@ -137,9 +147,16 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
             Button(
                 onClick = { viewModel.stopCounter(babyId) },
                 enabled = isRunning,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = secondaryAqua
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp
                 )
             ) {
                 Text("Detener")
@@ -151,11 +168,14 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         Button(
             onClick = { navController.navigate(NavRoutes.BORN_LACTATION_COUNTER_REPORTS) },
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = primaryYellow,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            ),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .height(44.dp),
         ) {
-            Text("Ver Reportes")
+            Text("Ver Reportes",  fontSize = 14.sp)
         }
     }
 }

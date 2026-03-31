@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
@@ -428,30 +429,38 @@ private fun DrawScope.drawGrid(
     minHeadCircumference: Float,
     maxHeadCircumference: Float
 ) {
-    val gridColor = Color(0xFFE0E0E0)
 
-    // Vertical grid lines (age) - every week
+    val gridColorLight = Color(0x18B0B0B0)
+    val gridColorMid   = Color(0x30A0A0A0)
+
     for (week in 0..maxWeeks.toInt()) {
+        if (week % 2 != 0) continue
         val x = chartStartX + (week / maxWeeks) * chartWidth
+        val isMajor = week % 4 == 0
         drawLine(
-            color = gridColor,
-            start = Offset(x, chartStartY),
-            end = Offset(x, chartStartY + chartHeight),
-            strokeWidth = 1f
+            color = if (isMajor) gridColorMid else gridColorLight,
+            start = Offset(x, chartStartY + 8f),
+            end   = Offset(x, chartStartY + chartHeight - 8f),
+            strokeWidth = if (isMajor) 1.2f else 0.8f,
+            pathEffect = if (isMajor) null
+            else PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
         )
     }
 
-    // Horizontal grid lines (head circumference) - every 1cm
-    val stepSize = 1f
+    val stepSize = 2f
     val steps = ((maxHeadCircumference - minHeadCircumference) / stepSize).toInt()
     for (step in 0..steps) {
         val value = minHeadCircumference + step * stepSize
-        val y = chartStartY + chartHeight - ((value - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
+        val y = chartStartY + chartHeight -
+                ((value - minHeadCircumference) /
+                        (maxHeadCircumference - minHeadCircumference)) * chartHeight
+        val isMajor = step % 2 == 0
         drawLine(
-            color = gridColor,
-            start = Offset(chartStartX, y),
-            end = Offset(chartStartX + chartWidth, y),
-            strokeWidth = 1f
+            color = if (isMajor) gridColorMid else gridColorLight,
+            start = Offset(chartStartX + 8f, y),
+            end   = Offset(chartStartX + chartWidth - 8f, y),
+            strokeWidth = if (isMajor) 1.2f else 0.8f,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f), 0f)
         )
     }
 }
