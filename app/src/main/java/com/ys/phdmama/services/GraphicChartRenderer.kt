@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
@@ -75,30 +76,39 @@ class GraphicChartRenderer {
         minHeight: Float,
         maxHeight: Float
     ) {
-        val gridColor = Color(0xFFE0E0E0)
+        val gridColorLight = Color(0x18B0B0B0)
+        val gridColorMid   = Color(0x30A0A0A0)
 
-        // Vertical grid lines (months)
         for (month in 0..maxMonths.toInt()) {
+            val isMajor = month % 4 == 0
+            val isMid   = month % 2 == 0
+            if (!isMajor && !isMid) continue
+
             val x = chartStartX + (month / maxMonths) * chartWidth
             drawLine(
-                color = gridColor,
-                start = Offset(x, chartStartY),
-                end = Offset(x, chartStartY + chartHeight),
-                strokeWidth = 1f
+                color       = if (isMajor) gridColorMid else gridColorLight,
+                start       = Offset(x, chartStartY + 8f),
+                end         = Offset(x, chartStartY + chartHeight - 8f),
+                strokeWidth = if (isMajor) 1.2f else 0.8f,
+                pathEffect  = if (isMajor) null
+                else PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
             )
         }
 
-        // Horizontal grid lines (height)
         val stepSize = 2f
         val steps = ((maxHeight - minHeight) / stepSize).toInt()
         for (step in 0..steps) {
-            val value = minHeight + step * stepSize
-            val y = chartStartY + chartHeight - ((value - minHeight) / (maxHeight - minHeight)) * chartHeight
+            val value   = minHeight + step * stepSize
+            val y       = chartStartY + chartHeight -
+                    ((value - minHeight) / (maxHeight - minHeight)) * chartHeight
+            val isMajor = step % 5 == 0
+
             drawLine(
-                color = gridColor,
-                start = Offset(chartStartX, y),
-                end = Offset(chartStartX + chartWidth, y),
-                strokeWidth = 1f
+                color       = if (isMajor) gridColorMid else gridColorLight,
+                start       = Offset(chartStartX + 8f, y),
+                end         = Offset(chartStartX + chartWidth - 8f, y),
+                strokeWidth = if (isMajor) 1.2f else 0.8f,
+                pathEffect  = PathEffect.dashPathEffect(floatArrayOf(8f, 8f), 0f)
             )
         }
     }

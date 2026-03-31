@@ -95,7 +95,7 @@ fun WeightDetailScreen(
             Spacer(Modifier.height(16.dp))
 
             if (babySex.isNotEmpty()) {
-                WeightChart( // TODO : cambiar por WeightChart
+                WeightChart(
                     records = records,
                     sex = babySex,
                     modifier = Modifier
