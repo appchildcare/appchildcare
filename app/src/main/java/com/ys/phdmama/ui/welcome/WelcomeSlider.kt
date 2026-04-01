@@ -133,7 +133,7 @@ fun WelcomeSlider(navController: NavHostController) {
                     .padding(horizontal = 32.dp, vertical = 24.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = primaryTeal
+                    containerColor = Color(0xFF4db0b2)
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {

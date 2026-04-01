@@ -32,7 +32,7 @@
     <string name="side_navigation_baby_label">Baby</string>
     <string name="side_navigation_logout_label">Logout</string>
     <string name="welcome_slider_title">Congratulations!</string>
-    <string name="welcome_slider_slide_1">The most incredible journey of your life has begun. This app will support you every step of the way, from pregnancy to birth and parenting.</string>
+    <string name="welcome_slider_slide_1">A new stage has begun. We are here to support you step by step. This app will support you every step of the way, from pregnancy to birth and parenting.</string>
     <string name="welcome_slider_title_2">Here you will find:</string>
     <string-array name="welcome_slider_slide_bullet_points">
         <item>Reliable information</item>
