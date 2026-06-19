@@ -2,16 +2,23 @@ package com.ys.phdmama.ui.screens.born.charts
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -70,6 +77,20 @@ fun WeightDetailScreen(
         return@remember selectedBabyProfile?.name
     }
 
+    LaunchedEffect(Unit) {
+        val maxWeek = LmsUtils.lmsWeightBoysData.maxOfOrNull { it.week }
+        Log.d("LMS", "Max week en datos: $maxWeek")
+        // Si imprime ~52 → solo tienes datos hasta 12 meses
+        // Si imprime ~260 → datos completos hasta 60 meses
+    }
+
+    LaunchedEffect(records) {
+        Log.d("WEIGHT_DEBUG", "Total records: ${records.size}")
+        records.forEach {
+            Log.d("WEIGHT_DEBUG", "month=${it.ageInMonths}, weight=${it.weight}, height=${it.height}")
+        }
+    }
+
     LaunchedEffect(babyId) {
         growthMilestonesViewModel.fetchBabyId(
             onSuccess = { baby ->
@@ -93,11 +114,18 @@ fun WeightDetailScreen(
                 .padding(20.dp)
         ) {
             Spacer(Modifier.height(16.dp))
+            //val maxMonths = remember(records) {
+              //  val maxFromRecords = records.maxOfOrNull { it.ageInMonths } ?: 12
+               // ((maxFromRecords + 5) / 6) * 6  // redondea al siguiente múltiplo de 6
+            //}
+            val maxMonths = 60
+
 
             if (babySex.isNotEmpty()) {
                 WeightChart(
                     records = records,
                     sex = babySex,
+                    maxMonths = maxMonths,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
@@ -186,17 +214,44 @@ fun WeightDetailScreen(
 fun WeightChart(
     records: List<GrowthRecord>,
     sex: String,
+    maxMonths: Int = 60,
     modifier: Modifier = Modifier
 ) {
     val chartRenderer = remember { GraphicWeightChartRenderer() }
+    val scrollState   = rememberScrollState()
 
-    Canvas(modifier = modifier) {
-        chartRenderer.drawChart(
-            drawScope = this,
-            records = records,
-            sex = sex,
-            size = size
-        )
+    val yAxisWidth        = 10.dp
+    val scrollableWidthDp = 960.dp  // ✅ fijo para 60 meses (60 × 16dp)
+
+    Row(modifier = modifier) {
+        Canvas(
+            modifier = Modifier
+                .width(yAxisWidth)
+                .fillMaxHeight()
+        ) {
+            chartRenderer.drawYAxisOnly(this, records, sex, size)
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+                .horizontalScroll(scrollState)
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .width(scrollableWidthDp)
+                    .fillMaxHeight()
+            ) {
+                chartRenderer.drawChartWithoutYAxis(
+                    drawScope = this,
+                    records   = records,
+                    sex       = sex,
+                    size      = size,
+                    maxMonths = maxMonths
+                )
+            }
+        }
     }
 }
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -111,13 +112,6 @@ fun LoginScreen(
                 .height(380.dp)
         )
 
-//        Image(
-//            painter = painterResource(id = R.drawable.background_sun),
-//            contentDescription = null,
-//            contentScale = ContentScale.Crop,
-//            modifier = Modifier.fillMaxSize()
-//        )
-
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp))
@@ -127,7 +121,7 @@ fun LoginScreen(
             singleLine = true,
             value = email,
             onValueChange = { loginViewModel.onEmailChange(it) },
-            placeholder = { Text("Correo Electrónico") },
+            placeholder = { Text(stringResource(R.string.login_label_email)) },
             leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") },
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.White,
@@ -160,7 +154,7 @@ fun LoginScreen(
             ),
             value = password,
             onValueChange = { loginViewModel.onPasswordChange(it) },
-            placeholder = { Text("Contraseña") },
+            placeholder = { Text(stringResource(R.string.login_label_password)) },
             leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Password") },
             visualTransformation = PasswordVisualTransformation()
         )
@@ -198,7 +192,7 @@ fun LoginScreen(
                     },
                     onError = { errorMessage ->
                         isEmailLoading = false
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(context, errorMessage.asString(), Toast.LENGTH_SHORT).show()
                     }
                 )
             },
@@ -208,7 +202,7 @@ fun LoginScreen(
             if (isEmailLoading) {
                 CircularProgressIndicator(color = Color.White)
             } else {
-                Text(text = "Iniciar Sesión")
+                Text(text = stringResource(R.string.login_button_login))
             }
         }
 
@@ -226,6 +220,7 @@ fun LoginScreen(
             .padding(4.dp))
 // HAY QUE HACERLE EL MISMO TRABAJITO DE LAS PANTALLAS ASYNC en el botón de Waiting en la dulce espera
         // Botón de inicio de sesión con Google
+        val errorText = stringResource(R.string.login_button_error)
         Button(
             onClick = {
                 isGoogleLoading = true
@@ -234,7 +229,7 @@ fun LoginScreen(
                     launcher.launch(signInClient.signInIntent)
                 } catch (e: Exception) {
                     isGoogleLoading = false
-                    Toast.makeText(context, "Error al iniciar Google Sign-In", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, errorText, Toast.LENGTH_SHORT).show()
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = primaryTeal),
@@ -246,7 +241,7 @@ fun LoginScreen(
             if (isGoogleLoading) {
                 CircularProgressIndicator(color = Color.White)
             } else {
-                Text(text = "Iniciar sesión con Google")
+                Text(text = stringResource(R.string.login_button_login_google))
             }
         }
 
@@ -259,7 +254,7 @@ fun LoginScreen(
         TextButton(onClick = {
             navController.navigate("register")
         }) {
-            Text(text = "No tienes cuenta? Regístrate aquí", style = MaterialTheme.typography.labelSmall)
+            Text(text = stringResource(R.string.login_button_sign_up), style = MaterialTheme.typography.labelSmall)
         }
     }
 }

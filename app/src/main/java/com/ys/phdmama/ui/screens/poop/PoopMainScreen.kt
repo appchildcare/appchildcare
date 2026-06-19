@@ -161,7 +161,8 @@ fun TrackingOptionCard(
                     Text(
                         text = subtitle,
                         fontSize = 14.sp,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color(0xFF5B5C61)
                     )
                 }
 
