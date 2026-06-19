@@ -53,4 +53,13 @@
     <string name="baby_menu_mediccine_title">Registro de medicinas</string>
     <string name="baby_menu_mediccine_desc">Ten al día las medicinas que consume tu bebé</string>
     <string name="baby_menu_screen_label">Bebé</string>
+    <string name="login_label_email">Correo Electrónico</string>
+    <string name="login_label_password">Contraseña</string>
+    <string name="login_button_login">Iniciar Sesión</string>
+    <string name="login_button_login_google">Iniciar sesión con Google</string>
+    <string name="login_button_sign_up">No tienes cuenta? Regístrate aquí</string>
+    <string name="login_button_error">Error al iniciar Google</string>
+    <string name="login_validation_empty_fields">El correo o la contraseña no pueden estar vacíos</string>
+    <string name="login_error_authentication">Error de autenticación</string>
+    <string name="register_success_create">Usuario creado o actualizado en Firestore</string>
 </resources>

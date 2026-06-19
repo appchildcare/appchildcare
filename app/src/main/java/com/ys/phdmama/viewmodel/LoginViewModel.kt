@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -14,7 +13,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.phdmama.R
 import com.ys.phdmama.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,7 +66,6 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
     }
@@ -108,7 +105,7 @@ class LoginViewModel @Inject constructor(): ViewModel() {
 
     fun onSignInWithEmailPassword(
         onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        onError: (UiText) -> Unit
     ) {
         val email = _email.value
         val password = _password.value
@@ -120,106 +117,30 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                     if (result.user != null) {
                         onSuccess()
                     } else {
-                        onError("Error de autenticación")
+                        onError(UiText.StringResource(R.string.login_error_authentication))
                     }
                 } catch (e: Exception) {
-                    onError(e.localizedMessage ?: "Error de autenticación")
+                    onError(UiText.StringResource(R.string.login_error_authentication))
                 }
             }
         } else {
-            onError("El correo o la contraseña no pueden estar vacíos")
+            val errorValidationText = UiText.StringResource(R.string.login_validation_empty_fields)
+            onError(errorValidationText)
         }
     }
 
-
-//    private suspend fun checkUserData(onSuccess: () -> Unit, onError: (String) -> Unit) {
-//        try {
-//            fetchUserRole { role ->
-//                if (role != "unknown") {
-//                    onSuccess()
-//                } else {
-//                    onError("No se pudo obtener el rol del usuario")
-//                }
-//            }
-//        } catch (e: Exception) {
-//            onError(e.localizedMessage ?: "Error al obtener los datos del usuario")
-//        }
-//    }
-
-
-    fun getUserRole(uid: String, onComplete: (String?) -> Unit) {
-        val userRef = firestore.collection("users").document(uid)
-        userRef.get().addOnSuccessListener { document ->
-            onComplete(document.getString("role"))
-        }.addOnFailureListener { e ->
-            onComplete(null)
+    fun UiText.asString(context: Context): String {
+        return when (this) {
+            is UiText.StringResource -> context.getString(resId)
+            is UiText.DynamicString -> value
         }
     }
-
-//    fun handleGoogleSignInResult(
-//        account: GoogleSignInAccount?,
-//        onSuccess: () -> Unit,
-//        onError: (String) -> Unit
-//    ) {
-//        if (account == null) {
-//            onError("Cuenta de Google no encontrada")
-//            return
-//        }
-//
-//        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-//        viewModelScope.launch {
-//            try {
-//                firebaseAuth.signInWithCredential(credential).await()
-//                val uid = firebaseAuth.currentUser?.uid
-//                if (uid != null) {
-//                    fetchUserRole { role ->
-//                        if (role != "unknown") {
-//                            onSuccess()
-//                        } else {
-//                            onError("No se pudo obtener el rol del usuario")
-//                        }
-//                    }
-//                } else {
-//                    onError("No se pudo obtener el UID del usuario")
-//                }
-//            } catch (e: Exception) {
-//                onError(e.localizedMessage ?: "Error de autenticación con Google")
-//            }
-//        }
-//    }
-
-
-
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(context.getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
         return GoogleSignIn.getClient(context, gso)
-    }
-
-    fun signOut(
-        context: Context,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                // Cerrar sesión de Firebase
-                firebaseAuth.signOut()
-
-                // Cerrar sesión de Google Sign-In si fue utilizado
-                Identity.getSignInClient(context).signOut().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        onSuccess()
-                    } else {
-                        onError("Error al cerrar sesión con Google")
-                    }
-                }
-            } catch (e: Exception) {
-                onError(e.localizedMessage ?: "Error al cerrar sesión")
-            }
-        }
     }
 
     fun checkUserAuthState(): Boolean {
@@ -268,23 +189,8 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-
-    suspend fun getUserRoleFromFirestore(): String {
-        return withContext(Dispatchers.IO) {
-            val currentUser = firebaseAuth.currentUser
-            if (currentUser != null) {
-                try {
-                    val uid = currentUser.uid
-                    val document = firestore.collection("users").document(uid).get().await()
-                    document.getString("role") ?: "unknown"
-                } catch (e: Exception) {
-                    "unknown"
-                }
-            } else {
-                "unknown"
-            }
-        }
+    sealed class UiText {
+        data class StringResource(val resId: Int) : UiText()
+        data class DynamicString(val value: String) : UiText()
     }
-
-
 }

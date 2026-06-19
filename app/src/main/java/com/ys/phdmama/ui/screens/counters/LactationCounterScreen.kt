@@ -64,7 +64,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
             contentDescription = "lactancia image",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp)
+                .height(280.dp)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
