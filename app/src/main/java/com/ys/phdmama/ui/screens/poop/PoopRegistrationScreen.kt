@@ -386,6 +386,22 @@ private fun TextureOption(
                     )
                 }
 
+                PoopTexture.AGRIETADA -> {
+                    Image(
+                        painter = painterResource(id = R.drawable.icono_app_popo_dura_agrietada),
+                        contentDescription = null,
+                        modifier = Modifier.size(94.dp),
+                    )
+                }
+
+                PoopTexture.SEPARADA -> {
+                    Image(
+                        painter = painterResource(id = R.drawable.icono_app_popo_dura_separada),
+                        contentDescription = null,
+                        modifier = Modifier.size(94.dp),
+                    )
+                }
+
                 PoopTexture.CON_MOCOS -> {
                     Image(
                         painter = painterResource(id = R.drawable.iconos_popo_moco),
