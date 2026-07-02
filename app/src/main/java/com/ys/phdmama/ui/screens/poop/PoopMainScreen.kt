@@ -92,7 +92,7 @@ fun PoopMainScreen(
                 icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,
-                    secondaryAqua
+                    primaryTeal
                 ),
                 onClick = {
                     navController.navigate(POOP_REGISTER)
@@ -107,7 +107,7 @@ fun PoopMainScreen(
                 icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,
-                    secondaryAqua
+                    primaryTeal
                 ),
                 onClick = {
                     navController.navigate(POOP_TRACKING)
@@ -156,7 +156,7 @@ fun TrackingOptionCard(
                         text = title,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color(0xFF5B5C61)
                     )
                     Text(
                         text = subtitle,
