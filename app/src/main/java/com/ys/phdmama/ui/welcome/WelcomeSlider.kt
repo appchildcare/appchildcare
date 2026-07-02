@@ -89,14 +89,6 @@ fun WelcomeSlider(navController: NavHostController) {
                 SlideContent(slide = slides[page])
             }
 
-            Row{
-                Image(
-                    painter = painterResource(id = R.drawable.mascota_relax),
-                    contentDescription = "Baby icon",
-                )
-            }
-
-
             // Indicadores de página
             Row(
                 modifier = Modifier.padding(vertical = 16.dp),
