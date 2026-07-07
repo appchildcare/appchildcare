@@ -1,0 +1,89 @@
+package com.ys.cunaco.ui.screens.born
+
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.ys.cunaco.R
+import com.ys.cunaco.navigation.NavRoutes
+import com.ys.cunaco.ui.components.PhdLayoutMenu
+
+
+data class MenuBornItem(val label: String, val description: String, val icon: ImageVector, val route: String,  @DrawableRes val image: Int)
+
+val menuBornItems = listOf(
+    MenuBornItem(
+        label = "Checklist recién nacido",
+        description = "Información necesaria para el postparto",
+        icon = Icons.Default.Edit,
+        route = NavRoutes.BORN_RESOURCES_CHECKLIST,
+        image = R.drawable.viajes
+    ),
+    MenuBornItem(
+        label = "Checklist de viaje",
+        description = "Información necesaria lorem ipsum",
+        icon = Icons.Default.Edit,
+        route = NavRoutes.BORN_RESOURCES_LEAVE_HOME,
+        image = R.drawable.viajes
+    )
+)
+
+@Composable
+fun BornResourcesMenuScreen(navController: NavController, openDrawer: () -> Unit) {
+    PhdLayoutMenu(
+        title = "Checklist",
+        navController = navController,
+        openDrawer = openDrawer
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
+        ) {
+            menuBornItems.forEach { item ->
+                MenuListItem(item, navController, item.image)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuListItem(item: MenuBornItem, navController: NavController, @DrawableRes imageResId: Int) {
+    ListItem(
+        headlineContent = { Text(item.label) },
+        supportingContent = { Text(item.description) },
+        leadingContent = {
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = "Baby icon",
+                modifier = Modifier
+                    .size(40.dp)
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { navController.navigate(item.route) }
+    )
+}
