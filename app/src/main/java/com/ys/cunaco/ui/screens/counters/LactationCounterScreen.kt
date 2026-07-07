@@ -1,0 +1,193 @@
+package com.ys.cunaco.ui.screens.counters
+
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.ys.cunaco.R
+import com.ys.cunaco.navigation.NavRoutes
+import com.ys.cunaco.ui.components.PhdLayoutMenu
+import com.ys.cunaco.ui.theme.primaryYellow
+import com.ys.cunaco.ui.theme.secondaryAqua
+import com.ys.cunaco.viewmodel.LactationViewModel
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun LactationCounterScreen(babyId: String?, navController: NavController,
+                           viewModel: LactationViewModel = hiltViewModel(),
+                           openDrawer: () -> Unit) {
+    PhdLayoutMenu(
+        title = "Lactancia",
+        navController = navController,
+        openDrawer = openDrawer
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            LactationComponent(babyId, navController, viewModel)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun LactationComponent(babyId: String?, navController: NavController, viewModel: LactationViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    val counter by viewModel.counter.collectAsState()
+    val isRunning by viewModel.isRunning.collectAsState()
+    val selectedLactationType by viewModel.selectedLactationType.collectAsState()
+
+    var expanded by remember { mutableStateOf(false) }
+    val lactationTypes = listOf("Leche materna", "Leche de fórmula")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.icono_app_gota),
+            contentDescription = "lactancia image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(280.dp)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Lactation Type Dropdown
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            OutlinedTextField(
+                value = selectedLactationType,
+                onValueChange = { },
+                readOnly = true,
+                label = { Text("Tipo de Lactancia") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                lactationTypes.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type) },
+                        onClick = {
+                            viewModel.setLactationType(type)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Display counter with better formatting
+        Text(
+            text = formatTime(counter),
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            color = if (isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+        )
+
+        Text(
+            text = if (isRunning) "Corriendo..." else "Detenido",
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Button(
+                onClick = { viewModel.startCounter() },
+                enabled = !isRunning,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = primaryYellow
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp
+                )
+            ) {
+                Text("Iniciar")
+            }
+
+            Button(
+                onClick = { viewModel.stopCounter(babyId) },
+                enabled = isRunning,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = secondaryAqua
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp
+                )
+            ) {
+                Text("Detener")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { navController.navigate(NavRoutes.BORN_LACTATION_COUNTER_REPORTS) },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = primaryYellow,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .height(44.dp),
+        ) {
+            Text("Ver Reportes",  fontSize = 14.sp)
+        }
+    }
+}
+
+private fun formatTime(seconds: Int): String { // TODO: Move to utils
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    val remainingSeconds = seconds % 60
+
+    return when {
+        hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
+        minutes > 0 -> String.format("%02d:%02d", minutes, remainingSeconds)
+        else -> String.format("00:%02d", seconds)
+    }
+}

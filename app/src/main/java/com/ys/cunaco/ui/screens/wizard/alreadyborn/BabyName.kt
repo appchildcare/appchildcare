@@ -1,0 +1,45 @@
+package com.ys.cunaco.ui.screens.wizard.alreadyborn
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.ys.cunaco.navigation.NavRoutes
+import com.ys.cunaco.viewmodel.BabyDataViewModel
+
+@Composable
+fun BabyNameScreen(navController: NavHostController, viewModel: BabyDataViewModel = viewModel()) {
+    var babyName by remember { mutableStateOf(viewModel.getBabyAttribute("name") ?: "") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            value = babyName,
+            onValueChange = {
+                babyName = it
+                viewModel.setBabyAttribute("name", it)
+            },
+            label = { Text("Nombre del bebé") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = {
+            navController.navigate(NavRoutes.BABY_APGAR) {
+                popUpTo(NavRoutes.BABY_STATUS) { inclusive = true }
+            }
+        }) {
+            Text(text = "Guardar Nombre")
+        }
+    }
+}
