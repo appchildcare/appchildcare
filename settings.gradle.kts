@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Phdmama"
+rootProject.name = "Cunaco"
 include(":app")
  

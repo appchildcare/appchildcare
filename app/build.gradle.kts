@@ -9,15 +9,15 @@ plugins {
 }
 
 android {
-    namespace = "com.ys.phdmama"
+    namespace = "com.ys.cunaco"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ys.phdmama"
+        applicationId = "com.ys.cunaco"
         minSdk = 24
         targetSdk = 35
-        versionCode = 10
-        versionName = "10.1"
+        versionCode = 1
+        versionName = "1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
