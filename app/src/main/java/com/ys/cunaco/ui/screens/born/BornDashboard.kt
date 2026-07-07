@@ -54,6 +54,12 @@ fun BornDashboardScreen(
     val selectedBaby by babyDataViewModel.selectedBaby.collectAsState()
     val babyList by babyDataViewModel.babyList.collectAsState()
 
+    // Refresh all user data when the dashboard is entered
+    LaunchedEffect(Unit) {
+        babyDataViewModel.fetchBabies()
+        userViewModel.createUserChecklists("born")
+    }
+
     // Calculate age reactively
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
         selectedBaby?.let { baby ->
@@ -65,7 +71,7 @@ fun BornDashboardScreen(
     LaunchedEffect(selectedBaby?.id) {
         selectedBaby?.id?.let { id ->
             growthMilestonesViewModel.loadGrowthData(id)
-            Log.d("BornDashboard", "Loading data for baby: ${selectedBaby?.name}")
+            Log.d("BornDashboard", "Loading growth data for baby: ${selectedBaby?.name}")
         }
     }
 
@@ -97,7 +103,7 @@ fun BornDashboardScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            userViewModel.createUserChecklists("born")
+           // userViewModel.createUserChecklists("born") //TODO: Revisar checklist
             PediatricianQuestionsScreen(navController)
             Spacer(modifier = Modifier.height(16.dp))
             PediatricianVisitQuestionsScreen(navController)
@@ -137,7 +143,7 @@ fun WeightHeightCardsRow(navController: NavController) {
                 title = stringResource(R.string.weight_label),
                 description = stringResource(R.string.weight_description),
                 onClick = {
-                    navController.navigate(BORN_WEIGHT_CHART_DETAILS) // Create new screen
+                    navController.navigate(BORN_WEIGHT_CHART_DETAILS)
                 },
                 color = secondaryAqua,
                 type = "weight"
@@ -193,79 +199,37 @@ fun ClickableCard(
     description: String,
     onClick: () -> Unit,
     color: Color = MaterialTheme.colorScheme.surface,
-    type: String? = "visit" // Default to null, can be "visit", "questions", "head_circumference" or null for different images
+    type: String? = "visit"
 ) {
-    val cardShape = RoundedCornerShape(16.dp)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = color // This sets background within rounded shape
-        )
-
+        colors = CardDefaults.cardColors(containerColor = color)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            when (type) {
-                "visit" -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.icono_app_visita_pediatra),
-                        contentDescription = "image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
-                    )
-                }
-                "head_circumference" -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.icono_app_perimetro),
-                        contentDescription = "head circumference image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(80.dp)
-                    )
-                }
-                "weight" -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.mascota_peso_bebe),
-                        contentDescription = "weight tracking image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                    )
-                }
-                "height" -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.icono_app_altura),
-                        contentDescription = "height tracking image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                    )
-                }
-                else -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.icono_app_pediatra),
-                        contentDescription = "image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
-                    )
-                }
+            val imageRes = when (type) {
+                "visit" -> R.drawable.icono_app_visita_pediatra
+                "head_circumference" -> R.drawable.icono_app_perimetro
+                "weight" -> R.drawable.mascota_peso_bebe
+                "height" -> R.drawable.icono_app_altura
+                else -> R.drawable.icono_app_pediatra
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth().height(if (type == "head_circumference") 80.dp else 120.dp)
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            if (description.isNotEmpty()) {
+                Text(text = description, style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
@@ -280,22 +244,16 @@ fun BabySelectorCard(
     var expanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier
-            .padding(16.dp),
+        modifier = Modifier.padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(secondaryAqua)
-                .padding(16.dp)
+            modifier = Modifier.fillMaxWidth().background(secondaryAqua).padding(16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
+                    modifier = Modifier.size(64.dp).background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     val initial = selectedBaby?.name?.firstOrNull()?.toString() ?: "?"
@@ -304,12 +262,8 @@ fun BabySelectorCard(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Dropdown anchor: name + age + arrow
                 Box {
-                    Column(
-                        modifier = Modifier
-                            .clickable { expanded = true }
-                    ) {
+                    Column(modifier = Modifier.clickable { if (babies.size > 1) expanded = true }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = selectedBaby?.name ?: stringResource(R.string.baby_selector_label),
@@ -319,7 +273,7 @@ fun BabySelectorCard(
                             if (babies.size > 1) {
                                 Icon(
                                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = if (expanded) "Collapse dropdown" else "Expand dropdown",
+                                    contentDescription = null,
                                     tint = primaryGray
                                 )
                             }
@@ -333,17 +287,11 @@ fun BabySelectorCard(
                             )
                         }
                     }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         babies.forEach { baby ->
                             DropdownMenuItem(
                                 text = { Text(baby.name) },
-                                onClick = {
-                                    onBabySelected(baby)
-                                    expanded = false
-                                }
+                                onClick = { onBabySelected(baby); expanded = false }
                             )
                         }
                     }
