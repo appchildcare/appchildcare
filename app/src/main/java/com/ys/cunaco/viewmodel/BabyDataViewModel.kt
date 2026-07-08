@@ -24,7 +24,6 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.Period
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -93,7 +92,19 @@ class BabyDataViewModel @Inject constructor(
     fun setSelectedBaby(baby: BabyProfile?) {
         _selectedBaby.value = baby
         viewModelScope.launch {
-            baby?.id?.let { preferencesRepository.saveSelectedBabyId(it) } ?: preferencesRepository.clearSelectedBabyId()
+            if (baby?.id != null) {
+                preferencesRepository.saveSelectedBabyId(baby.id)
+            } else {
+                preferencesRepository.clearSelectedBabyId()
+            }
+        }
+    }
+
+    fun setBabyAgeMonths(months: String?) {
+        viewModelScope.launch {
+            if (months != null) {
+                preferencesRepository.saveBabyAgeMonths(months)
+            }
         }
     }
 
@@ -129,7 +140,9 @@ class BabyDataViewModel @Inject constructor(
         val uid = firebaseAuth.currentUser?.uid ?: return
         viewModelScope.launch {
             try {
-                firestore.collection("users").document(uid).collection("babies").add(babyData).await()
+                val docRef = firestore.collection("users").document(uid).collection("babies").add(babyData).await()
+                // Seleccionar inmediatamente el nuevo bebé
+                preferencesRepository.saveSelectedBabyId(docRef.id)
                 fetchBabies()
                 onSuccess()
                 sendSnackbar("Bebé registrado")
@@ -155,14 +168,8 @@ class BabyDataViewModel @Inject constructor(
         val babyId = selectedBaby.value?.id ?: return
         viewModelScope.launch {
             try {
-                val vaccine = Vaccine(
-                    id = UUID.randomUUID().toString(),
-                    vaccineName = vaccineText,
-                    vaccineDate = vaccineDate,
-                    timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-                )
-                firestore.collection("users").document(uid).collection("babies").document(babyId)
-                    .collection("vaccines").add(vaccine).await()
+                val vaccine = Vaccine(id = UUID.randomUUID().toString(), vaccineName = vaccineText, vaccineDate = vaccineDate, timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()))
+                firestore.collection("users").document(uid).collection("babies").document(babyId).collection("vaccines").add(vaccine).await()
                 loadVaccines()
                 sendSnackbar("Vacuna guardada")
             } catch (e: Exception) { onError(e.localizedMessage ?: "Error") }
@@ -172,36 +179,75 @@ class BabyDataViewModel @Inject constructor(
     fun loadVaccines() {
         val uid = firebaseAuth.currentUser?.uid ?: return
         val babyId = selectedBaby.value?.id ?: return
-        firestore.collection("users").document(uid).collection("babies").document(babyId)
-            .collection("vaccines").orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    vaccineList = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(Vaccine::class.java)?.copy(id = doc.id)
-                    }
-                }
-            }
+        firestore.collection("users").document(uid).collection("babies").document(babyId).collection("vaccines").orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, _ -> if (snapshot != null) vaccineList = snapshot.documents.mapNotNull { it.toObject(Vaccine::class.java)?.copy(id = it.id) } }
     }
 
     fun updateVaccine(vaccine: Vaccine) {
         val uid = firebaseAuth.currentUser?.uid ?: return
         val babyId = selectedBaby.value?.id ?: return
-        vaccine.id?.let { id ->
-            firestore.collection("users").document(uid).collection("babies").document(babyId)
-                .collection("vaccines").document(id).set(vaccine)
-        }
+        vaccine.id?.let { firestore.collection("users").document(uid).collection("babies").document(babyId).collection("vaccines").document(it).set(vaccine) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun calculateCorrectedAge(birthDate: String?, weeksBirth: String?): BabyAge? {
         if (birthDate.isNullOrEmpty()) return null
+        
+        // Normalización para parseo robusto (elimina "de", comas, y múltiples espacios)
+        val normalizedDate = birthDate.replace(Regex("(?i)\\bde\\b"), " ")
+            .replace(",", " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+            .lowercase()
+
+        val formats = listOf("dd MMMM yyyy", "d MMMM yyyy", "dd MMM yyyy", "yyyy-MM-dd", "dd/MM/yyyy")
+        val locales = listOf(Locale("es", "ES"), Locale.getDefault(), Locale.ENGLISH)
+
+        var date: Date? = null
+        outer@for (loc in locales) {
+            for (fmt in formats) {
+                try {
+                    val sdf = SimpleDateFormat(fmt, loc)
+                    sdf.isLenient = true
+                    date = sdf.parse(normalizedDate)
+                    if (date != null) break@outer
+                } catch (e: Exception) { continue }
+            }
+        }
+
+        if (date == null) {
+            Log.e("BabyDataViewModel", "Fallo al parsear fecha: $birthDate")
+            return null
+        }
+
         return try {
-            val format = SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH)
-            val date = format.parse(birthDate) ?: return null
-            val birthLocalDate = LocalDate.of(1970, 1, 1).plusDays(date.time / (24 * 60 * 60 * 1000))
-            val period = Period.between(birthLocalDate, LocalDate.now())
-            BabyAge(period.years, period.months)
+            val weeksAtBirth = weeksBirth?.toIntOrNull() ?: 40
+            val birthCalendar = Calendar.getInstance().apply { time = date }
+            val today = Calendar.getInstance()
+            
+            val diffMillis = today.timeInMillis - birthCalendar.timeInMillis
+            val chronologicalWeeks = diffMillis / (7L * 24 * 60 * 60 * 1000)
+            
+            val finalYears: Int
+            val finalMonths: Int
+            
+            if (weeksAtBirth < PREMATURE_THRESHOLD_WEEKS) {
+                val weeksPrematurity = FULL_TERM_WEEKS - weeksAtBirth
+                val correctedWeeks = chronologicalWeeks - weeksPrematurity
+                val totalMonths = (correctedWeeks / 4.345).toInt().coerceAtLeast(0)
+                finalYears = totalMonths / 12
+                finalMonths = totalMonths % 12
+            } else {
+                val birthLocalDate = LocalDate.of(birthCalendar.get(Calendar.YEAR), birthCalendar.get(Calendar.MONTH) + 1, birthCalendar.get(Calendar.DAY_OF_MONTH))
+                val period = Period.between(birthLocalDate, LocalDate.now())
+                finalYears = period.years.coerceAtLeast(0)
+                finalMonths = period.months.coerceAtLeast(0)
+            }
+            
+            setBabyAgeMonths(((finalYears * 12) + finalMonths).toString())
+            BabyAge(finalYears, finalMonths)
         } catch (e: Exception) {
+            Log.e("BabyDataViewModel", "Error en cálculo de edad", e)
             null
         }
     }
