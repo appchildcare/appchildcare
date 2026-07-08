@@ -69,13 +69,15 @@ fun CheckItemsScreen(
     val babyAgeMonths by checkItemsViewModel.babyAgeWeeks.collectAsState()
 
     val filteredTopicGroups = remember(topicGroups, babyAgeMonths, userRole) {
-
         babyAgeMonths?.toIntOrNull()?.let { ageMonths ->
-            val filtered = topicGroups.filter {
-                val matches = it.months == ageMonths && it.role == userRole
-                matches
+            topicGroups.filter {
+                val ageCondition = if (ageMonths < 12) {
+                    ageMonths <= it.months
+                } else {
+                    it.months == ageMonths
+                }
+                ageCondition && it.role == userRole
             }
-            filtered
         } ?: emptyList()
     }
 
@@ -291,21 +293,19 @@ fun ChecklistItemRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Checkbox item
-            item.isChecked?.let {
-                Checkbox(
-                    checked = it,
-                    onCheckedChange = { checked ->
-                        onCheckedChange(checked)
-                    }
-                )
-            }
+            Checkbox(
+                checked = item.isChecked,
+                onCheckedChange = { checked ->
+                    onCheckedChange(checked)
+                }
+            )
 
             // Item text beside checkbox
             Text(
                 text = item.item,
                 style = MaterialTheme.typography.bodyMedium,
-                textDecoration = if (item.isChecked == true) TextDecoration.LineThrough else null,
-                color = if (item.isChecked == true) {
+                textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
+                color = if (item.isChecked) {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 } else {
                     MaterialTheme.colorScheme.onSurface
@@ -317,4 +317,3 @@ fun ChecklistItemRow(
         }
     }
 }
-
