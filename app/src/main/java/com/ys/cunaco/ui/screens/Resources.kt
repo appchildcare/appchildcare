@@ -72,8 +72,10 @@ fun CheckItemsScreen(
         babyAgeMonths?.toIntOrNull()?.let { ageMonths ->
             topicGroups.filter {
                 val ageCondition = if (ageMonths < 12) {
-                    ageMonths <= it.months
+                    // Bebé < 12 meses: muestra actual y futuros PERO solo del primer año (< 12)
+                    it.months < 12 && ageMonths <= it.months
                 } else {
+                    // Bebé >= 12 meses: coincidencia exacta
                     it.months == ageMonths
                 }
                 ageCondition && it.role == userRole
