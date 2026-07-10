@@ -25,6 +25,7 @@
     <string name="side_navigation_baby_profile_label">Baby Profile</string>
     <string name="side_navigation_poop_label">Poop Log</string>
     <string name="side_navigation_terms_label">Terms of Use</string>
+    <string name="side_navigation_emergency_label">Emergency</string>
     <string name="side_navigation_carbon_label">Carbon Footprint</string>
     <string name="side_navigation_home_label">Home</string>
     <string name="side_navigation_controls_label">Controls</string>

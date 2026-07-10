@@ -38,6 +38,7 @@ import com.ys.cunaco.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.cunaco.ui.screens.poop.PoopRegistrationScreen
 import com.ys.cunaco.ui.screens.counters.LactationCounterScreen
 import com.ys.cunaco.ui.screens.counters.LactationDiaryScreen
+import com.ys.cunaco.ui.screens.emergency.EmergencyScreen
 import com.ys.cunaco.ui.screens.foodregistration.FoodRegistrationScreen
 import com.ys.cunaco.ui.screens.medicine.MedicineRegistrationScreen
 import com.ys.cunaco.ui.screens.poop.PoopDiaryScreen
@@ -117,6 +118,7 @@ object NavRoutes {
     const val SLEEP_TRACKING = "sleep_tracking"
     const val LACTATION_TRACKING = "lactation_tracking"
     const val POO_MAIN_SELECTION = "poop_main_screen"
+    const val EMERGENCY_SCREEN = "emergency_screen"
     const val POOP_TRACKING = "poop_tracking"
     const val TERMS_CONDITIONS = "terms_conditions"
     const val CARBON_FOOTPRINT = "carbon_footprint"
@@ -341,6 +343,11 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.POO_MAIN_SELECTION) {
                 PoopMainScreen(
+                    navController = navController, openDrawer = openDrawer
+                )
+            }
+            composable(NavRoutes.EMERGENCY_SCREEN) {
+                EmergencyScreen(
                     navController = navController, openDrawer = openDrawer
                 )
             }
