@@ -78,16 +78,19 @@ fun WelcomeSlider(navController: NavHostController) {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            SlideContent(slide = slides[page])
+        }
+
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { page ->
-                SlideContent(slide = slides[page])
-            }
 
             // Indicadores de página
             Row(
@@ -142,56 +145,59 @@ fun WelcomeSlider(navController: NavHostController) {
 
 @Composable
 fun SlideContent(slide: SlideData) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = slide.title,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF1F2937),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = slide.title,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1F2937),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
 
-        if (slide.bulletPoints != null) {
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                slide.bulletPoints.forEach { point ->
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = "•",
-                            fontSize = 20.sp,
-                            color = primaryTeal,
-                            modifier = Modifier.padding(end = 12.dp)
-                        )
-                        Text(
-                            text = point,
-                            fontSize = 18.sp,
-                            color = Color(0xFF4B5563),
-                            lineHeight = 28.sp
-                        )
+            if (slide.bulletPoints != null) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    slide.bulletPoints.forEach { point ->
+                        Row(
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Text(
+                                text = "•",
+                                fontSize = 20.sp,
+                                color = primaryTeal,
+                                modifier = Modifier.padding(end = 12.dp)
+                            )
+                            Text(
+                                text = point,
+                                fontSize = 18.sp,
+                                color = Color(0xFF4B5563),
+                                lineHeight = 28.sp
+                            )
+                        }
                     }
                 }
+            } else {
+                Text(
+                    text = slide.content,
+                    fontSize = 18.sp,
+                    color = Color(0xFF4B5563),
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
-        } else {
-            Text(
-                text = slide.content,
-                fontSize = 18.sp,
-                color = Color(0xFF4B5563),
-                textAlign = TextAlign.Center,
-                lineHeight = 28.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
         }
     }
 }

@@ -616,16 +616,29 @@ fun generateHeadCircumferencePDF(
         val canvas = page.canvas
         val paint = android.graphics.Paint()
 
-        // Title
+        // --- Logo ---
+        val logoBitmap = android.graphics.BitmapFactory.decodeResource(
+            context.resources,
+            com.ys.cunaco.R.drawable.app_child_care_logo
+        )
+        val logoWidth = 60f
+        val logoHeight = 60f
+        if (logoBitmap != null) {
+            val scaledLogo = android.graphics.Bitmap.createScaledBitmap(
+                logoBitmap, logoWidth.toInt(), logoHeight.toInt(), true
+            )
+            canvas.drawBitmap(scaledLogo, 50f, 30f, paint)
+        }
+
+        // Title (shifted right to make room for the logo)
+        val titleX = if (logoBitmap != null) 50f + logoWidth + 15f else 50f
         paint.textSize = 24f
         paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
         paint.color = android.graphics.Color.BLACK
-        canvas.drawText("Reporte de Perímetro Cefálico", 50f, 80f, paint)
+        canvas.drawText("Reporte de Perímetro Cefálico", titleX, 60f, paint)
 
-        // Baby ID
         paint.textSize = 16f
         paint.typeface = android.graphics.Typeface.DEFAULT
-        canvas.drawText("ID del Bebé: $babyId", 50f, 120f, paint)
 
         // Date
         val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
@@ -641,30 +654,31 @@ fun generateHeadCircumferencePDF(
         paint.textSize = 12f
         paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
 
-        // Draw table border
-        paint.style = android.graphics.Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.color = android.graphics.Color.BLACK
         val tableLeft = 50f
         val tableRight = 545f
         val tableTop = yPosition - 15f
 
-        // Calculate table height based on number of records
         val rowHeight = 25f
         val headerHeight = 30f
-        val maxRows = kotlin.math.min(records.size, 20) // Limit rows to fit page
+        val maxRows = kotlin.math.min(records.size, 20)
         val tableBottom = tableTop + headerHeight + (maxRows * rowHeight)
-
-        canvas.drawRect(tableLeft, tableTop, tableRight, tableBottom, paint)
 
         // Column positions and widths
         val colPositions = floatArrayOf(60f, 140f, 200f, 280f, 360f, 460f)
-        val colWidths = floatArrayOf(80f, 60f, 80f, 80f, 100f, 85f)
 
-        // Draw column separators
-        for (i in 1 until colPositions.size) {
-            canvas.drawLine(colPositions[i], tableTop, colPositions[i], tableBottom, paint)
-        }
+        // --- Header background fill ---
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.parseColor("#FFE599") // Color(0xFFFFE599)
+        canvas.drawRect(tableLeft, tableTop, tableRight, tableTop + headerHeight, paint)
+
+        // Outer table border only (no per-column vertical separators)
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = android.graphics.Color.BLACK
+        canvas.drawRect(tableLeft, tableTop, tableRight, tableBottom, paint)
+
+        // Header separator line (between header and rows)
+        canvas.drawLine(tableLeft, tableTop + headerHeight, tableRight, tableTop + headerHeight, paint)
 
         // Table headers
         paint.style = android.graphics.Paint.Style.FILL
@@ -678,21 +692,13 @@ fun generateHeadCircumferencePDF(
         canvas.drawText("Talla (cm)", colPositions[3], yPosition, paint)
         canvas.drawText("P. Cefálico", colPositions[4], yPosition, paint)
 
-        // Draw header separator line
-        yPosition += 15f
-        paint.style = android.graphics.Paint.Style.STROKE
-        paint.strokeWidth = 1f
-        canvas.drawLine(tableLeft, yPosition, tableRight, yPosition, paint)
-
-        yPosition += 10f
-        paint.style = android.graphics.Paint.Style.FILL
+        yPosition = tableTop + headerHeight + 18f
         paint.textSize = 10f
         paint.typeface = android.graphics.Typeface.DEFAULT
 
         // Data rows
-        val lmsTable = LmsUtils.lmsHeadCircumference
         records.take(maxRows).forEachIndexed { index, record ->
-            // Draw alternating row background
+            // Alternating row background
             if (index % 2 == 0) {
                 paint.color = android.graphics.Color.parseColor("#F5F5F5")
                 canvas.drawRect(
@@ -706,7 +712,6 @@ fun generateHeadCircumferencePDF(
 
             paint.color = android.graphics.Color.BLACK
 
-            // Placeholder data - replace with actual record data
             canvas.drawText("01/01/24", colPositions[0], yPosition, paint)
             canvas.drawText("${index + 1}m", colPositions[1], yPosition, paint)
             canvas.drawText("3.5", colPositions[2], yPosition, paint)
@@ -714,7 +719,7 @@ fun generateHeadCircumferencePDF(
             canvas.drawText("35.8", colPositions[4], yPosition, paint)
             canvas.drawText("Normal", colPositions[5], yPosition, paint)
 
-            // Draw row separator
+            // Only a light horizontal row separator (no verticals)
             yPosition += rowHeight
             if (index < maxRows - 1) {
                 paint.style = android.graphics.Paint.Style.STROKE
@@ -751,7 +756,6 @@ fun generateHeadCircumferencePDF(
 
         pdfDocument.finishPage(page)
 
-        // Create and save PDF, then share
         val fileName = "reporte_perimetro_cefalico_${babyId}_${System.currentTimeMillis()}.pdf"
         savePDFAndShare(context, pdfDocument, fileName)
 

@@ -38,6 +38,7 @@ val navItems = listOf(
 val sideNavItems = listOf(
     NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, isPremium = true),
     NavBarItem(NavRoutes.POO_MAIN_SELECTION, R.string.side_navigation_poop_label,Icons.Default.Add),
+    NavBarItem(NavRoutes.EMERGENCY_SCREEN, R.string.side_navigation_emergency_label,Icons.Default.Add),
     NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Info),
     NavBarItem(NavRoutes.CARBON_FOOTPRINT, R.string.side_navigation_carbon_label, Icons.Default.Star),
 )

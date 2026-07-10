@@ -1,21 +1,23 @@
+package com.ys.cunaco.ui.screens.counters
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes.CONTRACTION_COUNTER
@@ -25,16 +27,19 @@ import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.components.PhdMediumText
 import com.ys.cunaco.ui.components.PhdTextBold
 import com.ys.cunaco.ui.theme.primaryTeal
-import com.ys.cunaco.ui.theme.secondaryAqua
+import com.ys.cunaco.viewmodel.LoginViewModel
 
 @Composable
 fun BabyCounterSelectionScreen(
-    babyId: String?,
     navController: NavController,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     openDrawer: () -> Unit
 ) {
+    val userRole by loginViewModel.userRole.collectAsState()
+    val isWaiting = userRole == "waiting"
+
     PhdLayoutMenu(
-        title = "Seguimiento del bebé",
+        title = "Seguimiento",
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -42,13 +47,12 @@ fun BabyCounterSelectionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(20.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Welcome Section
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(bottom = 48.dp)
+                modifier = Modifier.padding(bottom = 32.dp, top = 16.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.mascota_juntos),
@@ -59,65 +63,36 @@ fun BabyCounterSelectionScreen(
                         .height(180.dp)
                 )
 
-                PhdTextBold(
-                    text = "¿Qué quieres ?",
-                )
-
-                PhdMediumText(
-                    text = "Selecciona una opción para comenzar",
-                )
+                PhdTextBold(text = "¿Qué quieres registrar?")
+                PhdMediumText(text = "Selecciona una opción para comenzar")
             }
 
-            // Sleep Option
-            TrackingOptionCard(
-                title = "Sueño",
-                subtitle = "Registrar siestas y tiempo de descanso",
-                icon = Icons.Default.Info,
-                gradientColors = listOf(
-                    primaryTeal,
-                    secondaryAqua
-                ),
-                emoji = "😴",
-                onClick = {
-                    navController.navigate(SLEEP_TRACKING)
-                }
-            )
+            if (isWaiting) {
+                // FLUJO WAITING: Activar SOLO la opción de Contracciones
+                TrackingOptionCard(
+                    title = "Contracciones",
+                    subtitle = "Registrar frecuencia de contracciones",
+                    gradientColors = listOf(primaryTeal, primaryTeal),
+                    onClick = { navController.navigate(CONTRACTION_COUNTER) }
+                )
+            } else {
+                // FLUJO BORN: Mostrar Sueño y Lactancia
+                TrackingOptionCard(
+                    title = "Sueño",
+                    subtitle = "Registrar siestas y tiempo de descanso",
+                    gradientColors = listOf(primaryTeal, primaryTeal),
+                    onClick = { navController.navigate(SLEEP_TRACKING) }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            // Lactation Option
-            TrackingOptionCard(
-                title = "Lactancia",
-                subtitle = "Registrar sesiones de alimentación",
-                icon = Icons.Default.Favorite,
-                gradientColors = listOf(
-                    primaryTeal,
-                    secondaryAqua
-                ),
-                emoji = "🤱",
-                onClick = {
-                    navController.navigate(LACTATION_TRACKING)
-                }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Lactation Option
-            TrackingOptionCard(
-                title = "Contracciones",
-                subtitle = "Registrar contracciones en embarazo",
-                icon = Icons.Default.Favorite,
-                gradientColors = listOf(
-                    primaryTeal,
-                    secondaryAqua
-                ),
-                emoji = "🤱",
-                onClick = {
-                    navController.navigate(CONTRACTION_COUNTER)
-                }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
+                TrackingOptionCard(
+                    title = "Lactancia",
+                    subtitle = "Registrar sesiones de alimentación",
+                    gradientColors = listOf(primaryTeal, primaryTeal),
+                    onClick = { navController.navigate(LACTATION_TRACKING) }
+                )
+            }
         }
     }
 }
@@ -126,48 +101,39 @@ fun BabyCounterSelectionScreen(
 fun TrackingOptionCard(
     title: String,
     subtitle: String,
-    icon: ImageVector,
     gradientColors: List<Color>,
-    emoji: String,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
+            .height(110.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(gradientColors)
-                )
+                .background(Brush.horizontalGradient(gradientColors))
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.Center
             ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Text(
-                        text = subtitle,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+                Text(
+                    text = title,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF5B5C61)
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = 13.sp,
+                    color = Color(0xFF5B5C61).copy(alpha = 0.8f)
+                )
             }
         }
     }

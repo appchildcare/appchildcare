@@ -1,6 +1,5 @@
 package com.ys.cunaco.navigation
 
-import BabyCounterSelectionScreen
 import SleepDiaryScreen
 import android.os.Build
 import android.util.Log
@@ -24,13 +23,13 @@ import com.ys.cunaco.ui.screens.born.BornDashboardScreen
 import com.ys.cunaco.ui.screens.born.GrowthMilestonesScreen
 import com.ys.cunaco.ui.screens.born.VaccineScreen
 import com.ys.cunaco.ui.screens.pregnancy.PregnancyDashboardScreen
-import com.ys.cunaco.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.cunaco.ui.screens.born.BornResourcesLeaveHome
 import com.ys.cunaco.ui.screens.born.GrowthDetailScreen
 import com.ys.cunaco.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.cunaco.ui.screens.born.charts.HeightLengthDetailScreen
 import com.ys.cunaco.ui.screens.born.charts.WeightDetailScreen
 import com.ys.cunaco.ui.screens.carbonfootprint.CarbonFootprintScreen
+import com.ys.cunaco.ui.screens.counters.BabyCounterSelectionScreen
 import com.ys.cunaco.ui.screens.counters.ContractionCounterScreen
 import com.ys.cunaco.ui.screens.counters.ContractionReportScreen
 import com.ys.cunaco.ui.screens.counters.SleepingCounterScreen
@@ -39,6 +38,7 @@ import com.ys.cunaco.ui.screens.pediatrician.PediatricianQuestionsScreen
 import com.ys.cunaco.ui.screens.poop.PoopRegistrationScreen
 import com.ys.cunaco.ui.screens.counters.LactationCounterScreen
 import com.ys.cunaco.ui.screens.counters.LactationDiaryScreen
+import com.ys.cunaco.ui.screens.emergency.EmergencyScreen
 import com.ys.cunaco.ui.screens.foodregistration.FoodRegistrationScreen
 import com.ys.cunaco.ui.screens.medicine.MedicineRegistrationScreen
 import com.ys.cunaco.ui.screens.poop.PoopDiaryScreen
@@ -118,6 +118,7 @@ object NavRoutes {
     const val SLEEP_TRACKING = "sleep_tracking"
     const val LACTATION_TRACKING = "lactation_tracking"
     const val POO_MAIN_SELECTION = "poop_main_screen"
+    const val EMERGENCY_SCREEN = "emergency_screen"
     const val POOP_TRACKING = "poop_tracking"
     const val TERMS_CONDITIONS = "terms_conditions"
     const val CARBON_FOOTPRINT = "carbon_footprint"
@@ -167,21 +168,17 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     Log.d("fetch babies", "babyId = $babyId")
 
     LaunchedEffect(Unit) {
-        isUserLoggedIn = loginViewModel.checkUserAuthState()
-        if (isUserLoggedIn) {
-            loginViewModel.fetchUserDetails(
-                onSuccess = { role ->
-                    userRole = role
-                },
-                onSkip = {
-                    userRole = null // Omite la validación del role
-                },
-                onError = {
-                    userRole = null // Manejo de errores
-                }
-            )
-            wizardViewModel.checkWizardFinished()
-            wizardFinished = wizardViewModel.wizardFinished.value
+        loginViewModel.observeAuthState().collect { firebaseUser ->
+            isUserLoggedIn = firebaseUser != null
+            if (isUserLoggedIn) {
+                loginViewModel.fetchUserDetails(
+                    onSuccess = { role -> userRole = role },
+                    onSkip = { userRole = null },
+                    onError = { userRole = null }
+                )
+                wizardViewModel.checkWizardFinished()
+                wizardFinished = wizardViewModel.wizardFinished.value
+            }
         }
     }
 
@@ -263,7 +260,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabySummary(navController = navController, viewModel = babyDataViewModel)
         }
         composable(NavRoutes.BORN_COUNTERS) {
-            BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
+            BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_RESOURCES) {
             Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
@@ -345,6 +342,11 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                     navController = navController, openDrawer = openDrawer
                 )
             }
+            composable(NavRoutes.EMERGENCY_SCREEN) {
+                EmergencyScreen(
+                    navController = navController, openDrawer = openDrawer
+                )
+            }
             composable(NavRoutes.BORN_SNAP_COUNTER_REPORTS) {
                 SleepDiaryScreen(babyId = babyId, sleepDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
@@ -352,7 +354,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 LactationDiaryScreen(babyId = babyId, lactationDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.BORN_COUNTERS) {
-                BabyCounterSelectionScreen(babyId = babyId, navController = navController, openDrawer = openDrawer)
+                BabyCounterSelectionScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.LACTATION_TRACKING) {
                 LactationCounterScreen(babyId = babyId, navController = navController, lactationViewModel, openDrawer = openDrawer)
@@ -379,7 +381,6 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 GynecologistScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.PREGNANCY_RESOURCES) {
-//                PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
                 Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
             }
         }
@@ -387,7 +388,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         // Definir bornNavGraph y waitingNavGraph
         when {
             userRole == "born" -> bornNavGraph(navController, babyDataViewModel, openDrawer, babyId, growthMilestonesViewModel)
-            userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, openDrawer)
+            userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, userRole, openDrawer)
         }
     }
 }
@@ -407,7 +408,7 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel, openDrawer: () -> Unit) {
+fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel, userRole: String?, openDrawer: () -> Unit) {
     composable(NavRoutes.WAITING_DASHBOARD) {
         PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
     }
@@ -415,6 +416,6 @@ fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataVi
         RoughDateOfBirthScreen(navController = navController)
     }
     composable(NavRoutes.PREGNANCY_RESOURCES) {
-        PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+        Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
     }
 }

@@ -44,7 +44,7 @@ fun TermsConditionsContent() {
         horizontalAlignment = Alignment.Start
     ) {
         Text(
-            text = "Términos y Condiciones de Uso de ChildCare app \n",
+            text = "Términos y Condiciones de Uso de CunaCo app \n",
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -55,14 +55,14 @@ fun TermsConditionsContent() {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "Fecha de última actualización: 3 de septiembre de 2025\n\n" +
-                    "Bienvenido/a a ChildCare app. Antes de utilizar nuestra aplicación, te pedimos que leas detenidamente " +
+                    "Bienvenido/a a Cunaco app. Antes de utilizar nuestra aplicación, te pedimos que leas detenidamente " +
                     "los siguientes Términos y Condiciones de Uso (\"Términos\"). Al descargar, acceder o utilizar la " +
-                    "aplicación móvil ChildCare app (en adelante, la \"Aplicación\"), confirmas que has leído, entendido " +
+                    "aplicación móvil Cunaco app (en adelante, la \"Aplicación\"), confirmas que has leído, entendido " +
                     "y aceptado vincularte legalmente por estos Términos. Si no estás de acuerdo con ellos, por favor, " +
                     "no utilices la Aplicación.\n\n" +
 
                     "1. Aceptación de los Términos\n\n" +
-                    "El uso de los servicios de ChildCare app implica la aceptación plena y sin reservas de todas y cada " +
+                    "El uso de los servicios de Cunaco app implica la aceptación plena y sin reservas de todas y cada " +
                     "una de las disposiciones incluidas en estos Términos. Nos reservamos el derecho de modificar estos " +
                     "Términos en cualquier momento. Notificaremos los cambios materiales a través de la Aplicación o por " +
                     "otros medios para que puedas revisarlos antes de continuar utilizando nuestros servicios. El uso " +
@@ -70,7 +70,7 @@ fun TermsConditionsContent() {
                     "Términos.\n\n" +
 
                     "2. Descripción del Servicio\n\n" +
-                    "ChildCare app es una aplicación móvil diseñada para ofrecer apoyo y orientación a padres y madres " +
+                    "Cunaco app es una aplicación móvil diseñada para ofrecer apoyo y orientación a padres y madres " +
                     "primerizos durante las etapas de gestación, parto y los primeros años de crianza. Nuestras " +
                     "funcionalidades incluyen:\n" +
                     "• Herramientas para el seguimiento del embarazo y el desarrollo del bebé.\n" +
@@ -81,7 +81,7 @@ fun TermsConditionsContent() {
                     "3. Importante: Descargo de Responsabilidad Médica\n\n" +
                     "Esta sección es de vital importancia. Tu seguridad y la de tu hijo/a son nuestra máxima prioridad, y " +
                     "es fundamental que comprendas el propósito y las limitaciones de nuestra Aplicación.\n\n" +
-                    "• La Aplicación NO es un Sustituto del Consejo Médico Profesional: ChildCare app es una herramienta de apoyo " +
+                    "• La Aplicación NO es un Sustituto del Consejo Médico Profesional: Cunaco app es una herramienta de apoyo " +
                     "y seguimiento meramente informativo. Bajo NINGUNA circunstancia debe ser utilizada como un sustituto del " +
                     "diagnóstico, la consulta, el criterio, el consejo o el tratamiento proporcionado por un pediatra, " +
                     "ginecólogo, matrona, o cualquier otro profesional de la salud debidamente cualificado.\n\n" +
@@ -97,29 +97,29 @@ fun TermsConditionsContent() {
                     "bienestar y el de tu hijo/a.\n\n" +
 
                     "4. Responsabilidades del Usuario\n\n" +
-                    "Como usuario de ChildCare app, te comprometes a:\n" +
+                    "Como usuario de Cunaco app, te comprometes a:\n" +
                     "• Proporcionar información veraz y precisa en tu perfil y registros.\n" +
                     "• Utilizar la Aplicación de manera responsable y para los fines para los que fue diseñada.\n" +
                     "• Consultar siempre a un profesional de la salud cualificado ante cualquier duda o preocupación sobre tu salud o la de tu hijo/a.\n" +
                     "• Mantener la confidencialidad de tu cuenta y contraseña.\n\n" +
 
                     "5. Propiedad Intelectual\n\n" +
-                    "Todos los contenidos de la Aplicación y de su sitio web asociado www.appchildcare.com son propiedad de " +
-                    "ChildCare app o de sus licenciantes y están protegidos por las leyes y tratados internacionales de " +
+                    "Todos los contenidos de la Aplicación y de su sitio web asociado www.appcunaco.com son propiedad de " +
+                    "Cunaco app o de sus licenciantes y están protegidos por las leyes y tratados internacionales de " +
                     "propiedad intelectual.\n\n" +
 
                     "6. Limitación de Responsabilidad\n\n" +
-                    "Además del descargo de responsabilidad médica detallado en la sección 3, ChildCare app no garantiza que " +
+                    "Además del descargo de responsabilidad médica detallado en la sección 3, Cunaco app no garantiza que " +
                     "la Aplicación esté libre de errores o interrupciones.\n\n" +
 
                     "7. Legislación Aplicable, Jurisdicción y Resolución de Conflictos\n\n" +
                     "Para ofrecer nuestros servicios a nivel global, hemos adoptado un marco legal que busca ser justo y " +
                     "predecible tanto para ti como para nosotros.\n\n" +
-                    "Legislación Aplicable: Estos Términos y tu relación con ChildCare app se regirán e interpretarán de acuerdo " +
+                    "Legislación Aplicable: Estos Términos y tu relación con Cunaco app se regirán e interpretarán de acuerdo " +
                     "con las leyes de España, sin tener en cuenta sus disposiciones sobre conflicto de leyes.\n\n" +
                     "Resolución Amistosa de Conflictos: Antes de iniciar cualquier acción legal formal, ambas partes acuerdan " +
                     "intentar resolver cualquier disputa, reclamación o controversia de manera informal. Puedes notificarnos " +
-                    "iniciando el proceso a través de childcareapp XXXXXXXX correo electrónico de contacto para soporte legal. " +
+                    "iniciando el proceso a través de cunacoapp XXXXXXXX correo electrónico de contacto para soporte legal. " +
                     "Haremos lo posible por resolverlo mediante consulta y negociación de buena fe.\n\n" +
                     "Jurisdicción Competente: Cualquier disputa legal que no pueda resolverse de manera amistosa se someterá a " +
                     "la jurisdicción exclusiva de los tribunales ubicados en Pamplona, España.\n\n" +
