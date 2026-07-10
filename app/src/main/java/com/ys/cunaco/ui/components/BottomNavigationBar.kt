@@ -21,8 +21,8 @@ data class NavBarItem(val route: String, val label: Int, val icon: ImageVector)
 
 val navBornItems = listOf(
     NavBarItem(NavRoutes.BORN_DASHBOARD, R.string.bottom_navigation_panel_label, Icons.Default.Home),
-    NavBarItem(NavRoutes.BORN_COUNTERS,  R.string.bottom_navigation_counters_label, Icons.Default.AddCircle),
-    NavBarItem(NavRoutes.BORN_RESOURCES,  R.string.bottom_navigation_checklist_label, Icons.Default.Menu),
+    NavBarItem(NavRoutes.BORN_COUNTERS,  R.string.bottom_navigation_counters_label, Icons.Default.Timer),
+    NavBarItem(NavRoutes.BORN_RESOURCES,  R.string.bottom_navigation_checklist_label, Icons.Default.Checklist),
     NavBarItem(NavRoutes.BORN_MENU,  R.string.bottom_navigation_baby_label, Icons.Default.Face)
 )
 

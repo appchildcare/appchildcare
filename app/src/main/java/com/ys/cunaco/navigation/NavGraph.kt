@@ -178,6 +178,8 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 )
                 wizardViewModel.checkWizardFinished()
                 wizardFinished = wizardViewModel.wizardFinished.value
+            } else {
+                userRole = null
             }
         }
     }
