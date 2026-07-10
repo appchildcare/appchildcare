@@ -366,11 +366,6 @@ class PdfContentBuilder(
 
         canvas.drawRect(marginLeft, tableTop, marginRight, tableBottom, paint)
 
-        // Draw column separators
-        for (i in 1 until columnPositions.size) {
-            canvas.drawLine(columnPositions[i], tableTop, columnPositions[i], tableBottom, paint)
-        }
-
         // Draw headers
         paint.style =  android.graphics.Paint.Style.FILL
         paint.color = android.graphics.Color.BLACK
