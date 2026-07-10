@@ -1,6 +1,5 @@
 package com.ys.cunaco.navigation
 
-import BabyCounterSelectionScreen
 import SleepDiaryScreen
 import android.os.Build
 import android.util.Log
@@ -31,6 +30,7 @@ import com.ys.cunaco.ui.screens.born.charts.HeadCircumferenceDetailScreen
 import com.ys.cunaco.ui.screens.born.charts.HeightLengthDetailScreen
 import com.ys.cunaco.ui.screens.born.charts.WeightDetailScreen
 import com.ys.cunaco.ui.screens.carbonfootprint.CarbonFootprintScreen
+import com.ys.cunaco.ui.screens.counters.BabyCounterSelectionScreen
 import com.ys.cunaco.ui.screens.counters.ContractionCounterScreen
 import com.ys.cunaco.ui.screens.counters.ContractionReportScreen
 import com.ys.cunaco.ui.screens.counters.SleepingCounterScreen
@@ -263,7 +263,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             BabySummary(navController = navController, viewModel = babyDataViewModel)
         }
         composable(NavRoutes.BORN_COUNTERS) {
-            BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer, babyId = babyId)
+            BabyCounterSelectionScreen (navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.BORN_RESOURCES) {
             Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
@@ -352,7 +352,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 LactationDiaryScreen(babyId = babyId, lactationDiaryViewModel, navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.BORN_COUNTERS) {
-                BabyCounterSelectionScreen(babyId = babyId, navController = navController, openDrawer = openDrawer)
+                BabyCounterSelectionScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.LACTATION_TRACKING) {
                 LactationCounterScreen(babyId = babyId, navController = navController, lactationViewModel, openDrawer = openDrawer)
