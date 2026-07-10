@@ -60,6 +60,7 @@ class LoginViewModel @Inject constructor(): ViewModel() {
     fun logout(navController: NavController, loginViewModel: LoginViewModel,  babyDataViewModel: BabyDataViewModel) {
         FirebaseAuth.getInstance().signOut()
         babyDataViewModel.clearUserData()
+        _userRole.value = null
         navController.navigate(NavRoutes.LOGIN) {
             popUpTo(0) { inclusive = true } // Clears backstack
         }

@@ -23,7 +23,6 @@ import com.ys.cunaco.ui.screens.born.BornDashboardScreen
 import com.ys.cunaco.ui.screens.born.GrowthMilestonesScreen
 import com.ys.cunaco.ui.screens.born.VaccineScreen
 import com.ys.cunaco.ui.screens.pregnancy.PregnancyDashboardScreen
-import com.ys.cunaco.ui.screens.pregnancy.PregnancyResourcesMenuScreen
 import com.ys.cunaco.ui.screens.born.BornResourcesLeaveHome
 import com.ys.cunaco.ui.screens.born.GrowthDetailScreen
 import com.ys.cunaco.ui.screens.born.charts.HeadCircumferenceDetailScreen
@@ -379,7 +378,6 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
                 GynecologistScreen(navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.PREGNANCY_RESOURCES) {
-//                PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
                 Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
             }
         }
@@ -387,7 +385,7 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         // Definir bornNavGraph y waitingNavGraph
         when {
             userRole == "born" -> bornNavGraph(navController, babyDataViewModel, openDrawer, babyId, growthMilestonesViewModel)
-            userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, openDrawer)
+            userRole == "waiting" -> waitingNavGraph(navController, babyDataViewModel, userRole, openDrawer)
         }
     }
 }
@@ -407,7 +405,7 @@ fun NavGraphBuilder.bornNavGraph(navController: NavHostController, babyDataViewM
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel, openDrawer: () -> Unit) {
+fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataViewModel: BabyDataViewModel, userRole: String?, openDrawer: () -> Unit) {
     composable(NavRoutes.WAITING_DASHBOARD) {
         PregnancyDashboardScreen(navController = navController, openDrawer = openDrawer)
     }
@@ -415,6 +413,6 @@ fun NavGraphBuilder.waitingNavGraph(navController: NavHostController, babyDataVi
         RoughDateOfBirthScreen(navController = navController)
     }
     composable(NavRoutes.PREGNANCY_RESOURCES) {
-        PregnancyResourcesMenuScreen(navController = navController, openDrawer = openDrawer)
+        Resources(navController = navController, userRole = userRole, openDrawer = openDrawer)
     }
 }

@@ -89,13 +89,20 @@ class BabyDataViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun setSelectedBaby(baby: BabyProfile?) {
         _selectedBaby.value = baby
         viewModelScope.launch {
-            if (baby?.id != null) {
-                preferencesRepository.saveSelectedBabyId(baby.id)
+            val babyId = baby?.id
+            if (babyId != null) {
+                preferencesRepository.saveSelectedBabyId(babyId)
+                // Auto-recalculate age when baby changes to keep checklist in sync
+                //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    calculateCorrectedAge(baby.birthDate, baby.weeksBirth)
+                //}
             } else {
                 preferencesRepository.clearSelectedBabyId()
+                preferencesRepository.saveBabyAgeMonths("0")
             }
         }
     }
@@ -186,7 +193,9 @@ class BabyDataViewModel @Inject constructor(
     fun updateVaccine(vaccine: Vaccine) {
         val uid = firebaseAuth.currentUser?.uid ?: return
         val babyId = selectedBaby.value?.id ?: return
-        vaccine.id?.let { firestore.collection("users").document(uid).collection("babies").document(babyId).collection("vaccines").document(it).set(vaccine) }
+        vaccine.id?.let { id ->
+            firestore.collection("users").document(uid).collection("babies").document(babyId).collection("vaccines").document(id).set(vaccine)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
