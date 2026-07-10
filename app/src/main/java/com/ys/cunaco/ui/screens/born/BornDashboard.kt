@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -33,8 +34,9 @@ import com.ys.cunaco.navigation.NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS
 import com.ys.cunaco.navigation.NavRoutes.BORN_WEIGHT_CHART_DETAILS
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.theme.primaryGray
+import com.ys.cunaco.ui.theme.primaryTeal
 import com.ys.cunaco.ui.theme.secondaryAqua
-import com.ys.cunaco.ui.theme.secondaryLightGray
+import com.ys.cunaco.ui.theme.secondaryCream
 import com.ys.cunaco.viewmodel.BabyAge
 import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.BabyProfile
@@ -94,7 +96,12 @@ fun BornDashboardScreen(
                     Log.d("BornDashboard", "User selected baby: ${baby.name}")
                     babyDataViewModel.setSelectedBaby(baby)
                 },
-                babyAgeInMonths = babyAgeInMonths
+                babyAgeInMonths = babyAgeInMonths,
+                gradientColors = listOf(
+                    primaryTeal,
+                    primaryTeal
+                ),
+
             )
 
             selectedBaby?.let {
@@ -120,8 +127,11 @@ fun HeadCircumferenceCard(navController: NavController) {
             onClick = {
                 navController.navigate(BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS)
             },
-            color = secondaryAqua,
-            type = "head_circumference"
+            type = "head_circumference",
+            gradientColors = listOf(
+                primaryTeal,
+                primaryTeal
+            ),
         )
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -145,8 +155,11 @@ fun WeightHeightCardsRow(navController: NavController) {
                 onClick = {
                     navController.navigate(BORN_WEIGHT_CHART_DETAILS)
                 },
-                color = secondaryAqua,
-                type = "weight"
+                type = "weight",
+                gradientColors = listOf(
+                    primaryTeal,
+                    primaryTeal
+                ),
             )
         }
 
@@ -160,8 +173,11 @@ fun WeightHeightCardsRow(navController: NavController) {
                 onClick = {
                     navController.navigate(BORN_HEIGHT_WEIGHT_CHART_DETAILS)
                 },
-                color = secondaryAqua,
-                type = "height"
+                type = "height",
+                gradientColors = listOf(
+                    primaryTeal,
+                    primaryTeal
+                ),
             )
         }
     }
@@ -174,8 +190,11 @@ fun PediatricianQuestionsScreen(navController: NavController) {
             title =  stringResource(R.string.pediatrician_question_label),
             description = "",
             onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) },
-            color = secondaryAqua,
-            type = "questions"
+            type = "questions",
+            gradientColors = listOf(
+                primaryTeal,
+                primaryTeal
+            ),
         )
     }
 }
@@ -187,8 +206,11 @@ fun PediatricianVisitQuestionsScreen(navController: NavController) {
             title = stringResource(R.string.pediatrician_visit_label),
             description = "",
             onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) },
-            color = secondaryAqua,
-            type = "visit"
+            type = "visit",
+            gradientColors = listOf(
+                primaryTeal,
+                primaryTeal
+            ),
         )
     }
 }
@@ -198,7 +220,7 @@ fun ClickableCard(
     title: String,
     description: String,
     onClick: () -> Unit,
-    color: Color = MaterialTheme.colorScheme.surface,
+    gradientColors: List<Color>,
     type: String? = "visit"
 ) {
     Card(
@@ -206,29 +228,35 @@ fun ClickableCard(
             .fillMaxWidth()
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = color)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent) // let gradient show through
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            val imageRes = when (type) {
-                "visit" -> R.drawable.icono_app_visita_pediatra
-                "head_circumference" -> R.drawable.icono_app_perimetro
-                "weight" -> R.drawable.mascota_peso_bebe
-                "height" -> R.drawable.icono_app_altura
-                else -> R.drawable.icono_app_pediatra
-            }
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(if (type == "head_circumference") 80.dp else 120.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            if (description.isNotEmpty()) {
-                Text(text = description, style = MaterialTheme.typography.bodyMedium)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.horizontalGradient(gradientColors))
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                val imageRes = when (type) {
+                    "visit" -> R.drawable.icono_app_visita_pediatra
+                    "head_circumference" -> R.drawable.icono_app_perimetro
+                    "weight" -> R.drawable.mascota_peso_bebe
+                    "height" -> R.drawable.icono_app_altura
+                    else -> R.drawable.icono_app_pediatra
+                }
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth().height(if (type == "head_circumference") 80.dp else 120.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                if (description.isNotEmpty()) {
+                    Text(text = description, style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
     }
@@ -239,60 +267,68 @@ fun BabySelectorCard(
     babies: List<BabyProfile>,
     selectedBaby: BabyProfile?,
     onBabySelected: (BabyProfile) -> Unit,
-    babyAgeInMonths: BabyAge?
+    babyAgeInMonths: BabyAge?,
+    gradientColors: List<Color> = listOf(secondaryAqua, secondaryAqua)
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().background(secondaryAqua).padding(16.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.horizontalGradient(gradientColors))
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.size(64.dp).background(secondaryLightGray, shape = RoundedCornerShape(32.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    val initial = selectedBaby?.name?.firstOrNull()?.toString() ?: "?"
-                    Text(text = initial, style = MaterialTheme.typography.titleMedium, color = Color.White)
-                }
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier.size(64.dp).background(secondaryCream, shape = RoundedCornerShape(32.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val initial = selectedBaby?.name?.firstOrNull()?.toString() ?: "?"
+                        Text(text = initial, style = MaterialTheme.typography.titleMedium, color = Color.Gray)
+                    }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                Box {
-                    Column(modifier = Modifier.clickable { if (babies.size > 1) expanded = true }) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = selectedBaby?.name ?: stringResource(R.string.baby_selector_label),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = primaryGray
-                            )
-                            if (babies.size > 1) {
-                                Icon(
-                                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = null,
-                                    tint = primaryGray
+                    Box {
+                        Column(modifier = Modifier.clickable { if (babies.size > 1) expanded = true }) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = selectedBaby?.name ?: stringResource(R.string.baby_selector_label),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = primaryGray
+                                )
+                                if (babies.size > 1) {
+                                    Icon(
+                                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = primaryGray
+                                    )
+                                }
+                            }
+                            if (babyAgeInMonths != null) {
+                                Text(
+                                    text = "${babyAgeInMonths.years} ${stringResource(R.string.baby_selector_years)} " +
+                                            "${stringResource(R.string.baby_selector_and)} " +
+                                            "${babyAgeInMonths.months} ${stringResource(R.string.baby_selector_months)}",
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         }
-                        if (babyAgeInMonths != null) {
-                            Text(
-                                text = "${babyAgeInMonths.years} ${stringResource(R.string.baby_selector_years)} " +
-                                        "${stringResource(R.string.baby_selector_and)} " +
-                                        "${babyAgeInMonths.months} ${stringResource(R.string.baby_selector_months)}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        babies.forEach { baby ->
-                            DropdownMenuItem(
-                                text = { Text(baby.name) },
-                                onClick = { onBabySelected(baby); expanded = false }
-                            )
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            babies.forEach { baby ->
+                                DropdownMenuItem(
+                                    text = { Text(baby.name) },
+                                    onClick = { onBabySelected(baby); expanded = false }
+                                )
+                            }
                         }
                     }
                 }
