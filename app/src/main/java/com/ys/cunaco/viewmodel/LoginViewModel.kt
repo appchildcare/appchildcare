@@ -9,13 +9,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -56,6 +60,16 @@ class LoginViewModel @Inject constructor(): ViewModel() {
             }
         }
     }
+
+    fun observeAuthState(): Flow<FirebaseUser?> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser)
+        }
+        val authInstance = FirebaseAuth.getInstance()
+        authInstance.addAuthStateListener(listener)
+        awaitClose { authInstance.removeAuthStateListener(listener) }
+    }
+
 
     fun logout(navController: NavController, loginViewModel: LoginViewModel,  babyDataViewModel: BabyDataViewModel) {
         FirebaseAuth.getInstance().signOut()

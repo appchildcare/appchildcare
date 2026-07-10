@@ -168,21 +168,17 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
     Log.d("fetch babies", "babyId = $babyId")
 
     LaunchedEffect(Unit) {
-        isUserLoggedIn = loginViewModel.checkUserAuthState()
-        if (isUserLoggedIn) {
-            loginViewModel.fetchUserDetails(
-                onSuccess = { role ->
-                    userRole = role
-                },
-                onSkip = {
-                    userRole = null // Omite la validación del role
-                },
-                onError = {
-                    userRole = null // Manejo de errores
-                }
-            )
-            wizardViewModel.checkWizardFinished()
-            wizardFinished = wizardViewModel.wizardFinished.value
+        loginViewModel.observeAuthState().collect { firebaseUser ->
+            isUserLoggedIn = firebaseUser != null
+            if (isUserLoggedIn) {
+                loginViewModel.fetchUserDetails(
+                    onSuccess = { role -> userRole = role },
+                    onSkip = { userRole = null },
+                    onError = { userRole = null }
+                )
+                wizardViewModel.checkWizardFinished()
+                wizardFinished = wizardViewModel.wizardFinished.value
+            }
         }
     }
 
