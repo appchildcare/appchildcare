@@ -25,6 +25,7 @@ import com.google.firebase.firestore.Query
 import com.ys.cunaco.R
 import com.ys.cunaco.model.FoodReaction
 import com.ys.cunaco.repository.BabyPreferencesRepository
+import com.ys.cunaco.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -186,7 +187,7 @@ class FoodRegistrationViewModel @Inject constructor(
                 // Date
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                val currentDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+                val currentDate = DateUtil.renderDate()
                 canvas.drawText("Fecha de generación: $currentDate", 50f, 180f, paint)
 
                 var yPosition = 220f
