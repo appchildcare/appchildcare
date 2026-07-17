@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes.CONTRACTION_COUNTER
 import com.ys.cunaco.navigation.NavRoutes.LACTATION_TRACKING
+import com.ys.cunaco.navigation.NavRoutes.POO_MAIN_SELECTION
 import com.ys.cunaco.navigation.NavRoutes.SLEEP_TRACKING
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.components.PhdMediumText
@@ -39,7 +40,7 @@ fun BabyCounterSelectionScreen(
     val isWaiting = userRole == "waiting"
 
     PhdLayoutMenu(
-        title = "Seguimiento",
+        title = "Registros",
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -91,6 +92,15 @@ fun BabyCounterSelectionScreen(
                     subtitle = "Registrar sesiones de alimentación",
                     gradientColors = listOf(primaryTeal, primaryTeal),
                     onClick = { navController.navigate(LACTATION_TRACKING) }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                TrackingOptionCard(
+                    title = "Popós",
+                    subtitle = "Registrar popos",
+                    gradientColors = listOf(primaryTeal, primaryTeal),
+                    onClick = { navController.navigate(POO_MAIN_SELECTION) }
                 )
             }
         }

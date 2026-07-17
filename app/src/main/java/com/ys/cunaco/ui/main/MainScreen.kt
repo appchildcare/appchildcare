@@ -43,10 +43,9 @@ val sideNavItemsWaiting = listOf(
 
 val sideNavItemsBorn = listOf(
     NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, shoPremiumIcon = false),
-    NavBarItem(NavRoutes.POO_MAIN_SELECTION, R.string.side_navigation_poop_label, Icons.Default.BabyChangingStation),
     NavBarItem(NavRoutes.EMERGENCY_SCREEN, R.string.side_navigation_emergency_label, Icons.Default.Emergency),
     NavBarItem(NavRoutes.CARBON_FOOTPRINT, R.string.side_navigation_carbon_label, Icons.Default.Eco),
-    NavBarItem(NavRoutes.BORN_COUNTERS, R.string.bottom_navigation_counters_label, Icons.Default.Timer),
+    NavBarItem(NavRoutes.BORN_COUNTERS, R.string.bottom_navigation_counters_label, Icons.Default.EditNote),
     NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
     NavBarItem(NavRoutes.BORN_MENU, R.string.bottom_navigation_baby_label, Icons.Default.Face),
     NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy),

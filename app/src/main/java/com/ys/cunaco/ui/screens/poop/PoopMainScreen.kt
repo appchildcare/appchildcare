@@ -45,7 +45,8 @@ fun PoopMainScreen(
     PhdLayoutMenu(
         title = "Registro de popos",
         navController = navController,
-        openDrawer = openDrawer
+        openDrawer = openDrawer,
+        showBottomBar= true,
     ) {
         Column(
             modifier = Modifier
