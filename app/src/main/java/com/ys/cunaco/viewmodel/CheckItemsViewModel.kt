@@ -29,7 +29,9 @@ class CheckItemsViewModel @Inject constructor(
         val months: Int = 0,
         val topic: String = "",
         val role: String = "",
-        val isChecked: Boolean = false
+        val isChecked: Boolean = false,
+        val advices: List<String> = emptyList(),
+        val reactions: List<String> = emptyList()
     )
 
     data class SubtopicGroup(
@@ -44,7 +46,9 @@ class CheckItemsViewModel @Inject constructor(
         val topic: String,
         val months: Int,
         val role: String = "",
-        val subtopicGroups: List<SubtopicGroup>
+        val subtopicGroups: List<SubtopicGroup>,
+        val advices: List<String> = emptyList(),
+        val reactions: List<String> = emptyList()
     )
 
     private val _topicGroups = MutableStateFlow<List<TopicGroup>>(emptyList())
@@ -81,13 +85,7 @@ class CheckItemsViewModel @Inject constructor(
             _error.value = null
 
             try {
-                val userId = auth.currentUser?.uid ?: run {
-                    _error.value = "User not authenticated"
-                    _isLoading.value = false
-                    return@launch
-                }
-
-                val querySnapshot = firestore.collection("checklists").get().await()
+                val querySnapshot = firestore.collection("checklists").get(com.google.firebase.firestore.Source.SERVER).await()
                 if (querySnapshot.isEmpty) {
                     _topicGroups.value = emptyList()
                     _isLoading.value = false
@@ -98,6 +96,7 @@ class CheckItemsViewModel @Inject constructor(
 
                 for (document in querySnapshot.documents) {
                     val data = document.data ?: continue
+                    Log.d("CheckItemsViewModel", "Doc ${document.id} -> advices=${data["advices"]}, reactions=${data["reactions"]}, keys=${data.keys}")
                     
                     // Manejo de tipos robusto para months y topic
                     val rootTopic = data["topic"]?.toString() ?: ""
@@ -107,6 +106,16 @@ class CheckItemsViewModel @Inject constructor(
                         else -> 0
                     }
                     val role = data["role"]?.toString() ?: ""
+
+
+                    // NUEVO: parsear advices y reactions (mapas indexados "0","1","2"...)
+                    val advicesList = (data["advices"] as? List<*>)
+                        ?.mapNotNull { it?.toString() }
+                        ?: emptyList()
+
+                    val reactionsList = (data["reactions"] as? List<*>)
+                        ?.mapNotNull { it?.toString() }
+                        ?: emptyList()
 
                     var index = 1
                     while (data.containsKey(index.toString())) {
@@ -123,7 +132,9 @@ class CheckItemsViewModel @Inject constructor(
                                 months = rootMonths,
                                 topic = rootTopic,
                                 role = role,
-                                isChecked = false
+                                isChecked = false,
+                                advices = advicesList,
+                                reactions = reactionsList
                             ))
                         }
                         index++
@@ -152,7 +163,9 @@ class CheckItemsViewModel @Inject constructor(
                         topic = first.topic,
                         months = first.months,
                         subtopicGroups = subtopicGroups,
-                        role = first.role
+                        role = first.role,
+                        advices = first.advices,
+                        reactions = first.reactions
                     )
                 }.sortedWith(compareBy({ it.months }, { it.topic }))
 

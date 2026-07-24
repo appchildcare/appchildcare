@@ -50,7 +50,7 @@ import com.ys.cunaco.viewmodel.CheckItemsViewModel
 @Composable
 fun Resources(navController: NavController, userRole: String?, openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Checklist",
+        title = "Desarrollo",
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -153,6 +153,15 @@ fun CheckItemsScreen(
                             checkItemsViewModel.toggleItemChecked(itemId)
                         }
                     )
+                }
+                item {
+                    val allAdvices = filteredTopicGroups.flatMap { it.advices }.distinct()
+                    InfoListCard(title = "Consejos", items = allAdvices)
+                }
+
+                item {
+                    val allReactions = filteredTopicGroups.flatMap { it.reactions }.distinct()
+                    InfoListCard(title = "Señales a observar", items = allReactions)
                 }
             }
         }
@@ -332,6 +341,39 @@ fun ChecklistItemRow(
                     .weight(1f)
                     .padding(start = 8.dp)
             )
+        }
+    }
+}
+
+@Composable
+private fun InfoListCard(title: String, items: List<String>) {
+    if (items.isEmpty()) return
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            items.forEach { item ->
+                Text(
+                    text = "• $item",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
         }
     }
 }

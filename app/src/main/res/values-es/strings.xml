@@ -19,7 +19,7 @@
     <string name="baby_selector_and">y</string>
     <string name="bottom_navigation_panel_label">Panel</string>
     <string name="bottom_navigation_counters_label">Registros</string>
-    <string name="bottom_navigation_checklist_label">Checklist</string>
+    <string name="bottom_navigation_checklist_label">Desarrollo</string>
     <string name="bottom_navigation_baby_label">Bebé</string>
     <string name="side_navigation_label">Menú de Navegación</string>
     <string name="side_navigation_baby_profile_label">Perfil de Bebé</string>
@@ -29,7 +29,7 @@
     <string name="side_navigation_carbon_label">Huella de carbono</string>
     <string name="side_navigation_home_label">Inicio</string>
     <string name="side_navigation_controls_label">Controles</string>
-    <string name="side_navigation_checklist_label">Checklist</string>
+    <string name="side_navigation_checklist_label">Desarrollo</string>
     <string name="side_navigation_baby_label">Bebé</string>
     <string name="side_navigation_logout_label">Cerrar sesión</string>
     <string name="welcome_slider_title">¡Felicidades!</string>
