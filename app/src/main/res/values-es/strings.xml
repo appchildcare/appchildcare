@@ -14,8 +14,14 @@
     <string name="pediatrician_question_label">Preguntas al pediatra</string>
     <string name="pediatrician_visit_label">Visitas al pediatra</string>
     <string name="baby_selector_label">Seleccionar bebé</string>
-    <string name="baby_selector_years">años</string>
-    <string name="baby_selector_months">meses</string>
+    <plurals name="baby_selector_years">
+        <item quantity="one">%d año</item>
+        <item quantity="other">%d años</item>
+    </plurals>
+    <plurals name="baby_selector_months">
+        <item quantity="one">%d mes</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
     <string name="baby_selector_and">y</string>
     <string name="bottom_navigation_panel_label">Panel</string>
     <string name="bottom_navigation_counters_label">Registros</string>

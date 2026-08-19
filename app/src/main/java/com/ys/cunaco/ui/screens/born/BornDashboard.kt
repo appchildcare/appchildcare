@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -314,10 +315,19 @@ fun BabySelectorCard(
                                 }
                             }
                             if (babyAgeInMonths != null) {
+                                val yearsText = pluralStringResource(
+                                    R.plurals.baby_selector_years,
+                                    babyAgeInMonths.years,
+                                    babyAgeInMonths.years
+                                )
+                                val monthsText = pluralStringResource(
+                                    R.plurals.baby_selector_months,
+                                    babyAgeInMonths.months,
+                                    babyAgeInMonths.months
+                                )
+
                                 Text(
-                                    text = "${babyAgeInMonths.years} ${stringResource(R.string.baby_selector_years)} " +
-                                            "${stringResource(R.string.baby_selector_and)} " +
-                                            "${babyAgeInMonths.months} ${stringResource(R.string.baby_selector_months)}",
+                                    text = "$yearsText ${stringResource(R.string.baby_selector_and)} $monthsText",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
