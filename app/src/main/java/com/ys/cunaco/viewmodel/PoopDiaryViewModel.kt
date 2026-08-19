@@ -29,6 +29,7 @@ import com.ys.cunaco.model.PoopRecord
 import com.ys.cunaco.model.WeekDay
 import com.ys.cunaco.repository.BabyPreferencesRepository
 import com.ys.cunaco.ui.screens.poop.formatTimestamp
+import com.ys.cunaco.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -277,7 +278,7 @@ class PoopDiaryViewModel @Inject constructor(
                 // Date
                 paint.textSize = 12f
                 paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                val currentDate = SimpleDateFormat("dd/MM/yyyy HH:mm", spanishLocale).format(Date())
+                val currentDate = DateUtil.renderDate()
                 canvas.drawText("Fecha de generación: $currentDate", 50f, 180f, paint)
 
                 var yPosition = 220f

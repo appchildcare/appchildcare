@@ -50,11 +50,26 @@ import com.ys.cunaco.viewmodel.CheckItemsViewModel
 @Composable
 fun Resources(navController: NavController, userRole: String?, openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Checklist",
+        title = "Desarrollo",
         navController = navController,
         openDrawer = openDrawer
     ) {
         CheckItemsScreen(userRole)
+    }
+}
+
+private fun daysToMonthBucket(ageInDays: Int): Int {
+    return when {
+        ageInDays <= 60 -> 2
+        ageInDays <= 120 -> 4
+        ageInDays <= 180 -> 6
+        ageInDays <= 270 -> 9
+        ageInDays <= 365 -> 12
+        ageInDays <= 540 -> 18
+        ageInDays <= 730 -> 24
+        ageInDays <= 1095 -> 36
+        ageInDays <= 1460 -> 48
+        else -> 60
     }
 }
 
@@ -69,16 +84,22 @@ fun CheckItemsScreen(
     val babyAgeMonths by checkItemsViewModel.babyAgeWeeks.collectAsState()
 
     val filteredTopicGroups = remember(topicGroups, babyAgeMonths, userRole) {
+        val ageInMonthsRaw = babyAgeMonths.toIntOrNull() ?: 0
+        val ageInDays = ageInMonthsRaw * 30
+        val monthBucket = daysToMonthBucket(ageInDays)
 
-        babyAgeMonths?.toIntOrNull()?.let { ageMonths ->
-            val filtered = topicGroups.filter {
-                val matches = it.months == ageMonths && it.role == userRole
-                matches
+        topicGroups.filter { group ->
+            val roleMatches = group.role == userRole
+
+            if (group.role == "waiting") {
+                // Embarazo: solo importa el rol, "months" es un valor fijo (0) sin relación con la edad del bebé
+                roleMatches
+            } else {
+                val ageMatches = group.months == monthBucket
+                roleMatches && ageMatches
             }
-            filtered
-        } ?: emptyList()
+        }
     }
-
 
     when {
         isLoading -> {
@@ -113,7 +134,7 @@ fun CheckItemsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No hay checklists disponibles para la edad actual del bebé.",
+                    text = "No hay checklists disponibles para tu etapa actual (${babyAgeMonths.ifEmpty { "0" }} meses).",
                     textAlign = TextAlign.Center
                 )
             }
@@ -133,11 +154,19 @@ fun CheckItemsScreen(
                         }
                     )
                 }
+                item {
+                    val allAdvices = filteredTopicGroups.flatMap { it.advices }.distinct()
+                    InfoListCard(title = "Consejos", items = allAdvices)
+                }
+
+                item {
+                    val allReactions = filteredTopicGroups.flatMap { it.reactions }.distinct()
+                    InfoListCard(title = "Señales a observar", items = allReactions)
+                }
             }
         }
     }
 }
-
 
 
 @Composable
@@ -164,7 +193,7 @@ fun TopicSection(
                 modifier = Modifier.weight(1f)
             )
 
-            if (topicGroup.months > 0) {
+            if (topicGroup.months >= 0) {
                 AssistChip(
                     onClick = { },
                     label = {
@@ -291,21 +320,19 @@ fun ChecklistItemRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Checkbox item
-            item.isChecked?.let {
-                Checkbox(
-                    checked = it,
-                    onCheckedChange = { checked ->
-                        onCheckedChange(checked)
-                    }
-                )
-            }
+            Checkbox(
+                checked = item.isChecked,
+                onCheckedChange = { checked ->
+                    onCheckedChange(checked)
+                }
+            )
 
             // Item text beside checkbox
             Text(
                 text = item.item,
                 style = MaterialTheme.typography.bodyMedium,
-                textDecoration = if (item.isChecked == true) TextDecoration.LineThrough else null,
-                color = if (item.isChecked == true) {
+                textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
+                color = if (item.isChecked) {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 } else {
                     MaterialTheme.colorScheme.onSurface
@@ -318,3 +345,35 @@ fun ChecklistItemRow(
     }
 }
 
+@Composable
+private fun InfoListCard(title: String, items: List<String>) {
+    if (items.isEmpty()) return
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            items.forEach { item ->
+                Text(
+                    text = "• $item",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+    }
+}

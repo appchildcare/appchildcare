@@ -26,7 +26,7 @@ import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.LoginViewModel
 
 data class NavBarItem(val route: String, val label: Int, val icon: ImageVector,
-                      val isPremium: Boolean = false)
+                      val shoPremiumIcon: Boolean = false)
 
 val navItems = listOf(
     NavBarItem("home", R.string.side_navigation_home_label, Icons.Default.Home),
@@ -35,13 +35,23 @@ val navItems = listOf(
     NavBarItem("baby", R.string.side_navigation_baby_label, Icons.Default.Face)
 )
 
-val sideNavItems = listOf(
-    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, isPremium = true),
-    NavBarItem(NavRoutes.POO_MAIN_SELECTION, R.string.side_navigation_poop_label,Icons.Default.Add),
-    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Info),
-    NavBarItem(NavRoutes.CARBON_FOOTPRINT, R.string.side_navigation_carbon_label, Icons.Default.Star),
+val sideNavItemsWaiting = listOf(
+    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, shoPremiumIcon = true),
+    NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
+    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy),
 )
 
+val sideNavItemsBorn = listOf(
+    NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, shoPremiumIcon = false),
+    NavBarItem(NavRoutes.EMERGENCY_SCREEN, R.string.side_navigation_emergency_label, Icons.Default.Emergency),
+    NavBarItem(NavRoutes.CARBON_FOOTPRINT, R.string.side_navigation_carbon_label, Icons.Default.Eco),
+    NavBarItem(NavRoutes.BORN_COUNTERS, R.string.bottom_navigation_counters_label, Icons.Default.EditNote),
+    NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
+    NavBarItem(NavRoutes.BORN_MENU, R.string.bottom_navigation_baby_label, Icons.Default.Face),
+    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy),
+)
+
+val sideNavItemsDefault = sideNavItemsWaiting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,7 +114,12 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewModel = hiltViewModel(), babyDataViewModel: BabyDataViewModel = hiltViewModel(), closeDrawer: () -> Unit) {
+fun SideNavigationBar(
+    navController: NavController,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
+    closeDrawer: () -> Unit
+) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     var showPremiumOption by remember { mutableStateOf(true) }
 
@@ -118,22 +133,31 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
         }
     }
 
+    // 👇 pick the item list based on role
+    val currentSideNavItems = when (userRole) {
+        "born" -> sideNavItemsBorn
+        "waiting" -> sideNavItemsWaiting
+        else -> sideNavItemsDefault
+    }
+
     ModalDrawerSheet {
-        Text(stringResource(R.string.side_navigation_label), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(12.dp))
+        Text(
+            stringResource(R.string.side_navigation_label),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(12.dp)
+        )
         HorizontalDivider()
         val Gold = Color(0xFFA28834)
-        sideNavItems.forEach { item ->
+
+        currentSideNavItems.forEach { item ->
             val label = stringResource(item.label)
             NavigationDrawerItem(
                 label = { Text(label, style = MaterialTheme.typography.labelMedium) },
                 icon = {
-                    if (item.isPremium && showPremiumOption) {
+                    if (item.shoPremiumIcon && showPremiumOption) {
                         BadgedBox(
                             badge = {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 150.dp)
-                                ) {
+                                Box(modifier = Modifier.padding(start = 150.dp)) {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_premium),
                                         contentDescription = "Pregnant women",
@@ -147,7 +171,6 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                             Icon(item.icon, contentDescription = label)
                         }
                     } else {
-                        // Regular icon for non-premium items
                         Icon(item.icon, contentDescription = label)
                     }
                 },
@@ -159,9 +182,8 @@ fun SideNavigationBar(navController: NavController, loginViewModel: LoginViewMod
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)) {
+
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Button(onClick = {
                 loginViewModel.logout(navController, loginViewModel, babyDataViewModel)
                 closeDrawer()

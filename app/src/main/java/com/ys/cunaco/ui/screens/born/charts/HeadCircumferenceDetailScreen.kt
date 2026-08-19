@@ -1,8 +1,6 @@
 package com.ys.cunaco.ui.screens.born.charts
 
-import android.content.ContentValues
-import android.content.pm.PackageManager
-import android.provider.MediaStore
+import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -35,12 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.ys.cunaco.R
 import com.ys.cunaco.model.LMSHeadCircumference
+import com.ys.cunaco.services.PdfGeneratorUtils
 import com.ys.cunaco.ui.components.PhdBoldText
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.util.LmsUtils
 import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.GrowthMilestonesViewModel
+import com.ys.cunaco.viewmodel.GrowthRecord
 import com.ys.cunaco.viewmodel.UserDataViewModel
 import kotlin.math.ln
 import kotlin.math.pow
@@ -60,6 +62,17 @@ fun HeadCircumferenceDetailScreen(
     val context = LocalContext.current
     val selectedBabyProfile by babyDataViewModel.selectedBaby.collectAsState()
 
+    val babySex = remember(selectedBabyProfile) {
+        when (selectedBabyProfile?.sex) {
+            "Masculino" -> "boy"
+            "Femenino" -> "girl"
+            else -> ""
+        }
+    }
+
+    val babyName = remember(selectedBabyProfile) {
+        return@remember selectedBabyProfile?.name
+    }
 
     LaunchedEffect(babyId) {
         growthMilestonesViewModel.fetchBabyId(
@@ -90,7 +103,8 @@ fun HeadCircumferenceDetailScreen(
                     generateHeadCircumferencePDF(
                         context = context,
                         records = records,
-                        babyId = babyId ?: "unknown"
+                        babyName = babyName ?: "unknown",
+                        sex = babySex
                     )
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -602,307 +616,71 @@ fun calcularRangoNormalPerimetroCefalico(
     )
 }
 
-
 fun generateHeadCircumferencePDF(
-    context: android.content.Context,
-    records: List<Any>, // Replace with your actual record type
-    babyId: String
+    context: Context,
+    records: List<GrowthRecord>,
+    babyName: String,
+    sex: String
 ) {
-    try {
-        // Create PDF document
-        val pdfDocument = android.graphics.pdf.PdfDocument()
-        val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
-        val page = pdfDocument.startPage(pageInfo)
-        val canvas = page.canvas
-        val paint = android.graphics.Paint()
-
-        // Title
-        paint.textSize = 24f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-        paint.color = android.graphics.Color.BLACK
-        canvas.drawText("Reporte de Perímetro Cefálico", 50f, 80f, paint)
-
-        // Baby ID
-        paint.textSize = 16f
-        paint.typeface = android.graphics.Typeface.DEFAULT
-        canvas.drawText("ID del Bebé: $babyId", 50f, 120f, paint)
-
-        // Date
-        val currentDate = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
-        canvas.drawText("Fecha: $currentDate", 50f, 150f, paint)
-
-        // Table title
-        paint.textSize = 18f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-        canvas.drawText("Tabla de Mediciones", 50f, 200f, paint)
-
-        // Table setup
-        var yPosition = 240f
-        paint.textSize = 12f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-
-        // Draw table border
-        paint.style = android.graphics.Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.color = android.graphics.Color.BLACK
-        val tableLeft = 50f
-        val tableRight = 545f
-        val tableTop = yPosition - 15f
-
-        // Calculate table height based on number of records
-        val rowHeight = 25f
-        val headerHeight = 30f
-        val maxRows = kotlin.math.min(records.size, 20) // Limit rows to fit page
-        val tableBottom = tableTop + headerHeight + (maxRows * rowHeight)
-
-        canvas.drawRect(tableLeft, tableTop, tableRight, tableBottom, paint)
-
-        // Column positions and widths
-        val colPositions = floatArrayOf(60f, 140f, 200f, 280f, 360f, 460f)
-        val colWidths = floatArrayOf(80f, 60f, 80f, 80f, 100f, 85f)
-
-        // Draw column separators
-        for (i in 1 until colPositions.size) {
-            canvas.drawLine(colPositions[i], tableTop, colPositions[i], tableBottom, paint)
-        }
-
-        // Table headers
-        paint.style = android.graphics.Paint.Style.FILL
-        paint.color = android.graphics.Color.BLACK
-        paint.textSize = 11f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-
-        canvas.drawText("Fecha", colPositions[0], yPosition, paint)
-        canvas.drawText("Edad", colPositions[1], yPosition, paint)
-        canvas.drawText("Peso (kg)", colPositions[2], yPosition, paint)
-        canvas.drawText("Talla (cm)", colPositions[3], yPosition, paint)
-        canvas.drawText("P. Cefálico", colPositions[4], yPosition, paint)
-
-        // Draw header separator line
-        yPosition += 15f
-        paint.style = android.graphics.Paint.Style.STROKE
-        paint.strokeWidth = 1f
-        canvas.drawLine(tableLeft, yPosition, tableRight, yPosition, paint)
-
-        yPosition += 10f
-        paint.style = android.graphics.Paint.Style.FILL
-        paint.textSize = 10f
-        paint.typeface = android.graphics.Typeface.DEFAULT
-
-        // Data rows
-        val lmsTable = LmsUtils.lmsHeadCircumference
-        records.take(maxRows).forEachIndexed { index, record ->
-            // Draw alternating row background
-            if (index % 2 == 0) {
-                paint.color = android.graphics.Color.parseColor("#F5F5F5")
-                canvas.drawRect(
-                    tableLeft + 1f,
-                    yPosition - 12f,
-                    tableRight - 1f,
-                    yPosition + 8f,
-                    paint
-                )
-            }
-
-            paint.color = android.graphics.Color.BLACK
-
-            // Placeholder data - replace with actual record data
-            canvas.drawText("01/01/24", colPositions[0], yPosition, paint)
-            canvas.drawText("${index + 1}m", colPositions[1], yPosition, paint)
-            canvas.drawText("3.5", colPositions[2], yPosition, paint)
-            canvas.drawText("50.2", colPositions[3], yPosition, paint)
-            canvas.drawText("35.8", colPositions[4], yPosition, paint)
-            canvas.drawText("Normal", colPositions[5], yPosition, paint)
-
-            // Draw row separator
-            yPosition += rowHeight
-            if (index < maxRows - 1) {
-                paint.style = android.graphics.Paint.Style.STROKE
-                paint.strokeWidth = 0.5f
-                paint.color = android.graphics.Color.LTGRAY
-                canvas.drawLine(tableLeft, yPosition - 12f, tableRight, yPosition - 12f, paint)
-                paint.style = android.graphics.Paint.Style.FILL
-                paint.color = android.graphics.Color.BLACK
-            }
-        }
-
-        // Summary section
-        yPosition += 40f
-        paint.textSize = 14f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-        paint.color = android.graphics.Color.BLACK
-        canvas.drawText("Resumen:", 50f, yPosition, paint)
-
-        yPosition += 25f
-        paint.textSize = 12f
-        paint.typeface = android.graphics.Typeface.DEFAULT
-        canvas.drawText("• Total de mediciones: ${records.size}", 70f, yPosition, paint)
-        yPosition += 20f
-        canvas.drawText("• Última medición: ${currentDate}", 70f, yPosition, paint)
-        yPosition += 20f
-        canvas.drawText("• Estado general: Seguimiento normal", 70f, yPosition, paint)
-
-        // Footer
-        yPosition = 800f
-        paint.textSize = 10f
-        paint.color = android.graphics.Color.GRAY
-        canvas.drawText("Generado por PhD Mama App", 50f, yPosition, paint)
-        canvas.drawText("Página 1 de 1", 450f, yPosition, paint)
-
-        pdfDocument.finishPage(page)
-
-        // Create and save PDF, then share
-        val fileName = "reporte_perimetro_cefalico_${babyId}_${System.currentTimeMillis()}.pdf"
-        savePDFAndShare(context, pdfDocument, fileName)
-
-    } catch (e: Exception) {
-        android.widget.Toast.makeText(
-            context,
-            "Error al generar PDF: ${e.message}",
-            android.widget.Toast.LENGTH_LONG
-        ).show()
-        e.printStackTrace()
+    val lmsTable = if (sex.lowercase() == "girl") {
+        LmsUtils.lmdGirlsHeightLengthData
+    } else {
+        LmsUtils.lmsBoysHeightLengthData
     }
-}
 
-private fun savePDFAndShare(
-    context: android.content.Context,
-    pdfDocument: android.graphics.pdf.PdfDocument,
-    fileName: String
-) {
-    try {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            // Use MediaStore for Android 10+
-            val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/")
-            }
+    PdfGeneratorUtils.generateAndSharePdf(
+        context = context,
+        fileName = "Reporte_Perimetro_Cefalico",
+        title = "Reporte de Perimetro Cefálico",
+        subtitle = "Nombre del Bebé: $babyName",
+        logoResId = R.drawable.app_child_care_logo
+    ) {
+        // Draw table
+        val headers = listOf("Edad", "Peso (kg)", "Talla (cm)", "P. Cefálico")
+        val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
-            val resolver = context.contentResolver
-            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-
-            uri?.let { pdfUri ->
-                resolver.openOutputStream(pdfUri)?.use { outputStream ->
-                    pdfDocument.writeTo(outputStream)
-                    pdfDocument.close()
-
-                    android.widget.Toast.makeText(
-                        context,
-                        "PDF guardado exitosamente",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-
-                    // Share the PDF
-                    sharePDF(context, pdfUri, fileName)
-                }
-            } ?: run {
-                pdfDocument.close()
-                android.widget.Toast.makeText(
-                    context,
-                    "Error al crear el archivo PDF",
-                    android.widget.Toast.LENGTH_LONG
-                ).show()
-            }
-        } else {
-            // Fallback for older Android versions
-            val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
-                android.os.Environment.DIRECTORY_DOWNLOADS
+        val tableData = records.map { record ->
+            val zScore = calcularZScoreTallaEdad(
+                talla = record.height,
+                edadMeses = record.ageInMonths,
+                lmsList = lmsTable
             )
-            val file = java.io.File(downloadsDir, fileName)
 
-            try {
-                val fileOutputStream = java.io.FileOutputStream(file)
-                pdfDocument.writeTo(fileOutputStream)
-                pdfDocument.close()
-                fileOutputStream.close()
+            val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
+            val rangoText = rango?.let {
+                "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}"
+            } ?: "N/A"
 
-                // Create content URI for sharing
-                val uri = androidx.core.content.FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    file
-                )
-
-                android.widget.Toast.makeText(
-                    context,
-                    "PDF guardado exitosamente",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
-
-                // Share the PDF
-                sharePDF(context, uri, fileName)
-
-            } catch (e: Exception) {
-                pdfDocument.close()
-                android.widget.Toast.makeText(
-                    context,
-                    "Error al guardar PDF: ${e.message}",
-                    android.widget.Toast.LENGTH_LONG
-                ).show()
-            }
+            listOf(
+                "${record.ageInMonths} m",
+                "${record.height ?: "N/A"}",
+                zScore?.let { String.format("%.2f", it) } ?: "N/A",
+                rangoText
+            )
         }
-    } catch (e: Exception) {
-        pdfDocument.close()
-        android.widget.Toast.makeText(
-            context,
-            "Error al procesar PDF: ${e.message}",
-            android.widget.Toast.LENGTH_LONG
-        ).show()
+
+        drawTable(headers, columnPositions, tableData)
+
+        // Add summary section
+        addSectionTitle("Resumen:")
+
+        val totalMeasurements = records.size
+        val lastRecord = records.lastOrNull()
+        val lastHeight = lastRecord?.height?.let { String.format("%.1f", it) } ?: "N/A"
+        val lastAge = lastRecord?.ageInMonths ?: 0
+
+        val normalCount = records.count { record ->
+            val zScore = calcularZScoreTallaEdad(
+                talla = record.height,
+                edadMeses = record.ageInMonths,
+                lmsList = lmsTable
+            )
+            zScore?.let { it >= -2 && it <= 2 } ?: false
+        }
+
+        addText("• Total de mediciones: $totalMeasurements", indent = 20f)
+        addText("• Última medición: $lastHeight cm ($lastAge meses)", indent = 20f)
+        addText("• Mediciones en rango normal: $normalCount de $totalMeasurements", indent = 20f)
     }
 }
 
-private fun sharePDF(context: android.content.Context, uri: android.net.Uri, fileName: String) {
-    try {
-        val shareIntent = android.content.Intent().apply {
-            action = android.content.Intent.ACTION_SEND
-            type = "application/pdf"
-            putExtra(android.content.Intent.EXTRA_STREAM, uri)
-            putExtra(android.content.Intent.EXTRA_SUBJECT, "Reporte de Perímetro Cefálico")
-            putExtra(android.content.Intent.EXTRA_TEXT, "Compartiendo reporte médico del bebé")
-            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        // Create chooser with WhatsApp as preferred option
-        val chooserIntent = android.content.Intent.createChooser(shareIntent, "Compartir reporte")
-
-        // Add WhatsApp as a specific option if available
-        val whatsappIntent = android.content.Intent().apply {
-            action = android.content.Intent.ACTION_SEND
-            type = "application/pdf"
-            setPackage("com.whatsapp")
-            putExtra(android.content.Intent.EXTRA_STREAM, uri)
-            putExtra(android.content.Intent.EXTRA_TEXT, "Reporte de perímetro cefálico")
-            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        // Check if WhatsApp is installed
-        val packageManager = context.packageManager
-        val whatsappAvailable = try {
-            packageManager.getPackageInfo("com.whatsapp", 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-
-        if (whatsappAvailable) {
-            chooserIntent.putExtra(android.content.Intent.EXTRA_INITIAL_INTENTS, arrayOf(whatsappIntent))
-        }
-
-        // Start the share activity
-        if (context is android.app.Activity) {
-            context.startActivity(chooserIntent)
-        } else {
-            chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(chooserIntent)
-        }
-
-    } catch (e: Exception) {
-        android.widget.Toast.makeText(
-            context,
-            "Error al compartir: ${e.message}",
-            android.widget.Toast.LENGTH_LONG
-        ).show()
-        e.printStackTrace()
-    }
-}

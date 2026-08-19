@@ -17,6 +17,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import com.ys.cunaco.util.DateUtil
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -294,7 +295,7 @@ class PdfContentBuilder(
         // Draw generation date
         paint.textSize = 12f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        val currentDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+        val currentDate = DateUtil.renderDate()
         canvas.drawText("Fecha de generación: $currentDate", marginLeft, yPosition, paint)
         yPosition += 40f
     }
@@ -344,7 +345,8 @@ class PdfContentBuilder(
     }
 
     /**
-     * Draw a table with headers and data
+     * Draw a table with headers and data — now paginates properly so rows
+     * never overlap the footer, and re-draws the header + border on new pages.
      */
     fun drawTable(
         headers: List<String>,
@@ -353,49 +355,66 @@ class PdfContentBuilder(
         rowHeight: Float = 30f,
         alternateRowColor: Boolean = true
     ) {
-        val tableTop = yPosition - 15f
-        val headerHeight = 30f
+        // Leave a safety margin above the footer line (drawn at y=800f)
+        val footerSafeMargin = 40f
+        val tableBottomLimit = pageContentHeight - footerSafeMargin // 710f
 
-        // Draw table border
-        paint.style = android.graphics.Paint.Style.STROKE
-        paint.strokeWidth = 2f
-        paint.color = android.graphics.Color.BLACK
+        fun drawTableHeader() {
+            paint.style = android.graphics.Paint.Style.FILL
+            paint.color = android.graphics.Color.BLACK
+            paint.textSize = 11f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
 
-        val maxRows = data.size
-        val tableBottom = tableTop + headerHeight + (maxRows * rowHeight)
+            headers.forEachIndexed { index, header ->
+                canvas.drawText(header, columnPositions[index], yPosition, paint)
+            }
 
-        canvas.drawRect(marginLeft, tableTop, marginRight, tableBottom, paint)
+            yPosition += 15f
+            paint.style = android.graphics.Paint.Style.STROKE
+            paint.strokeWidth = 1f
+            paint.color = android.graphics.Color.BLACK
+            canvas.drawLine(marginLeft, yPosition, marginRight, yPosition, paint)
 
-        // Draw column separators
-        for (i in 1 until columnPositions.size) {
-            canvas.drawLine(columnPositions[i], tableTop, columnPositions[i], tableBottom, paint)
+            yPosition += 15f
+            paint.style = android.graphics.Paint.Style.FILL
+            paint.textSize = 9f
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
         }
 
-        // Draw headers
-        paint.style =  android.graphics.Paint.Style.FILL
-        paint.color = android.graphics.Color.BLACK
-        paint.textSize = 11f
-        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        var segmentTop = yPosition - 15f
+        drawTableHeader()
 
-        headers.forEachIndexed { index, header ->
-            canvas.drawText(header, columnPositions[index], yPosition, paint)
-        }
-
-        // Draw header separator line
-        yPosition += 15f
-        paint.style = android.graphics.Paint.Style.STROKE
-        paint.strokeWidth = 1f
-        canvas.drawLine(marginLeft, yPosition, marginRight, yPosition, paint)
-
-        yPosition += 15f
-        paint.style = android.graphics.Paint.Style.FILL
-        paint.textSize = 9f
-        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-
-        // Draw data rows
         data.forEachIndexed { index, row ->
+            // If this row would land in (or past) the footer safe zone, start a new page
+            if (yPosition + rowHeight > tableBottomLimit) {
+                // Close off the border for this page's table segment
+                paint.style = android.graphics.Paint.Style.STROKE
+                paint.strokeWidth = 2f
+                paint.color = android.graphics.Color.BLACK
+                canvas.drawRect(marginLeft, segmentTop, marginRight, yPosition + 5f, paint)
+
+                // Page break: finish this page (with footer) and start a new one
+                drawFooter()
+                pdfDocument.finishPage(currentPage)
+                pageNumber++
+                totalPages = pageNumber
+                val pageInfo = PdfDocument.PageInfo.Builder(
+                    pageWidth.toInt(),
+                    pageHeight.toInt(),
+                    pageNumber
+                ).create()
+                currentPage = pdfDocument.startPage(pageInfo)
+                canvas = currentPage.canvas
+                yPosition = 50f
+
+                // Re-draw header row on the new page
+                segmentTop = yPosition - 15f
+                drawTableHeader()
+            }
+
             // Draw alternating row background
             if (alternateRowColor && index % 2 == 0) {
+                paint.style = android.graphics.Paint.Style.FILL
                 paint.color = android.graphics.Color.parseColor("#F5F5F5")
                 canvas.drawRect(
                     marginLeft + 1f,
@@ -407,14 +426,13 @@ class PdfContentBuilder(
             }
 
             paint.color = android.graphics.Color.BLACK
-
             row.forEachIndexed { colIndex, cell ->
                 canvas.drawText(cell, columnPositions[colIndex], yPosition, paint)
             }
 
             yPosition += rowHeight
 
-            // Draw row separator
+            // Row separator
             if (index < data.size - 1) {
                 paint.style = android.graphics.Paint.Style.STROKE
                 paint.strokeWidth = 0.5f
@@ -424,6 +442,13 @@ class PdfContentBuilder(
                 paint.color = android.graphics.Color.BLACK
             }
         }
+
+        // Close border for the final segment
+        paint.style = android.graphics.Paint.Style.STROKE
+        paint.strokeWidth = 2f
+        paint.color = android.graphics.Color.BLACK
+        canvas.drawRect(marginLeft, segmentTop, marginRight, yPosition + 5f, paint)
+        paint.style = android.graphics.Paint.Style.FILL
 
         yPosition += 20f
     }

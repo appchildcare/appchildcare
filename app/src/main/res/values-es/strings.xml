@@ -14,21 +14,28 @@
     <string name="pediatrician_question_label">Preguntas al pediatra</string>
     <string name="pediatrician_visit_label">Visitas al pediatra</string>
     <string name="baby_selector_label">Seleccionar bebé</string>
-    <string name="baby_selector_years">años</string>
-    <string name="baby_selector_months">meses</string>
+    <plurals name="baby_selector_years">
+        <item quantity="one">%d año</item>
+        <item quantity="other">%d años</item>
+    </plurals>
+    <plurals name="baby_selector_months">
+        <item quantity="one">%d mes</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
     <string name="baby_selector_and">y</string>
     <string name="bottom_navigation_panel_label">Panel</string>
-    <string name="bottom_navigation_counters_label">Contadores</string>
-    <string name="bottom_navigation_checklist_label">Checklist</string>
+    <string name="bottom_navigation_counters_label">Registros</string>
+    <string name="bottom_navigation_checklist_label">Desarrollo</string>
     <string name="bottom_navigation_baby_label">Bebé</string>
     <string name="side_navigation_label">Menú de Navegación</string>
     <string name="side_navigation_baby_profile_label">Perfil de Bebé</string>
-    <string name="side_navigation_poop_label">Registro de popos</string>
+    <string name="side_navigation_poop_label">Registros</string>
+    <string name="side_navigation_emergency_label">Emergencia</string>
     <string name="side_navigation_terms_label">Políticas de uso</string>
     <string name="side_navigation_carbon_label">Huella de carbono</string>
     <string name="side_navigation_home_label">Inicio</string>
     <string name="side_navigation_controls_label">Controles</string>
-    <string name="side_navigation_checklist_label">Checklist</string>
+    <string name="side_navigation_checklist_label">Desarrollo</string>
     <string name="side_navigation_baby_label">Bebé</string>
     <string name="side_navigation_logout_label">Cerrar sesión</string>
     <string name="welcome_slider_title">¡Felicidades!</string>
@@ -41,7 +48,7 @@
     </string-array>
     <string name="welcome_slider_title_3">Recuerden, no están solos</string>
     <string name="welcome_slider_slide_3">Estamos aquí para acompañarlos.</string>
-    <string name="welcome_slider_slide_3_1">¡Bienvenidos a ChildCare!</string>
+    <string name="welcome_slider_slide_3_1">¡Bienvenidos a CunaCo!</string>
     <string name="welcome_slider_button_next">Siguiente</string>
     <string name="welcome_slider_button_start">Comenzar</string>
     <string name="baby_menu_vaccine_title">Vacunas</string>
