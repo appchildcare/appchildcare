@@ -9,6 +9,7 @@
     <string name="head_circumference_description">Seguimiento del crecimiento del perímetro cefálico</string>
     <string name="weight_label">Peso</string>
     <string name="weight_description">Seguimiento del peso del bebé</string>
+    <string name="growth_milestones_description">Signos de alerta</string>
     <string name="height_label">Altura</string>
     <string name="height_description">Seguimiento de la altura del bebé</string>
     <string name="pediatrician_question_label">Preguntas al pediatra</string>

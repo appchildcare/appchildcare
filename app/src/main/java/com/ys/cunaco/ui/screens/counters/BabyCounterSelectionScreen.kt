@@ -1,34 +1,42 @@
 package com.ys.cunaco.ui.screens.counters
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ys.cunaco.R
+import com.ys.cunaco.navigation.NavRoutes.CARBON_FOOTPRINT
 import com.ys.cunaco.navigation.NavRoutes.CONTRACTION_COUNTER
 import com.ys.cunaco.navigation.NavRoutes.LACTATION_TRACKING
 import com.ys.cunaco.navigation.NavRoutes.POO_MAIN_SELECTION
 import com.ys.cunaco.navigation.NavRoutes.SLEEP_TRACKING
+import com.ys.cunaco.ui.components.PhdClickableCard
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.components.PhdMediumText
 import com.ys.cunaco.ui.components.PhdTextBold
-import com.ys.cunaco.ui.theme.primaryTeal
 import com.ys.cunaco.viewmodel.LoginViewModel
+
+// Pastel tones — misma paleta que BabyMenuScreen
+private val cardMint = Color(0xFF9FE3D0)
+private val cardTeal = Color(0xFF7FB8C4)
+private val cardSky  = Color(0xFF9FD6E8)
+
+private data class CounterMenuItemData(
+    val title: String,
+    val icon: Int,
+    val route: String,
+    val backgroundColor: Color
+)
 
 @Composable
 fun BabyCounterSelectionScreen(
@@ -39,6 +47,19 @@ fun BabyCounterSelectionScreen(
     val userRole by loginViewModel.userRole.collectAsState()
     val isWaiting = userRole == "waiting"
 
+    val items = if (isWaiting) {
+        listOf(
+            CounterMenuItemData("Contracciones", R.drawable.icono_vacunas, CONTRACTION_COUNTER, cardTeal)
+        )
+    } else {
+        listOf(
+            CounterMenuItemData("Sueño", R.drawable.icono_sueno_bebe_registro, SLEEP_TRACKING, cardMint),
+            CounterMenuItemData("Lactancia", R.drawable.icono_lactancia_registro, LACTATION_TRACKING, cardTeal),
+            CounterMenuItemData("Popós", R.drawable.icono_popo_registro, POO_MAIN_SELECTION, cardSky),
+            CounterMenuItemData("Huella de carbono", R.drawable.icon_huella_carbono_leaf, CARBON_FOOTPRINT, cardSky)
+        )
+    }
+
     PhdLayoutMenu(
         title = "Registros",
         navController = navController,
@@ -47,8 +68,8 @@ fun BabyCounterSelectionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(20.dp),
-            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
@@ -68,82 +89,27 @@ fun BabyCounterSelectionScreen(
                 PhdMediumText(text = "Selecciona una opción para comenzar")
             }
 
-            if (isWaiting) {
-                // FLUJO WAITING: Activar SOLO la opción de Contracciones
-                TrackingOptionCard(
-                    title = "Contracciones",
-                    subtitle = "Registrar frecuencia de contracciones",
-                    gradientColors = listOf(primaryTeal, primaryTeal),
-                    onClick = { navController.navigate(CONTRACTION_COUNTER) }
-                )
-            } else {
-                // FLUJO BORN: Mostrar Sueño y Lactancia
-                TrackingOptionCard(
-                    title = "Sueño",
-                    subtitle = "Registrar siestas y tiempo de descanso",
-                    gradientColors = listOf(primaryTeal, primaryTeal),
-                    onClick = { navController.navigate(SLEEP_TRACKING) }
-                )
-
+            items.chunked(2).forEach { rowItems ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    rowItems.forEach { item ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            PhdClickableCard(
+                                title = item.title,
+                                imageResId = item.icon,
+                                backgroundColor = item.backgroundColor,
+                                onClick = { navController.navigate(item.route) }
+                            )
+                        }
+                    }
+                    // Pad an odd last row so the single card doesn't stretch full width
+                    if (rowItems.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
                 Spacer(modifier = Modifier.height(24.dp))
-
-                TrackingOptionCard(
-                    title = "Lactancia",
-                    subtitle = "Registrar sesiones de alimentación",
-                    gradientColors = listOf(primaryTeal, primaryTeal),
-                    onClick = { navController.navigate(LACTATION_TRACKING) }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                TrackingOptionCard(
-                    title = "Popós",
-                    subtitle = "Registrar popos",
-                    gradientColors = listOf(primaryTeal, primaryTeal),
-                    onClick = { navController.navigate(POO_MAIN_SELECTION) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun TrackingOptionCard(
-    title: String,
-    subtitle: String,
-    gradientColors: List<Color>,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(110.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Brush.horizontalGradient(gradientColors))
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = title,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF5B5C61)
-                )
-                Text(
-                    text = subtitle,
-                    fontSize = 13.sp,
-                    color = Color(0xFF5B5C61).copy(alpha = 0.8f)
-                )
             }
         }
     }
