@@ -9,6 +9,7 @@
     <string name="head_circumference_description">Monitoring head circumference growth</string>
     <string name="weight_label">Weight</string>
     <string name="weight_description">Baby weight tracking</string>
+    <string name="growth_milestones_description">Growth Milestones</string>
     <string name="height_label">Height</string>
     <string name="height_description">Baby Height Tracking</string>
     <string name="pediatrician_question_label">Questions for the Pediatrician</string>

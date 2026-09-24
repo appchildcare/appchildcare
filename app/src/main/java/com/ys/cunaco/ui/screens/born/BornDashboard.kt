@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +34,7 @@ import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes
 import com.ys.cunaco.navigation.NavRoutes.BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS
 import com.ys.cunaco.navigation.NavRoutes.BORN_HEIGHT_WEIGHT_CHART_DETAILS
+import com.ys.cunaco.navigation.NavRoutes.BORN_RESOURCES
 import com.ys.cunaco.navigation.NavRoutes.BORN_WEIGHT_CHART_DETAILS
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.theme.primaryGray
@@ -43,6 +46,11 @@ import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.BabyProfile
 import com.ys.cunaco.viewmodel.GrowthMilestonesViewModel
 import com.ys.cunaco.viewmodel.UserDataViewModel
+
+// Pastel tones sampled from the reference design
+private val cardMint = Color(0xFF9FE3D0)
+private val cardTeal = Color(0xFF7FB8C4)
+private val cardSky  = Color(0xFF9FD6E8)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -103,18 +111,44 @@ fun BornDashboardScreen(
                     primaryTeal
                 ),
 
-            )
+                )
 
             selectedBaby?.let {
-                HeadCircumferenceCard(navController)
+                HeadCircumferenceMilestonesRow(navController)
                 WeightHeightCardsRow(navController)
                 Spacer(modifier = Modifier.height(16.dp))
             }
+            PediatricianCardsRow(navController)
+        }
+    }
+}
 
-           // userViewModel.createUserChecklists("born") //TODO: Revisar checklist
-            PediatricianQuestionsScreen(navController)
-            Spacer(modifier = Modifier.height(16.dp))
-            PediatricianVisitQuestionsScreen(navController)
+@Composable
+fun HeadCircumferenceMilestonesRow(navController: NavController) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(0.90f)
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Perímetro Cefálico - Left Column
+        Column(modifier = Modifier.weight(1f)) {
+            ClickableCard(
+                title = stringResource(R.string.head_circumference_label),
+                onClick = { navController.navigate(BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS) },
+                type = "head_circumference",
+                backgroundColor = cardMint,
+            )
+        }
+
+        // Desarrollo / Milestones - Right Column
+        Column(modifier = Modifier.weight(1f)) {
+            ClickableCard(
+                title = stringResource(R.string.growth_milestones_description),
+                onClick = { navController.navigate(BORN_RESOURCES) },
+                type = "milestones",
+                backgroundColor = cardSky,
+            )
         }
     }
 }
@@ -124,15 +158,26 @@ fun HeadCircumferenceCard(navController: NavController) {
     Column(modifier = Modifier.fillMaxWidth(0.90f)) {
         ClickableCard(
             title = stringResource(R.string.head_circumference_label),
-            description = stringResource(R.string.head_circumference_description),
             onClick = {
                 navController.navigate(BORN_HEAD_CIRCUMFERENCE_CHART_DETAILS)
             },
             type = "head_circumference",
-            gradientColors = listOf(
-                primaryTeal,
-                primaryTeal
-            ),
+            backgroundColor = cardMint,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+fun GrowthMilestonesCard(navController: NavController) {
+    Column(modifier = Modifier.fillMaxWidth(0.90f)) {
+        ClickableCard(
+            title = stringResource(R.string.growth_milestones_description),
+            onClick = {
+                navController.navigate(BORN_RESOURCES)
+            },
+            type = "milestones",
+            backgroundColor = cardMint,
         )
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -152,15 +197,12 @@ fun WeightHeightCardsRow(navController: NavController) {
         ) {
             ClickableCard(
                 title = stringResource(R.string.weight_label),
-                description = stringResource(R.string.weight_description),
+//                description = stringResource(R.string.weight_description),
                 onClick = {
                     navController.navigate(BORN_WEIGHT_CHART_DETAILS)
                 },
                 type = "weight",
-                gradientColors = listOf(
-                    primaryTeal,
-                    primaryTeal
-                ),
+                backgroundColor = cardTeal,
             )
         }
 
@@ -170,95 +212,101 @@ fun WeightHeightCardsRow(navController: NavController) {
         ) {
             ClickableCard(
                 title = stringResource(R.string.height_label),
-                description =  stringResource(R.string.height_description),
+//                description = stringResource(R.string.height_description),
                 onClick = {
                     navController.navigate(BORN_HEIGHT_WEIGHT_CHART_DETAILS)
                 },
                 type = "height",
-                gradientColors = listOf(
-                    primaryTeal,
-                    primaryTeal
-                ),
+                backgroundColor = cardSky,
             )
         }
     }
 }
 
 @Composable
-fun PediatricianQuestionsScreen(navController: NavController) {
-    Column(modifier = Modifier.fillMaxWidth(0.90f)) {
-        ClickableCard(
-            title =  stringResource(R.string.pediatrician_question_label),
-            description = "",
-            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) },
-            type = "questions",
-            gradientColors = listOf(
-                primaryTeal,
-                primaryTeal
-            ),
-        )
-    }
-}
+fun PediatricianCardsRow(navController: NavController) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(0.90f)
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Questions Card - Left Column
+        Column(modifier = Modifier.weight(1f)) {
+            ClickableCard(
+                title = stringResource(R.string.pediatrician_question_label),
+//                description = "",
+                onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_QUESTIONS) },
+                type = "questions",
+                backgroundColor = cardMint,
+            )
+        }
 
-@Composable
-fun PediatricianVisitQuestionsScreen(navController: NavController) {
-    Column(modifier = Modifier.fillMaxWidth(0.90f)) {
-        ClickableCard(
-            title = stringResource(R.string.pediatrician_visit_label),
-            description = "",
-            onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) },
-            type = "visit",
-            gradientColors = listOf(
-                primaryTeal,
-                primaryTeal
-            ),
-        )
+        // Visit Card - Right Column
+        Column(modifier = Modifier.weight(1f)) {
+            ClickableCard(
+                title = stringResource(R.string.pediatrician_visit_label),
+//                description = "",
+                onClick = { navController.navigate(NavRoutes.PEDIATRICIAN_VISITS) },
+                type = "visit",
+                backgroundColor = cardTeal,
+            )
+        }
     }
 }
 
 @Composable
 fun ClickableCard(
     title: String,
-    description: String,
+    description: String = "",
     onClick: () -> Unit,
-    gradientColors: List<Color>,
+    backgroundColor: Color,
     type: String? = "visit"
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent) // let gradient show through
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Brush.horizontalGradient(gradientColors))
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .background(backgroundColor, RoundedCornerShape(28.dp)),
+            contentAlignment = Alignment.Center
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                val imageRes = when (type) {
-                    "visit" -> R.drawable.icono_app_visita_pediatra
-                    "head_circumference" -> R.drawable.icono_app_perimetro
-                    "weight" -> R.drawable.mascota_peso_bebe
-                    "height" -> R.drawable.icono_app_altura
-                    else -> R.drawable.icono_app_pediatra
-                }
-                Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().height(if (type == "head_circumference") 80.dp else 120.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                if (description.isNotEmpty()) {
-                    Text(text = description, style = MaterialTheme.typography.bodyMedium)
-                }
+            val imageRes = when (type) {
+                "visit" -> R.drawable.icono_app_visita_pediatra
+                "head_circumference" -> R.drawable.icono_app_perimetro
+                "weight" -> R.drawable.mascota_peso_bebe
+                "height" -> R.drawable.icono_app_altura
+                "milestones" -> R.drawable.icono_app_signos_alerta
+                else -> R.drawable.icono_app_pediatra
             }
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(0.55f)
+            )
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1F4E5F),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+        if (description.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
         }
     }
 }
