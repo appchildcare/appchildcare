@@ -10,12 +10,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -24,7 +26,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -35,6 +42,9 @@ import com.ys.cunaco.ui.theme.primaryGray
 import com.ys.cunaco.ui.theme.primaryTeal
 import com.ys.cunaco.ui.theme.secondaryCream
 import com.ys.cunaco.viewmodel.LoginViewModel
+
+private const val TERMS_TAG = "TERMS"
+private const val PRIVACY_TAG = "PRIVACY"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +58,9 @@ fun LoginScreen(
     val password by loginViewModel.password.collectAsState()
     var isGoogleLoading by remember { mutableStateOf(false) }
     var isEmailLoading by remember { mutableStateOf(false) }
+    var acceptedTerms by rememberSaveable { mutableStateOf(false) }
+    var showTermsDialog by rememberSaveable { mutableStateOf(false) }
+    var showPrivacyDialog by rememberSaveable { mutableStateOf(false) }
 
 
     // Configure the Google Sign-In launcher
@@ -87,6 +100,21 @@ fun LoginScreen(
         }
     }
 
+    if (showTermsDialog) {
+        LegalDialog(
+            title = stringResource(R.string.legal_terms_title),
+            text = stringResource(R.string.legal_terms_text),
+            onDismiss = { showTermsDialog = false }
+        )
+    }
+    if (showPrivacyDialog) {
+        LegalDialog(
+            title = stringResource(R.string.legal_privacy_title),
+            text = stringResource(R.string.legal_privacy_text),
+            onDismiss = { showPrivacyDialog = false }
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -100,7 +128,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
 
-    ) {
+        ) {
         Image(
             painter = painterResource(id = R.drawable.mascota_juntos),
             contentDescription = "Auth image",
@@ -159,7 +187,58 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp))
+            .padding(4.dp))
+
+        // Aceptación de Términos de Uso y Política de Privacidad (se abren en un modal)
+        val acceptPrefix = stringResource(R.string.legal_accept_prefix)
+        val acceptAnd = stringResource(R.string.legal_accept_and)
+        val termsTitle = stringResource(R.string.legal_terms_title)
+        val privacyTitle = stringResource(R.string.legal_privacy_title)
+        val linkStyle = SpanStyle(
+            color = primaryTeal,
+            fontWeight = FontWeight.Bold,
+            textDecoration = TextDecoration.Underline
+        )
+        val termsAnnotated = buildAnnotatedString {
+            append("$acceptPrefix ")
+            pushStringAnnotation(tag = TERMS_TAG, annotation = TERMS_TAG)
+            withStyle(linkStyle) { append(termsTitle) }
+            pop()
+            append(" $acceptAnd ")
+            pushStringAnnotation(tag = PRIVACY_TAG, annotation = PRIVACY_TAG)
+            withStyle(linkStyle) { append(privacyTitle) }
+            pop()
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = acceptedTerms,
+                onCheckedChange = { acceptedTerms = it },
+                colors = CheckboxDefaults.colors(checkedColor = primaryTeal)
+            )
+            ClickableText(
+                text = termsAnnotated,
+                style = MaterialTheme.typography.bodySmall.copy(color = primaryGray),
+                onClick = { offset ->
+                    when {
+                        termsAnnotated.getStringAnnotations(TERMS_TAG, offset, offset).isNotEmpty() ->
+                            showTermsDialog = true
+                        termsAnnotated.getStringAnnotations(PRIVACY_TAG, offset, offset).isNotEmpty() ->
+                            showPrivacyDialog = true
+                        else -> acceptedTerms = !acceptedTerms
+                    }
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp))
 
         // Botón de inicio de sesión con email
         Button(
@@ -195,7 +274,7 @@ fun LoginScreen(
                 )
             },
             modifier = modifier.fillMaxWidth().padding(16.dp, 0.dp),
-            enabled = !isEmailLoading
+            enabled = acceptedTerms && !isEmailLoading
         ) {
             if (isEmailLoading) {
                 CircularProgressIndicator(color = Color.White)
@@ -234,7 +313,7 @@ fun LoginScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 0.dp),
-            enabled = !isGoogleLoading
+            enabled = acceptedTerms && !isGoogleLoading
         ) {
             if (isGoogleLoading) {
                 CircularProgressIndicator(color = Color.White)
