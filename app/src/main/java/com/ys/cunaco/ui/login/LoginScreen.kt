@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import androidx.compose.ui.platform.LocalUriHandler
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes
 import com.ys.cunaco.ui.theme.primaryGray
@@ -54,12 +55,12 @@ fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val email by loginViewModel.email.collectAsState()
     val password by loginViewModel.password.collectAsState()
     var isGoogleLoading by remember { mutableStateOf(false) }
     var isEmailLoading by remember { mutableStateOf(false) }
     var acceptedTerms by rememberSaveable { mutableStateOf(false) }
-    var showTermsDialog by rememberSaveable { mutableStateOf(false) }
     var showPrivacyDialog by rememberSaveable { mutableStateOf(false) }
 
 
@@ -100,13 +101,6 @@ fun LoginScreen(
         }
     }
 
-    if (showTermsDialog) {
-        LegalDialog(
-            title = stringResource(R.string.legal_terms_title),
-            text = stringResource(R.string.legal_terms_text),
-            onDismiss = { showTermsDialog = false }
-        )
-    }
     if (showPrivacyDialog) {
         LegalDialog(
             title = stringResource(R.string.legal_privacy_title),
@@ -194,6 +188,7 @@ fun LoginScreen(
         val acceptAnd = stringResource(R.string.legal_accept_and)
         val termsTitle = stringResource(R.string.legal_terms_title)
         val privacyTitle = stringResource(R.string.legal_privacy_title)
+        val termsUrl = stringResource(R.string.legal_terms_url)
         val linkStyle = SpanStyle(
             color = primaryTeal,
             fontWeight = FontWeight.Bold,
@@ -227,7 +222,7 @@ fun LoginScreen(
                 onClick = { offset ->
                     when {
                         termsAnnotated.getStringAnnotations(TERMS_TAG, offset, offset).isNotEmpty() ->
-                            showTermsDialog = true
+                            uriHandler.openUri(termsUrl)
                         termsAnnotated.getStringAnnotations(PRIVACY_TAG, offset, offset).isNotEmpty() ->
                             showPrivacyDialog = true
                         else -> acceptedTerms = !acceptedTerms
