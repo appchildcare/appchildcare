@@ -119,7 +119,7 @@ fun TermsConditionsContent() {
                     "con las leyes de España, sin tener en cuenta sus disposiciones sobre conflicto de leyes.\n\n" +
                     "Resolución Amistosa de Conflictos: Antes de iniciar cualquier acción legal formal, ambas partes acuerdan " +
                     "intentar resolver cualquier disputa, reclamación o controversia de manera informal. Puedes notificarnos " +
-                    "iniciando el proceso a través de cunacoapp XXXXXXXX correo electrónico de contacto para soporte legal. " +
+                    "iniciando el proceso a través de hola@cunaco.app. " +
                     "Haremos lo posible por resolverlo mediante consulta y negociación de buena fe.\n\n" +
                     "Jurisdicción Competente: Cualquier disputa legal que no pueda resolverse de manera amistosa se someterá a " +
                     "la jurisdicción exclusiva de los tribunales ubicados en Pamplona, España.\n\n" +
