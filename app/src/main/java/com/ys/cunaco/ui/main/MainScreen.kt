@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -15,7 +16,6 @@ import com.ys.cunaco.navigation.NavRoutes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,8 +27,13 @@ import com.ys.cunaco.ui.components.PhdBoldText
 import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.LoginViewModel
 
-data class NavBarItem(val route: String, val label: Int, val icon: ImageVector,
-                      val shoPremiumIcon: Boolean = false)
+data class NavBarItem(
+    val route: String,
+    val label: Int,
+    val icon: ImageVector,
+    val shoPremiumIcon: Boolean = false,
+    val urlRes: Int? = null
+)
 
 val navItems = listOf(
     NavBarItem("home", R.string.side_navigation_home_label, Icons.Default.Home),
@@ -40,7 +45,7 @@ val navItems = listOf(
 val sideNavItemsWaiting = listOf(
     NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, shoPremiumIcon = true),
     NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
-    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy),
+    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy,  urlRes = R.string.legal_terms_url),
 )
 
 val sideNavItemsBorn = listOf(
@@ -50,7 +55,7 @@ val sideNavItemsBorn = listOf(
     NavBarItem(NavRoutes.BORN_COUNTERS, R.string.bottom_navigation_counters_label, Icons.Default.EditNote),
     NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
     NavBarItem(NavRoutes.BORN_MENU, R.string.bottom_navigation_baby_label, Icons.Default.Face),
-    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy),
+    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy, urlRes = R.string.legal_terms_url),
 )
 
 val sideNavItemsDefault = sideNavItemsWaiting
@@ -124,6 +129,7 @@ fun SideNavigationBar(
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
     var showPremiumOption by remember { mutableStateOf(true) }
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(userRole) {
         userRole?.let {
@@ -154,6 +160,8 @@ fun SideNavigationBar(
         // Renderizado de ítems
         currentSideNavItems.forEach { item ->
             val label = stringResource(item.label)
+            val url = item.urlRes?.let { stringResource(it) }
+
             NavigationDrawerItem(
                 label = { Text(label, style = MaterialTheme.typography.labelMedium) },
                 icon = {
@@ -179,7 +187,11 @@ fun SideNavigationBar(
                 },
                 selected = false,
                 onClick = {
-                    navController.navigate(item.route)
+                    if (url != null) {
+                        runCatching { uriHandler.openUri(url) }
+                    } else {
+                        navController.navigate(item.route)
+                    }
                     closeDrawer()
                 },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
