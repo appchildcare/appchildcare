@@ -98,34 +98,35 @@ fun HeadCircumferenceDetailScreen(
         ) {
             PhdBoldText("Perímetro Cefálico para la Edad")
 
+            Button(
+                onClick = {
+                    generateHeadCircumferencePDF(
+                        context = context,
+                        records = records,
+                        babyName = babyName ?: "unknown",
+                        sex = babySex
+                    )
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Spacer(modifier = Modifier.padding(4.dp))
+                Text(
+                    text = "Descargar",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+
             Spacer(Modifier.height(16.dp))
 
-            if (records.isNotEmpty()) {
-                Button(
-                    onClick = {
-                        generateHeadCircumferencePDF(
-                            context = context,
-                            records = records,
-                            babyName = babyName ?: "unknown",
-                            sex = babySex
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(
-                        text = "Descargar",
-                        color = Color.White,
-                        fontSize = 12.sp
-                    )
-                }
-
-                // The chart is now only rendered if there is data
+            if (records.isNotEmpty() && babySex.isNotEmpty()) {
+                // The chart is now rendered with the correct sex from Firebase
                 HeadCircumferenceChart(
                     records = records,
+                    sex = babySex,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
@@ -164,7 +165,7 @@ fun HeadCircumferenceDetailScreen(
                         }
                     }
                 }
-            } else {
+            } else if (records.isEmpty()) {
                 Text("No hay datos disponibles.")
             }
 
@@ -176,25 +177,15 @@ fun HeadCircumferenceDetailScreen(
 @Composable
 fun HeadCircumferenceChart(
     records: List<GrowthRecord>,
+    sex: String,
     modifier: Modifier = Modifier
 ) {
-    // Reference data for girls (first 14 weeks/months) - WHO standards
-    val referenceData = listOf(
-        LMSHeadCircumference(0, "girl", 1.0, 33.8787, 0.03496, 1.1844, 30.3, 31.5, 32.7, 33.9, 35.1, 36.2, 37.4),
-        LMSHeadCircumference(1, "girl", 1.0, 34.5529, 0.03374, 1.1658, 31.1, 32.2, 33.4, 34.6, 35.7, 36.9, 38.1),
-        LMSHeadCircumference(2, "girl", 1.0, 35.2272, 0.03251, 1.1452, 31.8, 32.9, 34.1, 35.2, 36.4, 37.5, 38.7),
-        LMSHeadCircumference(3, "girl", 1.0, 35.8430, 0.03231, 1.1581, 32.4, 33.5, 34.7, 35.8, 37.0, 38.2, 39.3),
-        LMSHeadCircumference(4, "girl", 1.0, 36.3761, 0.03215, 1.1695, 32.9, 34.0, 35.2, 36.4, 37.5, 38.7, 39.9),
-        LMSHeadCircumference(5, "girl", 1.0, 36.8472, 0.03202, 1.1799, 33.3, 34.5, 35.7, 36.8, 38.0, 39.2, 40.4),
-        LMSHeadCircumference(6, "girl", 1.0, 37.2711, 0.03191, 1.1893, 33.7, 34.9, 36.1, 37.3, 38.5, 39.6, 40.8),
-        LMSHeadCircumference(7, "girl", 1.0, 37.6584, 0.03182, 1.1983, 34.1, 35.3, 36.5, 37.7, 38.9, 40.1, 41.3),
-        LMSHeadCircumference(8, "girl", 1.0, 38.0167, 0.03173, 1.2063, 34.4, 35.6, 36.8, 38.0, 39.2, 40.4, 41.6),
-        LMSHeadCircumference(9, "girl", 1.0, 38.3516, 0.03166, 1.2142, 34.7, 35.9, 37.1, 38.4, 39.6, 40.8, 42.0),
-        LMSHeadCircumference(10, "girl", 1.0, 38.6673, 0.03158, 1.2211, 35.0, 36.2, 37.4, 38.7, 39.9, 41.1, 42.3),
-        LMSHeadCircumference(11, "girl", 1.0, 38.9661, 0.03152, 1.2282, 35.3, 36.5, 37.7, 39.0, 40.2, 41.4, 42.7),
-        LMSHeadCircumference(12, "girl", 1.0, 39.2501, 0.03146, 1.2348, 35.5, 36.8, 38.0, 39.3, 40.5, 41.7, 43.0),
-        LMSHeadCircumference(13, "girl", 1.0, 39.5210, 0.03140, 1.2410, 35.8, 37.0, 38.3, 39.5, 40.8, 42.0, 43.2)
-    )
+    // Reference data filtered by sex - WHO standards from LmsUtils
+    val referenceData = remember(sex) {
+        LmsUtils.lmsHeadCircumference.filter { it.sex.equals(sex, ignoreCase = true) }
+    }
+
+    if (referenceData.isEmpty()) return
 
     Canvas(modifier = modifier) {
         val chartWidth = size.width - 120f
@@ -207,9 +198,9 @@ fun HeadCircumferenceChart(
         val minHeadCircumference = 30f
         val maxHeadCircumference = 44f
 
-        // Draw background with pink tint like WHO chart
+        // Draw background with pink tint like WHO chart (could be blue for boys if preferred)
         drawRect(
-            color = Color(0xFFFCF0FC),
+            color = if (sex == "boy") Color(0xFFE3F2FD) else Color(0xFFFCF0FC),
             topLeft = Offset(chartStartX, chartStartY),
             size = androidx.compose.ui.geometry.Size(chartWidth, chartHeight)
         )
