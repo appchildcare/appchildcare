@@ -98,48 +98,47 @@ fun HeadCircumferenceDetailScreen(
         ) {
             PhdBoldText("Perímetro Cefálico para la Edad")
 
-            Button(
-                onClick = {
-                    generateHeadCircumferencePDF(
-                        context = context,
-                        records = records,
-                        babyName = babyName ?: "unknown",
-                        sex = babySex
-                    )
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Spacer(modifier = Modifier.padding(4.dp))
-                Text(
-                    text = "Descargar",
-                    color = Color.White,
-                    fontSize = 12.sp
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // Add the chart here
-            HeadCircumferenceChart(
-                records = records,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .padding(16.dp)
-            )
-
             Spacer(Modifier.height(16.dp))
 
             if (records.isNotEmpty()) {
-                val sexo = "girl" // O usa el valor real desde el ViewModel si está disponible
+                Button(
+                    onClick = {
+                        generateHeadCircumferencePDF(
+                            context = context,
+                            records = records,
+                            babyName = babyName ?: "unknown",
+                            sex = babySex
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    Text(
+                        text = "Descargar",
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
+                }
+
+                // The chart is now only rendered if there is data
+                HeadCircumferenceChart(
+                    records = records,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .padding(16.dp)
+                )
+
+                Spacer(Modifier.height(16.dp))
+
                 val lmsTable = LmsUtils.lmsHeadCircumference
 
                 LazyColumn {
                     items(records) { record ->
-                        val zScore = record.headCircumference?.let { medida ->
+                        val zScore = record.headCircumference.let { medida ->
                             selectedBabyProfile?.let { it1 ->
                                 calcularZScorePerimetroCefalico(
                                     headCircumference = record.headCircumference,
@@ -147,14 +146,6 @@ fun HeadCircumferenceDetailScreen(
                                     sexo = it1.sex,
                                     lmsList = lmsTable,
                                 )
-                            }
-                        }
-
-                        val diagnostico = zScore?.let {
-                            when {
-                                it < -2 -> "Microcefalia"
-                                it <= 2 -> "Normal"
-                                else -> "Macrocefalia"
                             }
                         }
 
@@ -178,23 +169,16 @@ fun HeadCircumferenceDetailScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            //Image(
-              //  painter = painterResource(id = R.mipmap.ilustraciones_baby),
-               // contentDescription = "Auth image",
-                // modifier = Modifier
-                   // .fillMaxWidth()
-                   // .height(180.dp)
-            //)
         }
     }
 }
 
 @Composable
 fun HeadCircumferenceChart(
-    records: List<Any>, // Replace with your actual record type
+    records: List<GrowthRecord>,
     modifier: Modifier = Modifier
 ) {
-    // Reference data for girls (first 14 weeks) - WHO standards
+    // Reference data for girls (first 14 weeks/months) - WHO standards
     val referenceData = listOf(
         LMSHeadCircumference(0, "girl", 1.0, 33.8787, 0.03496, 1.1844, 30.3, 31.5, 32.7, 33.9, 35.1, 36.2, 37.4),
         LMSHeadCircumference(1, "girl", 1.0, 34.5529, 0.03374, 1.1658, 31.1, 32.2, 33.4, 34.6, 35.7, 36.9, 38.1),
@@ -219,7 +203,7 @@ fun HeadCircumferenceChart(
         val chartStartY = 40f
 
         // Chart bounds - matching WHO chart
-        val maxWeeks = 13f
+        val maxMonths = 13f
         val minHeadCircumference = 30f
         val maxHeadCircumference = 44f
 
@@ -236,7 +220,7 @@ fun HeadCircumferenceChart(
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference
         )
@@ -249,7 +233,7 @@ fun HeadCircumferenceChart(
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference,
             color = Color.Black,
@@ -264,7 +248,7 @@ fun HeadCircumferenceChart(
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference,
             color = Color(0xFF4CAF50),
@@ -279,7 +263,7 @@ fun HeadCircumferenceChart(
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference,
             color = Color.Black,
@@ -294,7 +278,7 @@ fun HeadCircumferenceChart(
             chartWidth = chartWidth,
             chartHeight = chartHeight,
             referenceData = referenceData,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference
         )
@@ -305,19 +289,19 @@ fun HeadCircumferenceChart(
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference
         )
 
-        // Plot patient data points if available
+        // Plot patient data points from Firebase
         plotPatientData(
             records = records,
             chartStartX = chartStartX,
             chartStartY = chartStartY,
             chartWidth = chartWidth,
             chartHeight = chartHeight,
-            maxWeeks = maxWeeks,
+            maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
             maxHeadCircumference = maxHeadCircumference
         )
@@ -406,7 +390,7 @@ private fun DrawScope.drawZScoreLabels(
 }
 
 private fun DrawScope.plotPatientData(
-    records: List<Any>,
+    records: List<GrowthRecord>,
     chartStartX: Float,
     chartStartY: Float,
     chartWidth: Float,
@@ -415,20 +399,26 @@ private fun DrawScope.plotPatientData(
     minHeadCircumference: Float,
     maxHeadCircumference: Float
 ) {
-    // This function would plot actual patient data points
-    // You'll need to cast records to your actual record type and extract the data
-    /*
     records.forEach { record ->
-        val x = chartStartX + (record.ageInWeeks / maxWeeks) * chartWidth
-        val y = chartStartY + chartHeight - ((record.headCircumference - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
+        val x = chartStartX + (record.ageInMonths.toFloat() / maxWeeks) * chartWidth
+        val y = chartStartY + chartHeight - ((record.headCircumference.toFloat() - minHeadCircumference) / (maxHeadCircumference - minHeadCircumference)) * chartHeight
 
-        drawCircle(
-            color = Color.Blue,
-            radius = 8f,
-            center = Offset(x, y)
-        )
+        // Only draw if within chart bounds
+        if (x in chartStartX..(chartStartX + chartWidth) && y in chartStartY..(chartStartY + chartHeight)) {
+            drawCircle(
+                color = Color(0xFF2196F3), // Material Blue
+                radius = 8f,
+                center = Offset(x, y)
+            )
+            
+            // Draw a small outline for better visibility
+            drawCircle(
+                color = Color.White,
+                radius = 4f,
+                center = Offset(x, y)
+            )
+        }
     }
-    */
 }
 
 private fun DrawScope.drawGrid(
@@ -508,7 +498,7 @@ private fun DrawScope.drawAxes(
         strokeWidth = 2f
     )
 
-    // X-axis labels (weeks)
+    // X-axis labels (weeks/months)
     for (week in 0..maxWeeks.toInt()) {
         val x = chartStartX + (week / maxWeeks) * chartWidth
         val label = if (week == 0) "Birth" else "${week}"
@@ -622,11 +612,8 @@ fun generateHeadCircumferencePDF(
     babyName: String,
     sex: String
 ) {
-    val lmsTable = if (sex.lowercase() == "girl") {
-        LmsUtils.lmdGirlsHeightLengthData
-    } else {
-        LmsUtils.lmsBoysHeightLengthData
-    }
+    // Note: fixing reference to missing functions by using local ones or placeholder logic
+    val lmsTable = LmsUtils.lmsHeadCircumference
 
     PdfGeneratorUtils.generateAndSharePdf(
         context = context,
@@ -640,22 +627,21 @@ fun generateHeadCircumferencePDF(
         val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
         val tableData = records.map { record ->
-            val zScore = calcularZScoreTallaEdad(
-                talla = record.height,
-                edadMeses = record.ageInMonths,
-                lmsList = lmsTable
-            )
-
-            val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
+            val pc = record.headCircumference
+            val age = record.ageInMonths
+            
+            val zScore = calcularZScorePerimetroCefalico(pc, age, sex, lmsTable)
+            val rango = calcularRangoNormalPerimetroCefalico(age, sex, lmsTable)
+            
             val rangoText = rango?.let {
                 "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}"
             } ?: "N/A"
 
             listOf(
-                "${record.ageInMonths} m",
-                "${record.height ?: "N/A"}",
-                zScore?.let { String.format("%.2f", it) } ?: "N/A",
-                rangoText
+                "$age m",
+                "${record.weight}",
+                "${record.height}",
+                "${record.headCircumference}"
             )
         }
 
@@ -666,21 +652,16 @@ fun generateHeadCircumferencePDF(
 
         val totalMeasurements = records.size
         val lastRecord = records.lastOrNull()
-        val lastHeight = lastRecord?.height?.let { String.format("%.1f", it) } ?: "N/A"
+        val lastPC = lastRecord?.headCircumference?.let { String.format("%.1f", it) } ?: "N/A"
         val lastAge = lastRecord?.ageInMonths ?: 0
 
         val normalCount = records.count { record ->
-            val zScore = calcularZScoreTallaEdad(
-                talla = record.height,
-                edadMeses = record.ageInMonths,
-                lmsList = lmsTable
-            )
+            val zScore = calcularZScorePerimetroCefalico(record.headCircumference, record.ageInMonths, sex, lmsTable)
             zScore?.let { it >= -2 && it <= 2 } ?: false
         }
 
         addText("• Total de mediciones: $totalMeasurements", indent = 20f)
-        addText("• Última medición: $lastHeight cm ($lastAge meses)", indent = 20f)
+        addText("• Última medición P. Cefálico: $lastPC cm ($lastAge meses)", indent = 20f)
         addText("• Mediciones en rango normal: $normalCount de $totalMeasurements", indent = 20f)
     }
 }
-
