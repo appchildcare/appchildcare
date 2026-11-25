@@ -28,7 +28,7 @@ import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.LoginViewModel
 
 data class NavBarItem(
-    val route: String,
+    val route: String? = null,
     val label: Int,
     val icon: ImageVector,
     val shoPremiumIcon: Boolean = false,
@@ -45,7 +45,7 @@ val navItems = listOf(
 val sideNavItemsWaiting = listOf(
     NavBarItem(NavRoutes.SIDEBAR_BABY_PROFILE, R.string.side_navigation_baby_profile_label, Icons.Default.Edit, shoPremiumIcon = true),
     NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
-    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy,  urlRes = R.string.legal_terms_url),
+    NavBarItem(label = R.string.side_navigation_terms_label, icon = Icons.Default.Policy,  urlRes = R.string.legal_terms_url),
 )
 
 val sideNavItemsBorn = listOf(
@@ -55,7 +55,7 @@ val sideNavItemsBorn = listOf(
     NavBarItem(NavRoutes.BORN_COUNTERS, R.string.bottom_navigation_counters_label, Icons.Default.EditNote),
     NavBarItem(NavRoutes.BORN_RESOURCES, R.string.side_navigation_checklist_label, Icons.Default.Checklist),
     NavBarItem(NavRoutes.BORN_MENU, R.string.bottom_navigation_baby_label, Icons.Default.Face),
-    NavBarItem(NavRoutes.TERMS_CONDITIONS, R.string.side_navigation_terms_label, Icons.Default.Policy, urlRes = R.string.legal_terms_url),
+    NavBarItem( label = R.string.side_navigation_terms_label, icon = Icons.Default.Policy, urlRes = R.string.legal_terms_url),
 )
 
 val sideNavItemsDefault = sideNavItemsWaiting
@@ -107,12 +107,14 @@ fun BottomNavigationBar(navController: NavController) {
                 label = { Text(label) },
                 selected = currentRoute == screen.route,
                 onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    screen.route?.let { route ->
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 }
             )
@@ -190,7 +192,7 @@ fun SideNavigationBar(
                     if (url != null) {
                         runCatching { uriHandler.openUri(url) }
                     } else {
-                        navController.navigate(item.route)
+                        item.route?.let { navController.navigate(it) }
                     }
                     closeDrawer()
                 },
