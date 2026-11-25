@@ -41,21 +41,40 @@ class LoginViewModel @Inject constructor(): ViewModel() {
     private val _userRole = MutableStateFlow<String?>(null)
     val userRole: StateFlow<String?> = _userRole.asStateFlow()
 
+    private val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+        if (auth.currentUser != null) {
+            fetchUserRole()
+        } else {
+            _userRole.value = null
+        }
+    }
+
     init {
-        fetchUserRole()
+        firebaseAuth.addAuthStateListener(authStateListener)
+        // Initial fetch if user already logged in
+        if (firebaseAuth.currentUser != null) {
+            fetchUserRole()
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
     fun fetchUserRole() {
         val uid = firebaseAuth.currentUser?.uid ?: return
         viewModelScope.launch {
-            _userRole.value = null
             try {
                 val document = firestore.collection("users")
                     .document(uid)
                     .get()
                     .await()
-                _userRole.value = document.getString("role")
+                val role = document.getString("role")
+                _userRole.value = role
+                Log.d("LoginViewModel", "Role fetched and updated in state: $role")
             } catch (e: Exception) {
+                Log.e("LoginViewModel", "Error fetching role", e)
                 _userRole.value = null
             }
         }
@@ -110,7 +129,8 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         firestore.collection("users").document(uid).set(user)
             .addOnSuccessListener {
                 Log.d("LoginViewModel", "Usuario creado o actualizado en Firestore")
-                onComplete() // Llama al callback de finalización
+                fetchUserRole() // Refresh state after creation
+                onComplete() 
             }
             .addOnFailureListener { e ->
                 Log.e("LoginViewModel", "Error al crear o actualizar el usuario en Firestore", e)
@@ -129,6 +149,7 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                 try {
                     val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
                     if (result.user != null) {
+                        fetchUserRole() // Ensure state is updated on sign in
                         onSuccess()
                     } else {
                         onError(UiText.StringResource(R.string.login_error_authentication))
@@ -143,12 +164,6 @@ class LoginViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-    fun UiText.asString(context: Context): String {
-        return when (this) {
-            is UiText.StringResource -> context.getString(resId)
-            is UiText.DynamicString -> value
-        }
-    }
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(context.getString(R.string.default_web_client_id))
@@ -188,6 +203,10 @@ class LoginViewModel @Inject constructor(): ViewModel() {
                     val role = document.getString("role")
                     val wizardFinished = document.getBoolean("wizardFinished") ?: false
 
+                    // Importante: Actualizar el estado interno del ViewModel
+                    _userRole.value = role
+                    Log.d("LoginViewModel", "fetchUserDetails: Role updated to $role")
+
                     // Si role es nulo o wizardFinished es false, saltamos la validación.
                     if (role == null || !wizardFinished) {
                         onSkip()
@@ -206,5 +225,12 @@ class LoginViewModel @Inject constructor(): ViewModel() {
     sealed class UiText {
         data class StringResource(val resId: Int) : UiText()
         data class DynamicString(val value: String) : UiText()
+
+        fun asString(context: Context): String {
+            return when (this) {
+                is StringResource -> context.getString(resId)
+                is DynamicString -> value
+            }
+        }
     }
 }

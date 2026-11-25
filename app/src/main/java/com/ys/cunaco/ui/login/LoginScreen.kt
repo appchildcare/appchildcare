@@ -1,6 +1,7 @@
 package com.ys.cunaco.ui.login
 
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -52,7 +53,8 @@ private const val PRIVACY_TAG = "PRIVACY"
 fun LoginScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    // Scope to Activity to share state with Sidebar/MainActivity
+    loginViewModel: LoginViewModel = hiltViewModel(LocalContext.current as ComponentActivity)
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -85,19 +87,19 @@ fun LoginScreen(
                         }
                     },
                     onSkip = {
-                        // Si no existe el rol o wizardFinished es false, vamos a BABY_STATUS
                         navController.navigate(NavRoutes.BABY_STATUS) {
                             popUpTo(0) { inclusive = true }
                         }
                     },
                     onError = { errorMessage ->
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, errorMessage as CharSequence, Toast.LENGTH_SHORT).show()
                     }
                 )
 
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Google Sign-In falló: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            val msg = "Google Sign-In falló: ${e.localizedMessage ?: ""}"
+            Toast.makeText(context, msg as CharSequence, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -136,7 +138,6 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(12.dp))
 
-        // Campo de correo electrónico
         OutlinedTextField(
             singleLine = true,
             value = email,
@@ -157,7 +158,6 @@ fun LoginScreen(
                 ),
         )
 
-        // Campo de contraseña
         OutlinedTextField(
             singleLine = true,
             modifier = modifier
@@ -183,7 +183,6 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(4.dp))
 
-        // Aceptación de Términos de Uso y Política de Privacidad (se abren en un modal)
         val acceptPrefix = stringResource(R.string.legal_accept_prefix)
         val acceptAnd = stringResource(R.string.legal_accept_and)
         val termsTitle = stringResource(R.string.legal_terms_title)
@@ -235,7 +234,6 @@ fun LoginScreen(
             .fillMaxWidth()
             .padding(4.dp))
 
-        // Botón de inicio de sesión con email
         Button(
             onClick = {
                 isEmailLoading = true
@@ -258,13 +256,14 @@ fun LoginScreen(
                                 }
                             },
                             onError = { errorMessage ->
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                isEmailLoading = false
+                                Toast.makeText(context, errorMessage as CharSequence, Toast.LENGTH_SHORT).show()
                             }
                         )
                     },
-                    onError = { errorMessage ->
+                    onError = { uiText ->
                         isEmailLoading = false
-                        //Toast.makeText(context, errorMessage.asString(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, uiText.asString(context) as CharSequence, Toast.LENGTH_SHORT).show()
                     }
                 )
             },
@@ -272,7 +271,7 @@ fun LoginScreen(
             enabled = acceptedTerms && !isEmailLoading
         ) {
             if (isEmailLoading) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             } else {
                 Text(text = stringResource(R.string.login_button_login))
             }
@@ -290,8 +289,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp))
-// HAY QUE HACERLE EL MISMO TRABAJITO DE LAS PANTALLAS ASYNC en el botón de Waiting en la dulce espera
-        // Botón de inicio de sesión con Google
+
         val errorText = stringResource(R.string.login_button_error)
         Button(
             onClick = {
@@ -301,7 +299,7 @@ fun LoginScreen(
                     launcher.launch(signInClient.signInIntent)
                 } catch (e: Exception) {
                     isGoogleLoading = false
-                    Toast.makeText(context, errorText, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, errorText as CharSequence, Toast.LENGTH_SHORT).show()
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = primaryTeal),
@@ -311,18 +309,16 @@ fun LoginScreen(
             enabled = acceptedTerms && !isGoogleLoading
         ) {
             if (isGoogleLoading) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
             } else {
                 Text(text = stringResource(R.string.login_button_login_google))
             }
         }
 
-
         Spacer(modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp))
 
-        // Link para ir a la pantalla de registro
         TextButton(onClick = {
             navController.navigate("register")
         }) {
