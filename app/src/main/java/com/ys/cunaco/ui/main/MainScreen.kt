@@ -1,5 +1,6 @@
 package com.ys.cunaco.ui.main
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,13 +59,13 @@ val sideNavItemsDefault = sideNavItemsWaiting
 @Composable
 fun MainScreen(
     navController: NavController = rememberNavController(),
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     openDrawer: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("PHDMama") },
+                title = { Text("CunaCo") },
                 navigationIcon = {
                     IconButton(onClick = { openDrawer() }) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
@@ -116,8 +118,8 @@ fun BottomNavigationBar(navController: NavController) {
 @Composable
 fun SideNavigationBar(
     navController: NavController,
-    loginViewModel: LoginViewModel = hiltViewModel(),
-    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     closeDrawer: () -> Unit
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
@@ -125,7 +127,7 @@ fun SideNavigationBar(
 
     LaunchedEffect(userRole) {
         userRole?.let {
-            showPremiumOption = when (userRole) {
+            showPremiumOption = when (it) {
                 "born" -> false
                 "waiting" -> true
                 else -> true
@@ -133,7 +135,6 @@ fun SideNavigationBar(
         }
     }
 
-    // 👇 pick the item list based on role
     val currentSideNavItems = when (userRole) {
         "born" -> sideNavItemsBorn
         "waiting" -> sideNavItemsWaiting
@@ -147,8 +148,10 @@ fun SideNavigationBar(
             modifier = Modifier.padding(12.dp)
         )
         HorizontalDivider()
-        val Gold = Color(0xFFA28834)
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Renderizado de ítems
         currentSideNavItems.forEach { item ->
             val label = stringResource(item.label)
             NavigationDrawerItem(
