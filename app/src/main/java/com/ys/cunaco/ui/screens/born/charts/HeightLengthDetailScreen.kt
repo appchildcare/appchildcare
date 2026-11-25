@@ -3,7 +3,6 @@ package com.ys.cunaco.ui.screens.born.charts
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -95,16 +93,18 @@ fun HeightLengthDetailScreen(
             Spacer(Modifier.height(16.dp))
 
             if (babySex.isNotEmpty()) {
-                HeightLengthChart(
-                    records = records,
-                    sex = babySex,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .padding(16.dp)
-                )
-
                 if (records.isNotEmpty()) {
+                    HeightLengthChart(
+                        records = records,
+                        sex = babySex,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .padding(16.dp)
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
                     Button(
                         onClick = {
                             generateHeightLengthPDF(
@@ -161,7 +161,6 @@ fun HeightLengthDetailScreen(
                             }
                         }
                     }
-
                 } else {
                     Text("No hay datos disponibles.")
                 }
@@ -171,13 +170,6 @@ fun HeightLengthDetailScreen(
 
 
             Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = painterResource(id = R.mipmap.ilustraciones_baby),
-                contentDescription = "Auth image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
         }
     }
 }
