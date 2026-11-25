@@ -86,7 +86,7 @@ class CarbonFootprintViewModel @Inject constructor() : ViewModel() {
                         "  👉 $yearlyAnalogy\n"
             }
             clothDiapers > 0 -> {
-                "🌿 ¡Gran progreso! Tu ${clothDiapers} Los pañales de tela ayudan a reducir las emisiones de carbono. " +
+                "🌿 ¡Gran progreso! Tus ${clothDiapers} pañales de tela ayudan a reducir las emisiones de carbono. " +
                         "Considere utilizar más pañales de tela para aumentar su impacto ambiental. " +
                         "Con un lavado eficiente (${clothWashes} cargas), ¡Ya estás salvando el planeta!\n" +
                         "  \uD83D\uDCC6 Si mantienes este hábito, puedes reducir la huella de carbono en:\n" +

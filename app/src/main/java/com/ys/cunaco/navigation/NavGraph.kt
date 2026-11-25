@@ -16,7 +16,6 @@ import com.ys.cunaco.ui.login.LoginScreen
 import com.ys.cunaco.ui.main.MainScreen
 import com.ys.cunaco.ui.register.RegisterScreen
 import com.ys.cunaco.ui.screens.Resources
-import com.ys.cunaco.ui.screens.TermsConditions
 import com.ys.cunaco.ui.screens.born.AddBabyDataScreen
 import com.ys.cunaco.ui.screens.born.BabyMenuScreen
 import com.ys.cunaco.ui.screens.born.BornDashboardScreen
@@ -120,7 +119,6 @@ object NavRoutes {
     const val POO_MAIN_SELECTION = "poop_main_screen"
     const val EMERGENCY_SCREEN = "emergency_screen"
     const val POOP_TRACKING = "poop_tracking"
-    const val TERMS_CONDITIONS = "terms_conditions"
     const val CARBON_FOOTPRINT = "carbon_footprint"
     const val CONTRACTION_COUNTER = "contraction_counter"
     const val CONTRACTION_COUNTER_REPORTS = "contraction_reports"
@@ -194,9 +192,6 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
         }
         composable(NavRoutes.WELCOME_SCREEN) {
             WelcomeSlider(navController = navController)
-        }
-        composable(NavRoutes.TERMS_CONDITIONS) {
-            TermsConditions (navController = navController, openDrawer = openDrawer)
         }
         composable(NavRoutes.CARBON_FOOTPRINT) {
             CarbonFootprintScreen (viewModel = carbonFootViewModel, navController = navController, openDrawer = openDrawer)
@@ -322,9 +317,6 @@ fun NavGraph(navController: NavHostController, startDestination: String = NavRou
             }
             composable(NavRoutes.BORN_WEIGHT_CHART_DETAILS) {
                 WeightDetailScreen(navController = navController, growthMilestonesViewModel, openDrawer = openDrawer, babyId = babyId)
-            }
-            composable(NavRoutes.TERMS_CONDITIONS) {
-                TermsConditions (navController = navController, openDrawer = openDrawer)
             }
             composable(NavRoutes.POOP_REGISTER) {
                 PoopRegistrationScreen(
