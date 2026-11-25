@@ -217,8 +217,7 @@ class FoodRegistrationViewModel @Inject constructor(
                     // Draw line above footer
                     currentCanvas.drawLine(50f, 800f, 545f, 800f, footerPaint)
 
-                    // Left side: "Generado por Child Care App"
-                    currentCanvas.drawText("Generado por Child Care App", 50f, 820f, footerPaint)
+                    currentCanvas.drawText("Generado por CunaCo", 50f, 820f, footerPaint)
 
                     // Right side: "Página X de Y"
                     val pageText = "Página $currentPage de $totalPages"
