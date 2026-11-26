@@ -189,4 +189,13 @@
     <string name="counter_breastfeeding">Breastfeeding</string>
     <string name="counter_poops">Poops</string>
     <string name="counter_carbon_footprint">Carbon footprint</string>
+
+    <!-- Sleep counter screen -->
+    <string name="sleep_counter_title">Sleep counter</string>
+    <string name="sleep_counter_image_description">Sleep counter illustration</string>
+    <string name="sleep_counter_running">Running…</string>
+    <string name="sleep_counter_stopped">Stopped</string>
+    <string name="sleep_counter_start">Start</string>
+    <string name="sleep_counter_stop">Stop</string>
+    <string name="sleep_counter_view_reports">View reports</string>
 </resources>

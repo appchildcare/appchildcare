@@ -184,4 +184,13 @@
     <string name="counter_breastfeeding">Lactancia</string>
     <string name="counter_poops">Popós</string>
     <string name="counter_carbon_footprint">Huella de carbono</string>
+
+    <!-- Sleep counter screen -->
+    <string name="sleep_counter_title">Contador de Sueño</string>
+    <string name="sleep_counter_image_description">Ilustración del contador de sueño</string>
+    <string name="sleep_counter_running">Corriendo…</string>
+    <string name="sleep_counter_stopped">Detenido</string>
+    <string name="sleep_counter_start">Iniciar</string>
+    <string name="sleep_counter_stop">Detener</string>
+    <string name="sleep_counter_view_reports">Ver Reportes</string>
 </resources>

@@ -28,12 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.theme.primaryYellow
 import com.ys.cunaco.ui.theme.secondaryAqua
 import com.ys.cunaco.viewmodel.CounterViewModel
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -41,7 +43,7 @@ fun SleepingCounterScreen(babyId: String?, navController: NavController,
                           viewModel: CounterViewModel = hiltViewModel(),
                           openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Contador de Sueño",
+        title = stringResource(R.string.sleep_counter_title),
         navController = navController,
         openDrawer = openDrawer
     ) { innerPadding ->
@@ -70,7 +72,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
     ) {
         Image(
             painter = painterResource(id = R.drawable.icono_app_sueno),
-            contentDescription = "Counter image",
+            contentDescription = stringResource(R.string.sleep_counter_image_description),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp)
@@ -88,7 +90,9 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
         )
 
         Text(
-            text = if (isRunning) "Corriendo..." else "Detenido",
+            text = stringResource(
+                if (isRunning) R.string.sleep_counter_running else R.string.sleep_counter_stopped
+            ),
             style = MaterialTheme.typography.bodyLarge,
             color = if (isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -113,7 +117,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
                     pressedElevation = 2.dp
                 )
             ) {
-                Text("Iniciar")
+                Text(stringResource(R.string.sleep_counter_start))
             }
 
             Button(
@@ -131,7 +135,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
                     pressedElevation = 2.dp
                 )
             ) {
-                Text("Detener")
+                Text(stringResource(R.string.sleep_counter_stop))
             }
         }
 
@@ -147,7 +151,7 @@ fun CounterComponent(babyId: String?, navController: NavController, viewModel: C
                 .padding(horizontal = 16.dp)
                 .height(44.dp),
         ) {
-            Text("Ver Reportes",  fontSize = 14.sp)
+            Text(stringResource(R.string.sleep_counter_view_reports), fontSize = 14.sp)
         }
     }
 }
@@ -158,8 +162,8 @@ private fun formatTime(seconds: Int): String {
     val remainingSeconds = seconds % 60
 
     return when {
-        hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
-        minutes > 0 -> String.format("%02d:%02d", minutes, remainingSeconds)
-        else -> String.format("00:%02d", seconds)
+        hours > 0 -> String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, remainingSeconds)
+        minutes > 0 -> String.format(Locale.US, "%02d:%02d", minutes, remainingSeconds)
+        else -> String.format(Locale.US, "00:%02d", seconds)
     }
 }
