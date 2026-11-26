@@ -75,4 +75,48 @@
     <string name="login_error_authentication">Authentication error</string>
     <string name="register_success_create">User created or updated in Firestore</string>
     <string name="legal_terms_url" translatable="false">https://cunacoapp.com/terms</string>
+
+    <!-- Chart Strings -->
+    <string name="download">Download</string>
+    <string name="no_data_available">No data available.</string>
+    <string name="month_detail_label">Month: %d</string>
+    <string name="weight_detail_label">Weight: %s kg</string>
+    <string name="height_detail_label">Height: %s cm</string>
+    <string name="age_months_label">Age (months)</string>
+    <string name="birth">Birth</string>
+    <string name="pdf_report_baby_name">Baby\'s Name: %s</string>
+    <string name="summary_title">Summary:</string>
+    <string name="summary_total_measurements">• Total measurements: %d</string>
+    <string name="summary_normal_range_count">• Measurements in normal range: %d of %d</string>
+    <string name="table_header_age">Age</string>
+    <string name="table_header_weight">Weight (kg)</string>
+    <string name="table_header_height">Height (cm)</string>
+    <string name="table_header_zscore">Z-Score</string>
+    <string name="unknown_baby">unknown</string>
+
+    <!-- Head Circumference Chart Strings -->
+    <string name="head_circumference_report_title">Head Circumference Report</string>
+    <string name="head_circumference_for_age">Head Circumference for Age</string>
+    <string name="head_circumference_detail_label">Head circumference: %s cm</string>
+    <string name="head_circumference_cm_axis_label">Head circumference (cm)</string>
+    <string name="summary_last_pc_measurement">• Last Head Circumference measurement: %s cm (%d months)</string>
+    <string name="pdf_file_name_head_circumference">Head_Circumference_Report</string>
+    <string name="table_header_head_circumference">H. Circumference</string>
+
+    <!-- Height/Length Chart Strings -->
+    <string name="height_report_title">Height/Length Report</string>
+    <string name="height_for_age">Height for Age</string>
+    <string name="oms_range_label">WHO Range: %s cm - %s cm</string>
+    <string name="pdf_file_name_height">Height_Length_Report</string>
+    <string name="pdf_report_title_height">Height/Length Report</string>
+    <string name="summary_last_height_measurement">• Last Height measurement: %s cm (%d months)</string>
+    <string name="table_header_oms_range">WHO Range (cm)</string>
+
+    <!-- Weight Chart Strings -->
+    <string name="weight_report_title">Weight Report</string>
+    <string name="weight_for_age">Weight for Age</string>
+    <string name="oms_weight_range_label">WHO Range: %s kg - %s kg</string>
+    <string name="pdf_file_name_weight">Weight_Report</string>
+    <string name="summary_last_weight_measurement">• Last Weight measurement: %s kg (%d months)</string>
+    <string name="table_header_oms_weight_range">WHO Range (kg)</string>
 </resources>

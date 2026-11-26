@@ -70,4 +70,48 @@
     <string name="login_validation_empty_fields">El correo o la contraseña no pueden estar vacíos</string>
     <string name="login_error_authentication">Error de autenticación</string>
     <string name="register_success_create">Usuario creado o actualizado en Firestore</string>
+
+    <!-- Chart Strings -->
+    <string name="download">Descargar</string>
+    <string name="no_data_available">No hay datos disponibles.</string>
+    <string name="month_detail_label">Mes: %d</string>
+    <string name="weight_detail_label">Peso: %s kg</string>
+    <string name="height_detail_label">Talla: %s cm</string>
+    <string name="age_months_label">Edad (meses)</string>
+    <string name="birth">Nacimiento</string>
+    <string name="pdf_report_baby_name">Nombre del Bebé: %s</string>
+    <string name="summary_title">Resumen:</string>
+    <string name="summary_total_measurements">• Total de mediciones: %d</string>
+    <string name="summary_normal_range_count">• Mediciones en rango normal: %d de %d</string>
+    <string name="table_header_age">Edad</string>
+    <string name="table_header_weight">Peso (kg)</string>
+    <string name="table_header_height">Talla (cm)</string>
+    <string name="table_header_zscore">Z-Score</string>
+    <string name="unknown_baby">desconocido</string>
+
+    <!-- Head Circumference Chart Strings -->
+    <string name="head_circumference_report_title">Reporte de Perímetro Cefálico</string>
+    <string name="head_circumference_for_age">Perímetro Cefálico para la Edad</string>
+    <string name="head_circumference_detail_label">Perímetro cefálico: %s cm</string>
+    <string name="head_circumference_cm_axis_label">Perímetro cefálico (cm)</string>
+    <string name="summary_last_pc_measurement">• Última medición P. Cefálico: %s cm (%d meses)</string>
+    <string name="pdf_file_name_head_circumference">Reporte_Perimetro_Cefalico</string>
+    <string name="table_header_head_circumference">P. Cefálico</string>
+
+    <!-- Height/Length Chart Strings -->
+    <string name="height_report_title">Reporte de Longitud/Altura</string>
+    <string name="height_for_age">Altura para la Edad</string>
+    <string name="oms_range_label">Rango OMS: %s cm - %s cm</string>
+    <string name="pdf_file_name_height">Reporte_Longitud_Altura</string>
+    <string name="pdf_report_title_height">Reporte de Longitud/Altura</string>
+    <string name="summary_last_height_measurement">• Última medición de Talla: %s cm (%d meses)</string>
+    <string name="table_header_oms_range">Rango OMS (cm)</string>
+
+    <!-- Weight Chart Strings -->
+    <string name="weight_report_title">Reporte de Peso</string>
+    <string name="weight_for_age">Peso para la Edad</string>
+    <string name="oms_weight_range_label">Rango OMS: %s kg - %s kg</string>
+    <string name="pdf_file_name_weight">Reporte_Peso</string>
+    <string name="summary_last_weight_measurement">• Última medición de Peso: %s kg (%d meses)</string>
+    <string name="table_header_oms_weight_range">Rango OMS (kg)</string>
 </resources>

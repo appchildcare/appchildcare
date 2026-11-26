@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,6 +48,7 @@ import com.ys.cunaco.util.LmsUtils
 import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.GrowthMilestonesViewModel
 import com.ys.cunaco.viewmodel.GrowthRecord
+import java.util.Locale
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.pow
@@ -72,7 +74,7 @@ fun WeightDetailScreen(
     }
 
     val babyName = remember(selectedBabyProfile) {
-        return@remember selectedBabyProfile?.name
+        selectedBabyProfile?.name
     }
 
     LaunchedEffect(Unit) {
@@ -100,7 +102,7 @@ fun WeightDetailScreen(
     }
 
     PhdLayoutMenu(
-        title = "Reporte de Peso",
+        title = stringResource(id = R.string.weight_report_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -130,7 +132,7 @@ fun WeightDetailScreen(
                             generateWeightPDF(
                                 context = context,
                                 records = records,
-                                babyName = babyName ?: "unknown",
+                                babyName = babyName ?: context.getString(R.string.unknown_baby),
                                 sex = babySex
                             )
                         },
@@ -141,7 +143,7 @@ fun WeightDetailScreen(
                     ) {
                         Spacer(modifier = Modifier.padding(4.dp))
                         Text(
-                            text = "Descargar",
+                            text = stringResource(id = R.string.download),
                             color = Color.White,
                             fontSize = 12.sp
                         )
@@ -170,18 +172,18 @@ fun WeightDetailScreen(
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
-                                    Text("Mes: ${record.ageInMonths}")
-                                    Text("Peso: ${record.weight} kg")
+                                    Text(text = stringResource(id = R.string.month_detail_label, record.ageInMonths))
+                                    Text(text = stringResource(id = R.string.weight_detail_label, String.format(Locale.getDefault(), "%.1f", record.weight)))
 
                                     rango?.let {
-                                        Text("Rango OMS: ${it.min} kg - ${it.max} kg")
+                                        Text(text = stringResource(id = R.string.oms_weight_range_label, String.format(Locale.getDefault(), "%.2f", it.min), String.format(Locale.getDefault(), "%.2f", it.max)))
                                     }
                                 }
                             }
                         }
                     }
                 } else {
-                    Text("No hay datos disponibles.")
+                    Text(text = stringResource(id = R.string.no_data_available))
                 }
             } else {
                 CircularProgressIndicator()
@@ -252,13 +254,18 @@ fun generateWeightPDF(
 
     PdfGeneratorUtils.generateAndSharePdf(
         context = context,
-        fileName = "Reporte_Peso",
-        title = "Reporte de Peso",
-        subtitle = "Nombre del Bebé: $babyName",
+        fileName = context.getString(R.string.pdf_file_name_weight),
+        title = context.getString(R.string.weight_report_title),
+        subtitle = context.getString(R.string.pdf_report_baby_name, babyName),
         logoResId = R.drawable.app_child_care_logo
     ) {
         // Draw table
-        val headers = listOf("Edad", "Peso (kg)", "Z-Score", "Rango OMS (kg)")
+        val headers = listOf(
+            context.getString(R.string.table_header_age),
+            context.getString(R.string.table_header_weight),
+            context.getString(R.string.table_header_zscore),
+            context.getString(R.string.table_header_oms_weight_range)
+        )
         val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
         val tableData = records.map { record ->
@@ -270,13 +277,13 @@ fun generateWeightPDF(
 
             val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
             val rangoText = rango?.let {
-                "${String.format("%.2f", it.min)}-${String.format("%.2f", it.max)}"
+                "${String.format(Locale.getDefault(), "%.2f", it.min)}-${String.format(Locale.getDefault(), "%.2f", it.max)}"
             } ?: "N/A"
 
             listOf(
                 "${record.ageInMonths} m",
-                "${record.weight ?: "N/A"}",
-                zScore?.let { String.format("%.2f", it) } ?: "N/A",
+                "${record.weight}",
+                zScore?.let { String.format(Locale.getDefault(), "%.2f", it) } ?: "N/A",
                 rangoText
             )
         }
@@ -284,11 +291,11 @@ fun generateWeightPDF(
         drawTable(headers, columnPositions, tableData)
 
         // Add summary section
-        addSectionTitle("Resumen:")
+        addSectionTitle(context.getString(R.string.summary_title))
 
         val totalMeasurements = records.size
         val lastRecord = records.lastOrNull()
-        val lastWeight = lastRecord?.weight?.let { String.format("%.2f", it) } ?: "N/A"
+        val lastWeight = lastRecord?.weight?.let { String.format(Locale.getDefault(), "%.2f", it) } ?: "N/A"
         val lastAge = lastRecord?.ageInMonths ?: 0
 
         val normalCount = records.count { record ->
@@ -300,9 +307,9 @@ fun generateWeightPDF(
             zScore?.let { it >= -2 && it <= 2 } ?: false
         }
 
-        addText("• Total de mediciones: $totalMeasurements", indent = 20f)
-        addText("• Última medición: $lastWeight kg ($lastAge meses)", indent = 20f)
-        addText("• Mediciones en rango normal: $normalCount de $totalMeasurements", indent = 20f)
+        addText(context.getString(R.string.summary_total_measurements, totalMeasurements), indent = 20f)
+        addText(context.getString(R.string.summary_last_weight_measurement, lastWeight, lastAge), indent = 20f)
+        addText(context.getString(R.string.summary_normal_range_count, normalCount, totalMeasurements), indent = 20f)
 
     }
 }
@@ -343,7 +350,7 @@ fun calcularRangoNormalTalla(
     val max = if (L != 0.0) M * (1 + L * S * z).pow(1 / L) else M * exp(z * S)
 
     return LengthRange(
-        min = String.format("%.2f", min).toDouble(),
-        max = String.format("%.2f", max).toDouble()
+        min = String.format(Locale.getDefault(), "%.2f", min).toDouble(),
+        max = String.format(Locale.getDefault(), "%.2f", max).toDouble()
     )
 }
