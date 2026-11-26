@@ -173,4 +173,15 @@
     <string name="baby_data_saved">Datos registrados</string>
     <string name="baby_added_success">Bebé agregado exitosamente</string>
     <string name="baby_data_updated_success">Datos actualizados exitosamente</string>
+
+    <!-- Baby counter selection screen -->
+    <string name="counter_screen_title">Registros</string>
+    <string name="counter_question">¿Qué quieres registrar?</string>
+    <string name="counter_subtitle">Selecciona una opción para comenzar</string>
+    <string name="counter_mascot_description">Mascota</string>
+    <string name="counter_contractions">Contracciones</string>
+    <string name="counter_sleep">Sueño</string>
+    <string name="counter_breastfeeding">Lactancia</string>
+    <string name="counter_poops">Popós</string>
+    <string name="counter_carbon_footprint">Huella de carbono</string>
 </resources>

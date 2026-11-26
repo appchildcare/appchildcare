@@ -178,4 +178,15 @@
     <string name="baby_data_saved">Data saved</string>
     <string name="baby_added_success">Baby added successfully</string>
     <string name="baby_data_updated_success">Data updated successfully</string>
+
+    <!-- Baby counter selection screen -->
+    <string name="counter_screen_title">Records</string>
+    <string name="counter_question">What do you want to log?</string>
+    <string name="counter_subtitle">Select an option to get started</string>
+    <string name="counter_mascot_description">Mascot</string>
+    <string name="counter_contractions">Contractions</string>
+    <string name="counter_sleep">Sleep</string>
+    <string name="counter_breastfeeding">Breastfeeding</string>
+    <string name="counter_poops">Poops</string>
+    <string name="counter_carbon_footprint">Carbon footprint</string>
 </resources>
