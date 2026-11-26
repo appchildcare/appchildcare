@@ -114,4 +114,30 @@
     <string name="pdf_file_name_weight">Reporte_Peso</string>
     <string name="summary_last_weight_measurement">• Última medición de Peso: %s kg (%d meses)</string>
     <string name="table_header_oms_weight_range">Rango OMS (kg)</string>
+
+    <!-- Carbon Footprint Screen -->
+    <string name="carbon_footprint_title">Huella de carbono</string>
+    <string name="carbon_footprint_subtitle">Datos diarios del cuidado del bebé</string>
+    <string name="label_disposable_diapers">Pañales desechables usados</string>
+    <string name="label_cloth_diapers">Pañales de tela usados</string>
+    <string name="label_wet_wipes">Toallitas húmedas usadas</string>
+    <string name="label_formula_feedings">Sólo si usas leche de fórmula (tomas)</string>
+    <string name="label_bottle_washes">Lavados de botellas</string>
+    <string name="label_baths">Baños</string>
+    <string name="btn_calculate_footprint">Calcular Huella de carbono</string>
+    <string name="btn_clear_form">Limpiar formulario</string>
+    <string name="image_description_tree">icono de árbol</string>
+
+    <string name="carbon_footprint_calculated">Huella de carbono calculada: %s kg CO₂e</string>
+    <string name="carbon_footprint_error">Error al calcular la huella: %s</string>
+    <string name="eco_msg_excellent">"🌱 ¡Excelente opción! Usar pañales de tela ahorra aproximadamente %1$s kg CO₂e. Cada pañal de tela se puede reutilizar cientos de veces, mientras que los pañales desechables tardan más de 500 años en descomponerse. ¡Tu lavado ecológico con %2$d pañales de tela (%3$d lavados eficientes) está haciendo una verdadera diferencia!\n\n  📅 Si mantienes este hábito puedes reducir la huella de carbono en:\n• En 30 días: %4$s kg CO₂e\n• En 1 año: %5$s kg CO₂e\n  👉 %6$s\n"</string>
+    <string name="eco_msg_progress">"🌿 ¡Gran progreso! Tus %1$d pañales de tela ayudan a reducir las emisiones de carbono. Considere utilizar más pañales de tela para aumentar su impacto ambiental. Con un lavado eficiente (%2$d cargas), ¡Ya estás salvando el planeta!\n\n  📅 Si mantienes este hábito, puedes reducir la huella de carbono en:\n• En 30 días: %3$s kg CO₂e\n• En 1 año: %4$s kg CO₂e\n  👉 %5$s\n"</string>
+    <string name="eco_msg_consider">"💚 ¡Considera cambiar a pañales de tela! Pueden reducir significativamente tu huella de carbono. Solo 8 pañales de tela con un ciclo de lavado ecológico pueden reemplazar muchos pañales desechables y ayudar a proteger nuestro medio ambiente para las generaciones futuras.\n\n  📅 Si mantienes este hábito puedes reducir la huella de carbono en:\n• En 30 días: %1$s kg CO₂e\n• En 1 año: %2$s kg CO₂e\n  👉 %3$s\n"</string>
+
+    <string name="co2_analogy_low">Equivale a apagar luces y electrodomésticos innecesarios durante varias semanas 💡</string>
+    <string name="co2_analogy_mid_low">Equivale a un auto encendido sin moverse durante 10 a 40 horas 🚗</string>
+    <string name="co2_analogy_mid">Equivale a conducir un auto durante 1 a 2 meses 🚘</string>
+    <string name="co2_analogy_mid_high">Equivale a un vuelo internacional corto ✈️</string>
+    <string name="co2_analogy_high">Equivale a uno o dos vuelos internacionales o un año de uso de un auto 🚗✈️</string>
+    <string name="co2_analogy_very_high">Equivale a la huella de carbono anual completa de una persona promedio 🌍</string>
 </resources>

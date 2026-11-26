@@ -119,4 +119,30 @@
     <string name="pdf_file_name_weight">Weight_Report</string>
     <string name="summary_last_weight_measurement">• Last Weight measurement: %s kg (%d months)</string>
     <string name="table_header_oms_weight_range">WHO Range (kg)</string>
+
+    <!-- Carbon Footprint Screen -->
+    <string name="carbon_footprint_title">Carbon Footprint</string>
+    <string name="carbon_footprint_subtitle">Daily baby care data</string>
+    <string name="label_disposable_diapers">Disposable diapers used</string>
+    <string name="label_cloth_diapers">Cloth diapers used</string>
+    <string name="label_wet_wipes">Wet wipes used</string>
+    <string name="label_formula_feedings">Only if you use formula milk (feedings)</string>
+    <string name="label_bottle_washes">Bottle washes</string>
+    <string name="label_baths">Baths</string>
+    <string name="btn_calculate_footprint">Calculate Carbon Footprint</string>
+    <string name="btn_clear_form">Clear form</string>
+    <string name="image_description_tree">tree icon</string>
+
+    <string name="carbon_footprint_calculated">Carbon footprint calculated: %s kg CO₂e</string>
+    <string name="carbon_footprint_error">Error calculating footprint: %s</string>
+    <string name="eco_msg_excellent">"🌱 Excellent choice! Using cloth diapers saves approximately %1$s kg CO₂e. Each cloth diaper can be reused hundreds of times, while disposable diapers take more than 500 years to decompose. Your eco-friendly washing with %2$d cloth diapers (%3$d efficient washes) is making a real difference!\n\n  📅 If you maintain this habit, you can reduce the carbon footprint by:\n• In 30 days: %4$s kg CO₂e\n• In 1 year: %5$s kg CO₂e\n  👉 %6$s\n"</string>
+    <string name="eco_msg_progress">"🌿 Great progress! Your %1$d cloth diapers help reduce carbon emissions. Consider using more cloth diapers to increase your environmental impact. With efficient washing (%2$d loads), you are already saving the planet!\n\n  📅 If you maintain this habit, you can reduce the carbon footprint by:\n• In 30 days: %3$s kg CO₂e\n• In 1 year: %4$s kg CO₂e\n  👉 %5$s\n"</string>
+    <string name="eco_msg_consider">"💚 Consider switching to cloth diapers! They can significantly reduce your carbon footprint. Just 8 cloth diapers with an eco-friendly wash cycle can replace many disposable diapers and help protect our environment for future generations.\n\n  📅 If you maintain this habit, you can reduce the carbon footprint by:\n• In 30 days: %1$s kg CO₂e\n• In 1 year: %2$s kg CO₂e\n  👉 %3$s\n"</string>
+
+    <string name="co2_analogy_low">Equivalent to turning off unnecessary lights and appliances for several weeks 💡</string>
+    <string name="co2_analogy_mid_low">Equivalent to a car running without moving for 10 to 40 hours 🚗</string>
+    <string name="co2_analogy_mid">Equivalent to driving a car for 1 to 2 months 🚘</string>
+    <string name="co2_analogy_mid_high">Equivalent to a short international flight ✈️</string>
+    <string name="co2_analogy_high">Equivalent to one or two international flights or one year of car use 🚗✈️</string>
+    <string name="co2_analogy_very_high">Equivalent to the full annual carbon footprint of an average person 🌍</string>
 </resources>
