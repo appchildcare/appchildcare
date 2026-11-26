@@ -140,4 +140,37 @@
     <string name="co2_analogy_mid_high">Equivale a un vuelo internacional corto ✈️</string>
     <string name="co2_analogy_high">Equivale a uno o dos vuelos internacionales o un año de uso de un auto 🚗✈️</string>
     <string name="co2_analogy_very_high">Equivale a la huella de carbono anual completa de una persona promedio 🌍</string>
+
+    <!-- Baby data screen -->
+    <string name="baby_profile_title">Perfil de bebé</string>
+    <string name="add_new_baby">Agregar nuevo bebé</string>
+    <string name="editing_baby">Editando: %1$s</string>
+    <string name="name">Nombre</string>
+    <string name="birth_date">Fecha de nacimiento</string>
+    <string name="select_date">Seleccionar fecha</string>
+    <string name="weeks_born_question">¿De cuántas semanas nació?</string>
+    <string name="gestation_weeks">Semanas de gestación</string>
+    <string name="weeks_format">%1$s semanas</string>
+    <string name="apgar">APGAR</string>
+    <string name="weight_kg">Peso (kg)</string>
+    <string name="height_cm">Talla (cm)</string>
+    <string name="sex">Sexo</string>
+    <string name="head_circumference_cm">Perímetro cefálico (cm)</string>
+    <string name="blood_type">Tipo de sangre</string>
+
+    <!-- Sex options (display only) -->
+    <string name="sex_male">Masculino</string>
+    <string name="sex_female">Femenino</string>
+    <string name="sex_other">Otro</string>
+
+    <!-- Buttons -->
+    <string name="add_baby">Agregar bebé</string>
+    <string name="update">Actualizar</string>
+    <string name="back">Volver</string>
+    <string name="add_another_baby">Agregar otro bebé</string>
+
+    <!-- Messages -->
+    <string name="baby_data_saved">Datos registrados</string>
+    <string name="baby_added_success">Bebé agregado exitosamente</string>
+    <string name="baby_data_updated_success">Datos actualizados exitosamente</string>
 </resources>

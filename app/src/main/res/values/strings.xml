@@ -145,4 +145,37 @@
     <string name="co2_analogy_mid_high">Equivalent to a short international flight ✈️</string>
     <string name="co2_analogy_high">Equivalent to one or two international flights or one year of car use 🚗✈️</string>
     <string name="co2_analogy_very_high">Equivalent to the full annual carbon footprint of an average person 🌍</string>
+
+    <!-- Baby data screen -->
+    <string name="baby_profile_title">Baby profile</string>
+    <string name="add_new_baby">Add new baby</string>
+    <string name="editing_baby">Editing: %1$s</string>
+    <string name="name">Name</string>
+    <string name="birth_date">Date of birth</string>
+    <string name="select_date">Select date</string>
+    <string name="weeks_born_question">How many weeks was the baby born at?</string>
+    <string name="gestation_weeks">Weeks of gestation</string>
+    <string name="weeks_format">%1$s weeks</string>
+    <string name="apgar">APGAR</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="height_cm">Height (cm)</string>
+    <string name="sex">Sex</string>
+    <string name="head_circumference_cm">Head circumference (cm)</string>
+    <string name="blood_type">Blood type</string>
+
+    <!-- Sex options (display only) -->
+    <string name="sex_male">Male</string>
+    <string name="sex_female">Female</string>
+    <string name="sex_other">Other</string>
+
+    <!-- Buttons -->
+    <string name="add_baby">Add baby</string>
+    <string name="update">Update</string>
+    <string name="back">Back</string>
+    <string name="add_another_baby">Add another baby</string>
+
+    <!-- Messages -->
+    <string name="baby_data_saved">Data saved</string>
+    <string name="baby_added_success">Baby added successfully</string>
+    <string name="baby_data_updated_success">Data updated successfully</string>
 </resources>
