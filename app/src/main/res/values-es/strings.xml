@@ -314,4 +314,27 @@
     <!-- Messages -->
     <string name="vaccine_save_error">Error al guardar los datos de la vacuna: %1$s</string>
     <string name="vaccine_save_success">Vacuna guardada correctamente</string>
+
+    <!-- Growth Milestones Screen -->
+    <string name="growth_milestones_title">Hitos del crecimiento</string>
+    <string name="growth_milestones_register">Registrar Hitos del Crecimiento</string>
+
+    <!-- Growth Measurements -->
+    <string name="growth_weight">Peso (kg)</string>
+    <string name="growth_height">Talla (cm)</string>
+    <string name="growth_head_circumference">Perímetro Cefálico (cm)</string>
+
+    <!-- Age Selection -->
+    <string name="growth_select_age">Seleccionar edad del bebé en meses:</string>
+
+    <!-- Actions -->
+    <string name="growth_save">Guardar</string>
+
+    <!-- Confirmation Dialog -->
+    <string name="growth_confirmation_title">Confirmación</string>
+    <string name="growth_data_registered">Datos registrados</string>
+    <string name="growth_accept">Aceptar</string>
+
+    <!-- Error Messages -->
+    <string name="growth_save_error">Error al guardar: %1$s</string>
 </resources>

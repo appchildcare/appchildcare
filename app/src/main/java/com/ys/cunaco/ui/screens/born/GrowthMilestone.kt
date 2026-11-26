@@ -13,12 +13,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.ys.cunaco.R
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.viewmodel.GrowthMilestonesViewModel
+
 
 @Composable
 fun GrowthMilestonesScreen(
@@ -27,21 +30,24 @@ fun GrowthMilestonesScreen(
     openDrawer: () -> Unit,
     babyId: String?
 ) {
-    // Variables para los campos de texto
+    // Text field states
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var headCircumference by remember { mutableStateOf("") }
 
-    // Estado para controlar la visibilidad de la alerta
+    // Alert visibility
     var showAlert by remember { mutableStateOf(false) }
 
-    var selectedNumber by remember { mutableStateOf(1) }
-    if (babyId != null) {
-        viewModel.setBabyId(babyId)
+    var selectedNumber by remember { mutableIntStateOf(1) }
+
+    LaunchedEffect(babyId) {
+        babyId?.let {
+            viewModel.setBabyId(it)
+        }
     }
 
     PhdLayoutMenu(
-        title = "Hitos del crecimiento",
+        title = stringResource(R.string.growth_milestones_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -51,14 +57,19 @@ fun GrowthMilestonesScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            Text(text = "Registrar Hitos del Crecimiento", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = stringResource(R.string.growth_milestones_register),
+                style = MaterialTheme.typography.titleLarge
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = weight,
                 onValueChange = { weight = it },
-                label = { Text("Peso (kg)") },
+                label = {
+                    Text(stringResource(R.string.growth_weight))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -67,7 +78,9 @@ fun GrowthMilestonesScreen(
             OutlinedTextField(
                 value = height,
                 onValueChange = { height = it },
-                label = { Text("Talla (cm)") },
+                label = {
+                    Text(stringResource(R.string.growth_height))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -76,59 +89,95 @@ fun GrowthMilestonesScreen(
             OutlinedTextField(
                 value = headCircumference,
                 onValueChange = { headCircumference = it },
-                label = { Text("Perímetro Cefálico (cm)") },
+                label = {
+                    Text(stringResource(R.string.growth_head_circumference))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             LabeledAndroidNumberPicker(
-                label = "Seleccionar edad del bebé en meses:",
+                label = stringResource(R.string.growth_select_age),
                 value = selectedNumber,
                 range = 1..60,
-                onValueChange = { selectedNumber = it }
+                onValueChange = {
+                    selectedNumber = it
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = {
-                if (weight.isNotEmpty() && height.isNotEmpty() && headCircumference.isNotEmpty()) {
-                    val milestoneData = mapOf(
-                        "weight" to weight,
-                        "height" to height,
-                        "headCircumference" to headCircumference,
-                        "timestamp" to System.currentTimeMillis(),
-                        "ageInMonths" to selectedNumber,
-                    )
-                    viewModel.saveGrowthMilestone(
-                        milestoneData = milestoneData,
-                        onSuccess = {
-                            showAlert = true // Muestra la alerta al guardar
-                        },
-                        onError = { errorMessage ->
-                            Log.e("GrowthMilestone", "Error al guardar: $errorMessage")
-                        }
-                    )
-                } else {
-                    viewModel.clearErrorMessage()
+            Button(
+                onClick = {
+                    if (
+                        weight.isNotEmpty() &&
+                        height.isNotEmpty() &&
+                        headCircumference.isNotEmpty()
+                    ) {
+                        val milestoneData = mapOf(
+                            "weight" to weight,
+                            "height" to height,
+                            "headCircumference" to headCircumference,
+                            "timestamp" to System.currentTimeMillis(),
+                            "ageInMonths" to selectedNumber
+                        )
+
+                        viewModel.saveGrowthMilestone(
+                            milestoneData = milestoneData,
+                            onSuccess = {
+                                showAlert = true
+                            },
+                            onError = { errorMessage ->
+                                Log.e(
+                                    "GrowthMilestone",
+                                    "Error al guardar: $errorMessage"
+                                )
+                            }
+                        )
+                    } else {
+                        viewModel.clearErrorMessage()
+                    }
                 }
-            }) {
-                Text(text = "Guardar")
+            ) {
+                Text(
+                    text = stringResource(R.string.growth_save)
+                )
             }
         }
 
-        // Mostrar alerta al guardar con éxito
+        // Confirmation dialog
         if (showAlert) {
             AlertDialog(
-                onDismissRequest = { showAlert = false },
-                title = { Text(text = "Confirmación") },
-                text = { Text(text = "Datos registrados") },
+                onDismissRequest = {
+                    showAlert = false
+                },
+                title = {
+                    Text(
+                        text = stringResource(
+                            R.string.growth_confirmation_title
+                        )
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(
+                            R.string.growth_data_registered
+                        )
+                    )
+                },
                 confirmButton = {
-                    Button(onClick = {
-                        showAlert = false
-                        navController.popBackStack() // Navega hacia atrás
-                    }) {
-                        Text(text = "Aceptar")
+                    Button(
+                        onClick = {
+                            showAlert = false
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.growth_accept
+                            )
+                        )
                     }
                 }
             )
@@ -159,6 +208,7 @@ fun LabeledAndroidNumberPicker(
                 NumberPicker(context).apply {
                     minValue = range.first
                     maxValue = range.last
+
                     setOnValueChangedListener { _, _, newVal ->
                         onValueChange(newVal)
                     }
