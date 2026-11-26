@@ -181,7 +181,7 @@
 
     <!-- Baby counter selection screen -->
     <string name="counter_screen_title">Records</string>
-    <string name="counter_question">What do you want to log?</string>
+    <string name="counter_question">What do you want to do?</string>
     <string name="counter_subtitle">Select an option to get started</string>
     <string name="counter_mascot_description">Mascot</string>
     <string name="counter_contractions">Contractions</string>
@@ -285,4 +285,15 @@
     <string name="battery_opt_instructions_oneplus">On OxygenOS: Go to Settings > Battery > Battery optimization > %1$s > Don\'t optimize</string>
     <string name="battery_opt_instructions_samsung">On One UI: Go to Settings > Device care > Battery > More options > Optimize battery usage > %1$s > Turn off</string>
     <string name="battery_opt_instructions_general">Look in your battery settings for the option to turn off optimization for this app</string>
+
+    <!-- Poop diary / report screen -->
+    <string name="poop_diary_title">Poop report</string>
+    <string name="poop_diary_report_button">Report</string>
+    <string name="poop_diary_current_date">Current date</string>
+    <string name="poop_diary_no_records">No records</string>
+    <string name="poop_diary_entry_title">Bowel movement</string>
+    <string name="poop_diary_icon_description">Poop</string>
+    <string name="poop_diary_label_color">Color:</string>
+    <string name="poop_diary_label_texture">Texture:</string>
+    <string name="poop_diary_label_size">Size:</string>
 </resources>

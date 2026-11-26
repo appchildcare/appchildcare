@@ -280,4 +280,15 @@
     <string name="battery_opt_instructions_oneplus">En OxygenOS: Ve a Configuración > Batería > Optimización de batería > %1$s > No optimizar</string>
     <string name="battery_opt_instructions_samsung">En One UI: Ve a Configuración > Cuidado del dispositivo > Batería > Más opciones > Optimizar uso de batería > %1$s > Desactivar</string>
     <string name="battery_opt_instructions_general">Busca en configuración de batería la opción para desactivar optimización para esta app</string>
+
+    <!-- Poop diary / report screen -->
+    <string name="poop_diary_title">Reporte de popos</string>
+    <string name="poop_diary_report_button">Reporte</string>
+    <string name="poop_diary_current_date">Fecha actual</string>
+    <string name="poop_diary_no_records">Sin registros</string>
+    <string name="poop_diary_entry_title">Deposición</string>
+    <string name="poop_diary_icon_description">Popó</string>
+    <string name="poop_diary_label_color">Color:</string>
+    <string name="poop_diary_label_texture">Textura:</string>
+    <string name="poop_diary_label_size">Tamaño:</string>
 </resources>

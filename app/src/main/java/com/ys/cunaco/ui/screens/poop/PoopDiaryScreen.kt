@@ -1,5 +1,7 @@
 package com.ys.cunaco.ui.screens.poop
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.compose.ui.res.stringResource
+import com.ys.cunaco.R
 import com.ys.cunaco.model.PoopRecord
 import com.ys.cunaco.model.WeekDay
 import com.ys.cunaco.viewmodel.PoopDiaryViewModel
@@ -47,6 +51,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PoopDiaryScreen(
     viewModel: PoopDiaryViewModel = hiltViewModel(),
@@ -61,7 +66,7 @@ fun PoopDiaryScreen(
     }
 
     PhdLayoutMenu(
-        title = "Reporte de popos",
+        title = stringResource(R.string.poop_diary_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -77,7 +82,8 @@ fun PoopDiaryScreen(
 
             val today = LocalDate.now()
 
-            val formatter = DateTimeFormatter.ofPattern("EEEE dd", Locale("es", "ES"))
+            // Uses the device language instead of a fixed Spanish locale
+            val formatter = DateTimeFormatter.ofPattern("EEEE dd", Locale.getDefault())
 
             // Header Section
             PoopHeaderSection(
@@ -94,7 +100,7 @@ fun PoopDiaryScreen(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Reporte")
+                Text(stringResource(R.string.poop_diary_report_button))
             }
 
             // Poop Records
@@ -169,9 +175,9 @@ fun PoopHeaderSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Column{
+                Column {
                     Text(
-                        text = "Fecha actual",
+                        text = stringResource(R.string.poop_diary_current_date),
                         color = Color.White,
                         fontSize = 14.sp
                     )
@@ -226,7 +232,7 @@ fun PoopWeekCalendar(
 
                     if (day.poopCount == 0) {
                         Text(
-                            text = "Sin registros",
+                            text = stringResource(R.string.poop_diary_no_records),
                             color = Color.Gray,
                             fontSize = 10.sp,
                             fontStyle = FontStyle.Italic
@@ -297,13 +303,13 @@ fun PoopRecordCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
-                        contentDescription = "Poop",
+                        contentDescription = stringResource(R.string.poop_diary_icon_description),
                         tint = getColorForPoopColor(poopRecord.color),
                         modifier = Modifier.size(20.dp)
                     )
 
                     Text(
-                        text = "Deposición",
+                        text = stringResource(R.string.poop_diary_entry_title),
                         color = darkBrown,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
@@ -327,16 +333,16 @@ fun PoopRecordCard(
                 Column {
                     if (poopRecord.color.isNotEmpty()) {
                         PoopDetailItem(
-                            label = "Color:",
-                            value = poopRecord.color,
+                            label = stringResource(R.string.poop_diary_label_color),
+                            value = localizedPoopColor(poopRecord.color),
                             darkBrown = darkBrown
                         )
                     }
 
                     if (poopRecord.texture.isNotEmpty()) {
                         PoopDetailItem(
-                            label = "Textura:",
-                            value = poopRecord.texture,
+                            label = stringResource(R.string.poop_diary_label_texture),
+                            value = localizedPoopTexture(poopRecord.texture),
                             darkBrown = darkBrown
                         )
                     }
@@ -345,8 +351,8 @@ fun PoopRecordCard(
                 Column {
                     if (poopRecord.size.isNotEmpty()) {
                         PoopDetailItem(
-                            label = "Tamaño:",
-                            value = poopRecord.size,
+                            label = stringResource(R.string.poop_diary_label_size),
+                            value = localizedPoopSize(poopRecord.size),
                             darkBrown = darkBrown
                         )
                     }
@@ -418,5 +424,5 @@ fun formatTimestamp(timestamp: Long): String { //TODO: Move to utils
     calendar.timeInMillis = timestamp
     val hour = calendar.get(Calendar.HOUR_OF_DAY)
     val minute = calendar.get(Calendar.MINUTE)
-    return String.format("%02d:%02d", hour, minute)
+    return String.format(Locale.US, "%02d:%02d", hour, minute)
 }

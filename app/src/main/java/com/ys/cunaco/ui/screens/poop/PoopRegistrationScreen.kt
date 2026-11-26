@@ -494,28 +494,3 @@ private fun SectionTitle(title: String) {
         Spacer(modifier = Modifier.width(8.dp))
     }
 }
-
-@Composable
-private fun PoopColor.label(): String = when (this) {
-    PoopColor.MUY_OSCURO -> stringResource(R.string.poop_color_very_dark)
-    PoopColor.VERDE_OSCURO -> stringResource(R.string.poop_color_dark_green)
-    PoopColor.MARRON -> stringResource(R.string.poop_color_brown)
-    PoopColor.AMARILLO -> stringResource(R.string.poop_color_yellow)
-    PoopColor.OTROS -> stringResource(R.string.poop_color_other)
-}
-
-@Composable
-private fun PoopTexture.label(): String = when (this) {
-    PoopTexture.LIQUIDA -> stringResource(R.string.poop_texture_liquid)
-    PoopTexture.PASTOSA -> stringResource(R.string.poop_texture_pasty)
-    PoopTexture.DURA -> stringResource(R.string.poop_texture_hard)
-    PoopTexture.CON_MOCOS -> stringResource(R.string.poop_texture_mucus)
-    PoopTexture.CON_SANGRE -> stringResource(R.string.poop_texture_blood)
-}
-
-@Composable
-private fun PoopSize.label(): String = when (this) {
-    PoopSize.POCO -> stringResource(R.string.poop_size_small)
-    PoopSize.MITAD_PANAL -> stringResource(R.string.poop_size_half_diaper)
-    PoopSize.PANAL_DESBORDADO -> stringResource(R.string.poop_size_overflowing)
-}
