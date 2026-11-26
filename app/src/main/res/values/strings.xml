@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Phdmama</string>
+    <string name="app_name">CunaCo</string>
     <string name="default_web_client_id">545527532287-21q92qgk75rii447v35pkdd9lm1nfs2a.apps.googleusercontent.com</string>
     <string name="sign_out">Cerrar sesión</string>
     <string name="sign_out_title">¿Cerrar sesión?</string>
@@ -250,4 +250,39 @@
     <string name="poop_size_small">A little</string>
     <string name="poop_size_half_diaper">Half the diaper</string>
     <string name="poop_size_overflowing">Diaper overflowing!</string>
+
+    <!-- Notification permission helper -->
+    <string name="notif_disabled_title">Notifications disabled</string>
+    <string name="notif_disabled_message">Notifications are disabled for this app.\n\nFor the counter to work properly in the background, you need to enable notifications.\n\nSteps:\n1. Go to App Settings\n2. Look for \'Notifications\'\n3. Turn on all notifications\n4. Turn on the \'%1$s\' channel</string>
+    <string name="notif_go_to_settings">Go to Settings</string>
+    <string name="notif_later">Later</string>
+    <string name="notif_enable_title">Enable notifications</string>
+    <string name="notif_understood">Got it</string>
+
+    <string name="notif_instructions_samsung">Samsung (One UI):\n1. Settings → Apps → %1$s\n2. Notifications → Allow notifications (ON)\n3. Make sure \'%2$s\' is enabled</string>
+    <string name="notif_instructions_xiaomi">Xiaomi (MIUI):\n1. Settings → Apps → Manage apps\n2. Look for \'%1$s\'\n3. Notifications → Show notifications (ON)\n4. Also check: Settings → Notifications → %1$s</string>
+    <string name="notif_instructions_huawei">Huawei (EMUI):\n1. Settings → Apps → %1$s\n2. Notifications → Allow notifications (ON)\n3. Check that all types are enabled</string>
+    <string name="notif_instructions_oppo">Oppo (ColorOS):\n1. Settings → Notifications and status bar\n2. Manage notifications → %1$s\n3. Allow notifications (ON)</string>
+    <string name="notif_instructions_vivo">Vivo (FunTouch):\n1. Settings → Notifications and status bar\n2. %1$s → Allow notifications (ON)</string>
+    <string name="notif_instructions_oneplus">OnePlus (OxygenOS):\n1. Settings → Apps and notifications\n2. %1$s → Notifications → Show notifications (ON)</string>
+    <string name="notif_instructions_general">General steps:\n1. Go to your device Settings\n2. Look for \'Apps\'\n3. Find \'%1$s\'\n4. Tap \'Notifications\'\n5. Turn on \'Allow notifications\'\n6. Make sure \'%2$s\' is enabled</string>
+
+    <!-- Battery optimization helper -->
+    <string name="battery_opt_title">Battery optimization</string>
+    <string name="battery_opt_message">For the counter to work properly in the background, you need to turn off battery optimization for this app.\n\nThis will let the counter keep running when you close the app.</string>
+    <string name="battery_opt_later">Later</string>
+    <string name="battery_opt_configure">Configure</string>
+
+    <string name="battery_opt_manufacturer_title">Battery settings</string>
+    <string name="battery_opt_manufacturer_message">For the counter to work properly:\n\n1. Turn off battery optimization\n2. %1$s\n\nDo you want to open the settings now?</string>
+    <string name="battery_opt_yes">Yes</string>
+    <string name="battery_opt_no">No</string>
+
+    <string name="battery_opt_instructions_xiaomi">On MIUI: Go to Settings > Apps > Manage apps > %1$s > Battery saver > No restrictions</string>
+    <string name="battery_opt_instructions_huawei">On EMUI: Go to Settings > Apps > %1$s > Battery > Auto-launch (turn on)</string>
+    <string name="battery_opt_instructions_oppo">On ColorOS: Go to Settings > Battery > Power optimization > %1$s > Turn off</string>
+    <string name="battery_opt_instructions_vivo">On FunTouch: Go to Settings > Battery > Power management > %1$s > Turn off</string>
+    <string name="battery_opt_instructions_oneplus">On OxygenOS: Go to Settings > Battery > Battery optimization > %1$s > Don\'t optimize</string>
+    <string name="battery_opt_instructions_samsung">On One UI: Go to Settings > Device care > Battery > More options > Optimize battery usage > %1$s > Turn off</string>
+    <string name="battery_opt_instructions_general">Look in your battery settings for the option to turn off optimization for this app</string>
 </resources>

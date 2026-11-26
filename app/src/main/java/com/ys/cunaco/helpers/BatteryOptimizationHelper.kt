@@ -8,8 +8,11 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.app.AlertDialog
+import com.ys.cunaco.R
 
 object BatteryOptimizationHelper {
+
+    private const val APP_NAME = "CunaCo"
 
     /**
      * Check if the app is whitelisted from battery optimization
@@ -39,16 +42,12 @@ object BatteryOptimizationHelper {
      */
     private fun showBatteryOptimizationDialog(activity: Activity) {
         AlertDialog.Builder(activity)
-            .setTitle("Optimización de Batería")
-            .setMessage(
-                "Para que el contador funcione correctamente en segundo plano, " +
-                        "necesitas desactivar la optimización de batería para esta aplicación.\n\n" +
-                        "Esto permitirá que el contador continúe funcionando cuando cierres la app."
-            )
-            .setPositiveButton("Configurar") { _, _ ->
+            .setTitle(activity.getString(R.string.battery_opt_title))
+            .setMessage(activity.getString(R.string.battery_opt_message))
+            .setPositiveButton(activity.getString(R.string.battery_opt_configure)) { _, _ ->
                 openBatteryOptimizationSettings(activity)
             }
-            .setNegativeButton("Más tarde", null)
+            .setNegativeButton(activity.getString(R.string.battery_opt_later), null)
             .setCancelable(false)
             .show()
     }
@@ -103,42 +102,37 @@ object BatteryOptimizationHelper {
      */
     private fun showManufacturerSpecificDialog(activity: Activity) {
         val manufacturer = Build.MANUFACTURER.lowercase()
-        val instructions = getManufacturerSpecificInstructions(manufacturer)
+        val instructions = getManufacturerSpecificInstructions(activity, manufacturer)
 
         AlertDialog.Builder(activity)
-            .setTitle("Configuración de Batería")
-            .setMessage(
-                "Para que el contador funcione correctamente:\n\n" +
-                        "1. Desactiva la optimización de batería\n" +
-                        "2. ${instructions}\n\n" +
-                        "¿Quieres abrir la configuración ahora?"
-            )
-            .setPositiveButton("Sí") { _, _ ->
+            .setTitle(activity.getString(R.string.battery_opt_manufacturer_title))
+            .setMessage(activity.getString(R.string.battery_opt_manufacturer_message, instructions))
+            .setPositiveButton(activity.getString(R.string.battery_opt_yes)) { _, _ ->
                 openBatteryOptimizationSettings(activity)
             }
-            .setNegativeButton("No", null)
+            .setNegativeButton(activity.getString(R.string.battery_opt_no), null)
             .show()
     }
 
     /**
      * Get manufacturer-specific instructions
      */
-    private fun getManufacturerSpecificInstructions(manufacturer: String): String {
+    private fun getManufacturerSpecificInstructions(context: Context, manufacturer: String): String {
         return when {
             manufacturer.contains("xiaomi") ->
-                "En MIUI: Ve a Configuración > Apps > Administrar apps > PhdMama > Ahorro de batería > Sin restricciones"
+                context.getString(R.string.battery_opt_instructions_xiaomi, APP_NAME)
             manufacturer.contains("huawei") ->
-                "En EMUI: Ve a Configuración > Apps > PhdMama > Batería > Inicio automático (activar)"
+                context.getString(R.string.battery_opt_instructions_huawei, APP_NAME)
             manufacturer.contains("oppo") ->
-                "En ColorOS: Ve a Configuración > Batería > Optimización de energía > PhdMama > Desactivar"
+                context.getString(R.string.battery_opt_instructions_oppo, APP_NAME)
             manufacturer.contains("vivo") ->
-                "En FunTouch: Ve a Configuración > Batería > Gestión de consumo > PhdMama > Desactivar"
+                context.getString(R.string.battery_opt_instructions_vivo, APP_NAME)
             manufacturer.contains("oneplus") ->
-                "En OxygenOS: Ve a Configuración > Batería > Optimización de batería > PhdMama > No optimizar"
+                context.getString(R.string.battery_opt_instructions_oneplus, APP_NAME)
             manufacturer.contains("samsung") ->
-                "En One UI: Ve a Configuración > Cuidado del dispositivo > Batería > Más opciones > Optimizar uso de batería > PhdMama > Desactivar"
+                context.getString(R.string.battery_opt_instructions_samsung, APP_NAME)
             else ->
-                "Busca en configuración de batería la opción para desactivar optimización para esta app"
+                context.getString(R.string.battery_opt_instructions_general)
         }
     }
 }

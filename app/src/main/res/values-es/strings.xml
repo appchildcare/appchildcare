@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Phdmama</string>
+    <string name="app_name">CunaCo</string>
     <string name="default_web_client_id">545527532287-21q92qgk75rii447v35pkdd9lm1nfs2a.apps.googleusercontent.com</string>
     <string name="sign_out">Cerrar sesión</string>
     <string name="sign_out_title">¿Cerrar sesión?</string>
@@ -245,4 +245,39 @@
     <string name="poop_size_small">Poco</string>
     <string name="poop_size_half_diaper">Mitad del pañal</string>
     <string name="poop_size_overflowing">¡Pañal desbordado!</string>
+
+    <!-- Notification permission helper -->
+    <string name="notif_disabled_title">Notificaciones Deshabilitadas</string>
+    <string name="notif_disabled_message">Las notificaciones están deshabilitadas para esta aplicación.\n\nPara que el contador funcione correctamente en segundo plano, necesitas habilitar las notificaciones.\n\nPasos:\n1. Ir a Configuración de la App\n2. Buscar \'Notificaciones\'\n3. Activar todas las notificaciones\n4. Activar el canal \'%1$s\'</string>
+    <string name="notif_go_to_settings">Ir a Configuración</string>
+    <string name="notif_later">Más tarde</string>
+    <string name="notif_enable_title">Habilitar Notificaciones</string>
+    <string name="notif_understood">Entendido</string>
+
+    <string name="notif_instructions_samsung">Samsung (One UI):\n1. Configuración → Aplicaciones → %1$s\n2. Notificaciones → Permitir notificaciones (ON)\n3. Asegúrate que \'%2$s\' esté habilitado</string>
+    <string name="notif_instructions_xiaomi">Xiaomi (MIUI):\n1. Configuración → Aplicaciones → Administrar aplicaciones\n2. Buscar \'%1$s\'\n3. Notificaciones → Mostrar notificaciones (ON)\n4. También revisar: Configuración → Notificaciones → %1$s</string>
+    <string name="notif_instructions_huawei">Huawei (EMUI):\n1. Configuración → Aplicaciones → %1$s\n2. Notificaciones → Permitir notificaciones (ON)\n3. Verificar que todos los tipos estén habilitados</string>
+    <string name="notif_instructions_oppo">Oppo (ColorOS):\n1. Configuración → Notificaciones y barra de estado\n2. Administrar notificaciones → %1$s\n3. Permitir notificaciones (ON)</string>
+    <string name="notif_instructions_vivo">Vivo (FunTouch):\n1. Configuración → Notificaciones y barra de estado\n2. %1$s → Permitir notificaciones (ON)</string>
+    <string name="notif_instructions_oneplus">OnePlus (OxygenOS):\n1. Configuración → Aplicaciones y notificaciones\n2. %1$s → Notificaciones → Mostrar notificaciones (ON)</string>
+    <string name="notif_instructions_general">Pasos generales:\n1. Ve a Configuración de tu dispositivo\n2. Busca \'Aplicaciones\' o \'Apps\'\n3. Encuentra \'%1$s\'\n4. Toca en \'Notificaciones\'\n5. Activa \'Permitir notificaciones\'\n6. Asegúrate que \'%2$s\' esté habilitado</string>
+
+    <!-- Battery optimization helper -->
+    <string name="battery_opt_title">Optimización de Batería</string>
+    <string name="battery_opt_message">Para que el contador funcione correctamente en segundo plano, necesitas desactivar la optimización de batería para esta aplicación.\n\nEsto permitirá que el contador continúe funcionando cuando cierres la app.</string>
+    <string name="battery_opt_later">Más tarde</string>
+    <string name="battery_opt_configure">Configurar</string>
+
+    <string name="battery_opt_manufacturer_title">Configuración de Batería</string>
+    <string name="battery_opt_manufacturer_message">Para que el contador funcione correctamente:\n\n1. Desactiva la optimización de batería\n2. %1$s\n\n¿Quieres abrir la configuración ahora?</string>
+    <string name="battery_opt_yes">Sí</string>
+    <string name="battery_opt_no">No</string>
+
+    <string name="battery_opt_instructions_xiaomi">En MIUI: Ve a Configuración > Apps > Administrar apps > %1$s > Ahorro de batería > Sin restricciones</string>
+    <string name="battery_opt_instructions_huawei">En EMUI: Ve a Configuración > Apps > %1$s > Batería > Inicio automático (activar)</string>
+    <string name="battery_opt_instructions_oppo">En ColorOS: Ve a Configuración > Batería > Optimización de energía > %1$s > Desactivar</string>
+    <string name="battery_opt_instructions_vivo">En FunTouch: Ve a Configuración > Batería > Gestión de consumo > %1$s > Desactivar</string>
+    <string name="battery_opt_instructions_oneplus">En OxygenOS: Ve a Configuración > Batería > Optimización de batería > %1$s > No optimizar</string>
+    <string name="battery_opt_instructions_samsung">En One UI: Ve a Configuración > Cuidado del dispositivo > Batería > Más opciones > Optimizar uso de batería > %1$s > Desactivar</string>
+    <string name="battery_opt_instructions_general">Busca en configuración de batería la opción para desactivar optimización para esta app</string>
 </resources>
