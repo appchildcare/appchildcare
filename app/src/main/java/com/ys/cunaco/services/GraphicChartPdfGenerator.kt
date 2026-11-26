@@ -174,7 +174,7 @@ object PdfGeneratorUtils {
                 putExtra(Intent.EXTRA_SUBJECT, "Reporte Child Care")
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    "Compartiendo reporte generado por Child Care App"
+                    "Compartiendo reporte generado por CunaCo"
                 )
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
@@ -310,8 +310,7 @@ class PdfContentBuilder(
         // Draw line above footer
         canvas.drawLine(marginLeft, 800f, marginRight, 800f, footerPaint)
 
-        // Left side: "Generado por Child Care App"
-        canvas.drawText("Generado por Child Care App", marginLeft, 820f, footerPaint)
+        canvas.drawText("Generado por CunaCo", marginLeft, 820f, footerPaint)
 
         // Right side: "Página X de Y"
         val pageText = "Página $pageNumber de $totalPages"

@@ -3,7 +3,6 @@ package com.ys.cunaco.ui.screens.born.charts
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -67,7 +66,7 @@ fun HeightLengthDetailScreen(
     }
 
     val babyName = remember(selectedBabyProfile) {
-        return@remember selectedBabyProfile?.name
+        selectedBabyProfile?.name
     }
 
     LaunchedEffect(babyId) {
@@ -95,16 +94,18 @@ fun HeightLengthDetailScreen(
             Spacer(Modifier.height(16.dp))
 
             if (babySex.isNotEmpty()) {
-                HeightLengthChart(
-                    records = records,
-                    sex = babySex,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .padding(16.dp)
-                )
-
                 if (records.isNotEmpty()) {
+                    HeightLengthChart(
+                        records = records,
+                        sex = babySex,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .padding(16.dp)
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
                     Button(
                         onClick = {
                             generateHeightLengthPDF(
@@ -141,7 +142,6 @@ fun HeightLengthDetailScreen(
                                 lmsList = lmsTable
                             )
 
-
                             val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
 
                             Card(
@@ -161,7 +161,6 @@ fun HeightLengthDetailScreen(
                             }
                         }
                     }
-
                 } else {
                     Text("No hay datos disponibles.")
                 }
@@ -169,15 +168,7 @@ fun HeightLengthDetailScreen(
                 CircularProgressIndicator()
             }
 
-
             Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = painterResource(id = R.mipmap.ilustraciones_baby),
-                contentDescription = "Auth image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
         }
     }
 }
@@ -220,7 +211,6 @@ fun generateHeightLengthPDF(
         subtitle = "Nombre del Bebé: $babyName",
         logoResId = R.drawable.app_child_care_logo
     ) {
-        // Draw table
         val headers = listOf("Edad", "Talla (cm)", "Z-Score", "Rango OMS (cm)")
         val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
@@ -245,8 +235,6 @@ fun generateHeightLengthPDF(
         }
 
         drawTable(headers, columnPositions, tableData)
-
-        // Add summary section
         addSectionTitle("Resumen:")
 
         val totalMeasurements = records.size
@@ -269,22 +257,15 @@ fun generateHeightLengthPDF(
     }
 }
 
-
 fun calcularZScoreTallaEdad(
-    talla: Double?, // valor medido en cm
+    talla: Double?, 
     edadMeses: Int,
     lmsList: List<LMSHeightLength>
 ): Double? {
     if (talla == null) return null
-
     val lms = lmsList.find { it.month == edadMeses } ?: return null
     val (L, M, S) = Triple(lms.L, lms.M, lms.S)
-
-    return if (L == 0.0) {
-        ln(talla / M) / S
-    } else {
-        (talla.pow(L) - M.pow(L)) / (L * S * M.pow(L - 1))
-    }
+    return if (L == 0.0) ln(talla / M) / S else (talla.pow(L) - M.pow(L)) / (L * S * M.pow(L - 1))
 }
 
 fun calcularRangoNormalTalla(
@@ -294,12 +275,7 @@ fun calcularRangoNormalTalla(
     val lms = lmsList.find { it.month == edadMeses } ?: return null
     val (L, M, S) = Triple(lms.L, lms.M, lms.S)
     val z = 2.0
-
     val min = if (L != 0.0) M * (1 + L * S * -z).pow(1 / L) else M * exp(-z * S)
     val max = if (L != 0.0) M * (1 + L * S * z).pow(1 / L) else M * exp(z * S)
-
-    return LengthRange(
-        min = String.format("%.2f", min).toDouble(),
-        max = String.format("%.2f", max).toDouble()
-    )
+    return LengthRange(min = String.format("%.2f", min).toDouble(), max = String.format("%.2f", max).toDouble())
 }

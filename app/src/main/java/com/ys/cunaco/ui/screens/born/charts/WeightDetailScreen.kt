@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -80,8 +78,6 @@ fun WeightDetailScreen(
     LaunchedEffect(Unit) {
         val maxWeek = LmsUtils.lmsWeightBoysData.maxOfOrNull { it.week }
         Log.d("LMS", "Max week en datos: $maxWeek")
-        // Si imprime ~52 → solo tienes datos hasta 12 meses
-        // Si imprime ~260 → datos completos hasta 60 meses
     }
 
     LaunchedEffect(records) {
@@ -114,25 +110,21 @@ fun WeightDetailScreen(
                 .padding(20.dp)
         ) {
             Spacer(Modifier.height(16.dp))
-            //val maxMonths = remember(records) {
-              //  val maxFromRecords = records.maxOfOrNull { it.ageInMonths } ?: 12
-               // ((maxFromRecords + 5) / 6) * 6  // redondea al siguiente múltiplo de 6
-            //}
             val maxMonths = 60
 
-
             if (babySex.isNotEmpty()) {
-                WeightChart(
-                    records = records,
-                    sex = babySex,
-                    maxMonths = maxMonths,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .padding(16.dp)
-                )
-
                 if (records.isNotEmpty()) {
+                    // Render the chart only when there is data
+                    WeightChart(
+                        records = records,
+                        sex = babySex,
+                        maxMonths = maxMonths,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .padding(16.dp)
+                    )
+
                     Button(
                         onClick = {
                             generateWeightPDF(
@@ -169,7 +161,6 @@ fun WeightDetailScreen(
                                 lmsList = lmsTable
                             )
 
-
                             val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
 
                             Card(
@@ -189,7 +180,6 @@ fun WeightDetailScreen(
                             }
                         }
                     }
-
                 } else {
                     Text("No hay datos disponibles.")
                 }
@@ -198,13 +188,6 @@ fun WeightDetailScreen(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Image(
-                painter = painterResource(id = R.mipmap.ilustraciones_baby),
-                contentDescription = "Auth image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
         }
     }
 }
@@ -221,7 +204,7 @@ fun WeightChart(
     val scrollState   = rememberScrollState()
 
     val yAxisWidth        = 10.dp
-    val scrollableWidthDp = 960.dp  // ✅ fijo para 60 meses (60 × 16dp)
+    val scrollableWidthDp = 960.dp  // fijo para 60 meses (60 × 16dp)
 
     Row(modifier = modifier) {
         Canvas(
@@ -347,8 +330,6 @@ fun calcularZScoreTallaEdad(
     }
 }
 
-//data class LengthRange(val min: Double, val max: Double)
-
 fun calcularRangoNormalTalla(
     edadMeses: Int,
     lmsList: List<LMS>
@@ -366,4 +347,3 @@ fun calcularRangoNormalTalla(
         max = String.format("%.2f", max).toDouble()
     )
 }
-
