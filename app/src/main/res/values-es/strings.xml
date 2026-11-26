@@ -193,4 +193,16 @@
     <string name="sleep_counter_start">Iniciar</string>
     <string name="sleep_counter_stop">Detener</string>
     <string name="sleep_counter_view_reports">Ver Reportes</string>
+
+    <!-- Lactation counter screen -->
+    <string name="lactation_counter_title">Lactancia</string>
+    <string name="lactation_counter_image_description">Ilustración de lactancia</string>
+    <string name="lactation_type_label">Tipo de Lactancia</string>
+    <string name="lactation_type_breast_milk">Leche materna</string>
+    <string name="lactation_type_formula">Leche de fórmula</string>
+    <string name="lactation_counter_running">Corriendo…</string>
+    <string name="lactation_counter_stopped">Detenido</string>
+    <string name="lactation_counter_start">Iniciar</string>
+    <string name="lactation_counter_stop">Detener</string>
+    <string name="lactation_counter_view_reports">Ver Reportes</string>
 </resources>

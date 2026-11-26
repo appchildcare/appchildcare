@@ -198,4 +198,16 @@
     <string name="sleep_counter_start">Start</string>
     <string name="sleep_counter_stop">Stop</string>
     <string name="sleep_counter_view_reports">View reports</string>
+
+    <!-- Lactation counter screen -->
+    <string name="lactation_counter_title">Breastfeeding</string>
+    <string name="lactation_counter_image_description">Breastfeeding illustration</string>
+    <string name="lactation_type_label">Feeding type</string>
+    <string name="lactation_type_breast_milk">Breast milk</string>
+    <string name="lactation_type_formula">Formula</string>
+    <string name="lactation_counter_running">Running…</string>
+    <string name="lactation_counter_stopped">Stopped</string>
+    <string name="lactation_counter_start">Start</string>
+    <string name="lactation_counter_stop">Stop</string>
+    <string name="lactation_counter_view_reports">View reports</string>
 </resources>
