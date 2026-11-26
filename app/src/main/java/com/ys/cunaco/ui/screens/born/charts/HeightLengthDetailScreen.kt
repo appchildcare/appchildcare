@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -65,7 +66,7 @@ fun HeightLengthDetailScreen(
     }
 
     val babyName = remember(selectedBabyProfile) {
-        return@remember selectedBabyProfile?.name
+        selectedBabyProfile?.name
     }
 
     LaunchedEffect(babyId) {
@@ -141,7 +142,6 @@ fun HeightLengthDetailScreen(
                                 lmsList = lmsTable
                             )
 
-
                             val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
 
                             Card(
@@ -167,7 +167,6 @@ fun HeightLengthDetailScreen(
             } else {
                 CircularProgressIndicator()
             }
-
 
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -212,7 +211,6 @@ fun generateHeightLengthPDF(
         subtitle = "Nombre del Bebé: $babyName",
         logoResId = R.drawable.app_child_care_logo
     ) {
-        // Draw table
         val headers = listOf("Edad", "Talla (cm)", "Z-Score", "Rango OMS (cm)")
         val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
@@ -237,8 +235,6 @@ fun generateHeightLengthPDF(
         }
 
         drawTable(headers, columnPositions, tableData)
-
-        // Add summary section
         addSectionTitle("Resumen:")
 
         val totalMeasurements = records.size
@@ -261,22 +257,15 @@ fun generateHeightLengthPDF(
     }
 }
 
-
 fun calcularZScoreTallaEdad(
-    talla: Double?, // valor medido en cm
+    talla: Double?, 
     edadMeses: Int,
     lmsList: List<LMSHeightLength>
 ): Double? {
     if (talla == null) return null
-
     val lms = lmsList.find { it.month == edadMeses } ?: return null
     val (L, M, S) = Triple(lms.L, lms.M, lms.S)
-
-    return if (L == 0.0) {
-        ln(talla / M) / S
-    } else {
-        (talla.pow(L) - M.pow(L)) / (L * S * M.pow(L - 1))
-    }
+    return if (L == 0.0) ln(talla / M) / S else (talla.pow(L) - M.pow(L)) / (L * S * M.pow(L - 1))
 }
 
 fun calcularRangoNormalTalla(
@@ -286,12 +275,7 @@ fun calcularRangoNormalTalla(
     val lms = lmsList.find { it.month == edadMeses } ?: return null
     val (L, M, S) = Triple(lms.L, lms.M, lms.S)
     val z = 2.0
-
     val min = if (L != 0.0) M * (1 + L * S * -z).pow(1 / L) else M * exp(-z * S)
     val max = if (L != 0.0) M * (1 + L * S * z).pow(1 / L) else M * exp(z * S)
-
-    return LengthRange(
-        min = String.format("%.2f", min).toDouble(),
-        max = String.format("%.2f", max).toDouble()
-    )
+    return LengthRange(min = String.format("%.2f", min).toDouble(), max = String.format("%.2f", max).toDouble())
 }
