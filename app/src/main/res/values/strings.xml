@@ -359,4 +359,24 @@
     <string name="food_edit_title">Edit Food Record</string>
     <string name="food_edit_name">Food</string>
     <string name="food_edit_reaction_detail">Reaction details</string>
+
+    <string name="medicine_registration_title">Medicine Registration</string>
+    <string name="medicine_name">Medicine</string>
+    <string name="medicine_take_time">Time to take</string>
+    <string name="medicine_select_time">Select time</string>
+    <string name="medicine_reminder_question">Would you like to receive a reminder?</string>
+    <string name="medicine_reminder_date">Reminder date</string>
+    <string name="medicine_select_date">Select date</string>
+    <string name="medicine_yes">Yes</string>
+    <string name="medicine_no">No</string>
+    <string name="medicine_save">Save</string>
+    <string name="medicine_history">Medicine History</string>
+    <string name="medicine_report">Report</string>
+    <string name="medicine_no_records">There are no medicine records.</string>
+    <string name="medicine_label">Medicine:</string>
+    <string name="medicine_time_label">Time to take:</string>
+    <string name="medicine_reminder_label">Reminder:</string>
+    <string name="medicine_reminder_yes_date">Yes - %1$s</string>
+    <string name="medicine_edit_title">Edit Medicine</string>
+    <string name="medicine_cancel">Cancel</string>
 </resources>

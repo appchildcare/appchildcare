@@ -354,4 +354,24 @@
     <string name="food_edit_title">Editar registro de alimento</string>
     <string name="food_edit_name">Alimento</string>
     <string name="food_edit_reaction_detail">Detalle de la reacción</string>
+
+    <string name="medicine_registration_title">Registro de medicinas</string>
+    <string name="medicine_name">Medicina</string>
+    <string name="medicine_take_time">Hora de toma</string>
+    <string name="medicine_select_time">Seleccionar hora</string>
+    <string name="medicine_reminder_question">¿Desea recibir recordatorio?</string>
+    <string name="medicine_reminder_date">Fecha de recordatorio</string>
+    <string name="medicine_select_date">Seleccionar fecha</string>
+    <string name="medicine_yes">Sí</string>
+    <string name="medicine_no">No</string>
+    <string name="medicine_save">Guardar</string>
+    <string name="medicine_history">Historial de medicinas</string>
+    <string name="medicine_report">Reporte</string>
+    <string name="medicine_no_records">No hay registros de medicinas.</string>
+    <string name="medicine_label">Medicina:</string>
+    <string name="medicine_time_label">Hora de toma:</string>
+    <string name="medicine_reminder_label">Recordatorio:</string>
+    <string name="medicine_reminder_yes_date">Sí - %1$s</string>
+    <string name="medicine_edit_title">Editar medicina</string>
+    <string name="medicine_cancel">Cancelar</string>
 </resources>
