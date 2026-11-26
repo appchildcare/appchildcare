@@ -13,6 +13,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import java.util.Locale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ys.cunaco.R
@@ -28,7 +30,7 @@ fun LactationCounterScreen(babyId: String?, navController: NavController,
                            viewModel: LactationViewModel = hiltViewModel(),
                            openDrawer: () -> Unit) {
     PhdLayoutMenu(
-        title = "Lactancia",
+        title = stringResource(R.string.lactation_counter_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -50,7 +52,17 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
     val selectedLactationType by viewModel.selectedLactationType.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
-    val lactationTypes = listOf("Leche materna", "Leche de fórmula")
+
+    // Valores guardados (NO cambian con el idioma)
+    val lactationValues = listOf("Leche materna", "Leche de fórmula")
+    // Etiquetas que ve el usuario
+    val lactationLabels = listOf(
+        stringResource(R.string.lactation_type_breast_milk),
+        stringResource(R.string.lactation_type_formula)
+    )
+    val selectedLabel = lactationLabels.getOrElse(lactationValues.indexOf(selectedLactationType)) {
+        selectedLactationType
+    }
 
     Column(
         modifier = Modifier
@@ -61,7 +73,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
     ) {
         Image(
             painter = painterResource(id = R.drawable.icono_app_gota),
-            contentDescription = "lactancia image",
+            contentDescription = stringResource(R.string.lactation_counter_image_description),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(280.dp)
@@ -76,10 +88,10 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             OutlinedTextField(
-                value = selectedLactationType,
+                value = selectedLabel,
                 onValueChange = { },
                 readOnly = true,
-                label = { Text("Tipo de Lactancia") },
+                label = { Text(stringResource(R.string.lactation_type_label)) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                 modifier = Modifier
@@ -91,11 +103,11 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                lactationTypes.forEach { type ->
+                lactationValues.forEachIndexed { index, value ->
                     DropdownMenuItem(
-                        text = { Text(type) },
+                        text = { Text(lactationLabels[index]) },
                         onClick = {
-                            viewModel.setLactationType(type)
+                            viewModel.setLactationType(value)
                             expanded = false
                         }
                     )
@@ -116,7 +128,9 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
         )
 
         Text(
-            text = if (isRunning) "Corriendo..." else "Detenido",
+            text = stringResource(
+                if (isRunning) R.string.lactation_counter_running else R.string.lactation_counter_stopped
+            ),
             style = MaterialTheme.typography.bodyLarge,
             color = if (isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -141,7 +155,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
                     pressedElevation = 2.dp
                 )
             ) {
-                Text("Iniciar")
+                Text(stringResource(R.string.lactation_counter_start))
             }
 
             Button(
@@ -159,7 +173,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
                     pressedElevation = 2.dp
                 )
             ) {
-                Text("Detener")
+                Text(stringResource(R.string.lactation_counter_stop))
             }
         }
 
@@ -175,7 +189,7 @@ fun LactationComponent(babyId: String?, navController: NavController, viewModel:
                 .padding(horizontal = 16.dp)
                 .height(44.dp),
         ) {
-            Text("Ver Reportes",  fontSize = 14.sp)
+            Text(stringResource(R.string.lactation_counter_view_reports), fontSize = 14.sp)
         }
     }
 }
@@ -186,8 +200,8 @@ private fun formatTime(seconds: Int): String { // TODO: Move to utils
     val remainingSeconds = seconds % 60
 
     return when {
-        hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
-        minutes > 0 -> String.format("%02d:%02d", minutes, remainingSeconds)
-        else -> String.format("00:%02d", seconds)
+        hours > 0 -> String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, remainingSeconds)
+        minutes > 0 -> String.format(Locale.US, "%02d:%02d", minutes, remainingSeconds)
+        else -> String.format(Locale.US, "00:%02d", seconds)
     }
 }

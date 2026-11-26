@@ -33,6 +33,8 @@ import com.ys.cunaco.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -627,5 +629,55 @@ class PoopDiaryViewModel @Inject constructor(
         val totalCount = getTotalPoopCountForWeek()
         val daysWithData = _weekDays.value.count { it.poopCount > 0 }
         return if (daysWithData > 0) totalCount.toFloat() / daysWithData else 0f
+    }
+
+    private fun savePdf(
+        context: Context,
+        pdfDocument: PdfDocument,
+        fileName: String
+    ): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10+
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOWNLOADS
+                    )
+                }
+
+                val uri = context.contentResolver.insert(
+                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                    contentValues
+                ) ?: return false
+
+                context.contentResolver.openOutputStream(uri)?.use {
+                    pdfDocument.writeTo(it)
+                } ?: return false
+
+            } else {
+                // Android 8.0 – 9 (API 26–28)
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS
+                )
+
+                if (!downloadsDir.exists()) {
+                    downloadsDir.mkdirs()
+                }
+
+                val file = File(downloadsDir, fileName)
+
+                FileOutputStream(file).use {
+                    pdfDocument.writeTo(it)
+                }
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.e("PoopDiaryViewModel", "Error saving PDF", e)
+            false
+        }
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes.CARBON_FOOTPRINT
 import com.ys.cunaco.navigation.NavRoutes.CONTRACTION_COUNTER
@@ -32,11 +34,12 @@ private val cardTeal = Color(0xFF7FB8C4)
 private val cardSky  = Color(0xFF9FD6E8)
 
 private data class CounterMenuItemData(
-    val title: String,
+    @StringRes val titleRes: Int,
     val icon: Int,
     val route: String,
     val backgroundColor: Color
 )
+
 
 @Composable
 fun BabyCounterSelectionScreen(
@@ -49,19 +52,19 @@ fun BabyCounterSelectionScreen(
 
     val items = if (isWaiting) {
         listOf(
-            CounterMenuItemData("Contracciones", R.drawable.icono_vacunas, CONTRACTION_COUNTER, cardTeal)
+            CounterMenuItemData(R.string.counter_contractions, R.drawable.icono_vacunas, CONTRACTION_COUNTER, cardTeal)
         )
     } else {
         listOf(
-            CounterMenuItemData("Sueño", R.drawable.icono_sueno_bebe_registro, SLEEP_TRACKING, cardMint),
-            CounterMenuItemData("Lactancia", R.drawable.icono_lactancia_registro, LACTATION_TRACKING, cardTeal),
-            CounterMenuItemData("Popós", R.drawable.icono_popo_registro, POO_MAIN_SELECTION, cardSky),
-            CounterMenuItemData("Huella de carbono", R.drawable.icon_huella_carbono_leaf, CARBON_FOOTPRINT, cardSky)
+            CounterMenuItemData(R.string.counter_sleep, R.drawable.icono_sueno_bebe_registro, SLEEP_TRACKING, cardMint),
+            CounterMenuItemData(R.string.counter_breastfeeding, R.drawable.icono_lactancia_registro, LACTATION_TRACKING, cardTeal),
+            CounterMenuItemData(R.string.counter_poops, R.drawable.icono_popo_registro, POO_MAIN_SELECTION, cardSky),
+            CounterMenuItemData(R.string.counter_carbon_footprint, R.drawable.icon_huella_carbono_leaf, CARBON_FOOTPRINT, cardSky)
         )
     }
 
     PhdLayoutMenu(
-        title = "Registros",
+        title = stringResource(R.string.counter_screen_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -78,15 +81,15 @@ fun BabyCounterSelectionScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.mascota_juntos),
-                    contentDescription = "Image",
+                    contentDescription = stringResource(R.string.counter_mascot_description),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp, 4.dp)
                         .height(180.dp)
                 )
 
-                PhdTextBold(text = "¿Qué quieres registrar?")
-                PhdMediumText(text = "Selecciona una opción para comenzar")
+                PhdTextBold(text = stringResource(R.string.counter_question))
+                PhdMediumText(text = stringResource(R.string.counter_subtitle))
             }
 
             items.chunked(2).forEach { rowItems ->
@@ -97,7 +100,7 @@ fun BabyCounterSelectionScreen(
                     rowItems.forEach { item ->
                         Box(modifier = Modifier.weight(1f)) {
                             PhdClickableCard(
-                                title = item.title,
+                                title = stringResource(item.titleRes),
                                 imageResId = item.icon,
                                 backgroundColor = item.backgroundColor,
                                 onClick = { navController.navigate(item.route) }

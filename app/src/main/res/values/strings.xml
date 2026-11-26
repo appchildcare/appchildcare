@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Phdmama</string>
+    <string name="app_name">CunaCo</string>
     <string name="default_web_client_id">545527532287-21q92qgk75rii447v35pkdd9lm1nfs2a.apps.googleusercontent.com</string>
     <string name="sign_out">Cerrar sesión</string>
     <string name="sign_out_title">¿Cerrar sesión?</string>
@@ -12,7 +12,6 @@
     <string name="growth_milestones_description">Growth Milestones</string>
     <string name="height_label">Height</string>
     <string name="height_description">Baby Height Tracking</string>
-    <string name="pediatrician_question_label">Questions for the Pediatrician</string>
     <string name="pediatrician_visit_label">Pediatrician Visits</string>
     <string name="baby_selector_label">Select baby</string>
     <plurals name="baby_selector_years">
@@ -75,4 +74,345 @@
     <string name="login_error_authentication">Authentication error</string>
     <string name="register_success_create">User created or updated in Firestore</string>
     <string name="legal_terms_url" translatable="false">https://cunacoapp.com/terms</string>
+
+    <!-- Chart Strings -->
+    <string name="download">Download</string>
+    <string name="no_data_available">No data available.</string>
+    <string name="month_detail_label">Month: %d</string>
+    <string name="weight_detail_label">Weight: %s kg</string>
+    <string name="height_detail_label">Height: %s cm</string>
+    <string name="age_months_label">Age (months)</string>
+    <string name="birth">Birth</string>
+    <string name="pdf_report_baby_name">Baby\'s Name: %s</string>
+    <string name="summary_title">Summary:</string>
+    <string name="summary_total_measurements">• Total measurements: %d</string>
+    <string name="summary_normal_range_count">• Measurements in normal range: %d of %d</string>
+    <string name="table_header_age">Age</string>
+    <string name="table_header_weight">Weight (kg)</string>
+    <string name="table_header_height">Height (cm)</string>
+    <string name="table_header_zscore">Z-Score</string>
+    <string name="unknown_baby">unknown</string>
+
+    <!-- Head Circumference Chart Strings -->
+    <string name="head_circumference_report_title">Head Circumference Report</string>
+    <string name="head_circumference_for_age">Head Circumference for Age</string>
+    <string name="head_circumference_detail_label">Head circumference: %s cm</string>
+    <string name="head_circumference_cm_axis_label">Head circumference (cm)</string>
+    <string name="summary_last_pc_measurement">• Last Head Circumference measurement: %s cm (%d months)</string>
+    <string name="pdf_file_name_head_circumference">Head_Circumference_Report</string>
+    <string name="table_header_head_circumference">H. Circumference</string>
+
+    <!-- Height/Length Chart Strings -->
+    <string name="height_report_title">Height/Length Report</string>
+    <string name="height_for_age">Height for Age</string>
+    <string name="oms_range_label">WHO Range: %s cm - %s cm</string>
+    <string name="pdf_file_name_height">Height_Length_Report</string>
+    <string name="pdf_report_title_height">Height/Length Report</string>
+    <string name="summary_last_height_measurement">• Last Height measurement: %s cm (%d months)</string>
+    <string name="table_header_oms_range">WHO Range (cm)</string>
+
+    <!-- Weight Chart Strings -->
+    <string name="weight_report_title">Weight Report</string>
+    <string name="weight_for_age">Weight for Age</string>
+    <string name="oms_weight_range_label">WHO Range: %s kg - %s kg</string>
+    <string name="pdf_file_name_weight">Weight_Report</string>
+    <string name="summary_last_weight_measurement">• Last Weight measurement: %s kg (%d months)</string>
+    <string name="table_header_oms_weight_range">WHO Range (kg)</string>
+
+    <!-- Carbon Footprint Screen -->
+    <string name="carbon_footprint_title">Carbon Footprint</string>
+    <string name="carbon_footprint_subtitle">Daily baby care data</string>
+    <string name="label_disposable_diapers">Disposable diapers used</string>
+    <string name="label_cloth_diapers">Cloth diapers used</string>
+    <string name="label_wet_wipes">Wet wipes used</string>
+    <string name="label_formula_feedings">Only if you use formula milk (feedings)</string>
+    <string name="label_bottle_washes">Bottle washes</string>
+    <string name="label_baths">Baths</string>
+    <string name="btn_calculate_footprint">Calculate Carbon Footprint</string>
+    <string name="btn_clear_form">Clear form</string>
+    <string name="image_description_tree">tree icon</string>
+
+    <string name="carbon_footprint_calculated">Carbon footprint calculated: %s kg CO₂e</string>
+    <string name="carbon_footprint_error">Error calculating footprint: %s</string>
+    <string name="eco_msg_excellent">"🌱 Excellent choice! Using cloth diapers saves approximately %1$s kg CO₂e. Each cloth diaper can be reused hundreds of times, while disposable diapers take more than 500 years to decompose. Your eco-friendly washing with %2$d cloth diapers (%3$d efficient washes) is making a real difference!\n\n  📅 If you maintain this habit, you can reduce the carbon footprint by:\n• In 30 days: %4$s kg CO₂e\n• In 1 year: %5$s kg CO₂e\n  👉 %6$s\n"</string>
+    <string name="eco_msg_progress">"🌿 Great progress! Your %1$d cloth diapers help reduce carbon emissions. Consider using more cloth diapers to increase your environmental impact. With efficient washing (%2$d loads), you are already saving the planet!\n\n  📅 If you maintain this habit, you can reduce the carbon footprint by:\n• In 30 days: %3$s kg CO₂e\n• In 1 year: %4$s kg CO₂e\n  👉 %5$s\n"</string>
+    <string name="eco_msg_consider">"💚 Consider switching to cloth diapers! They can significantly reduce your carbon footprint. Just 8 cloth diapers with an eco-friendly wash cycle can replace many disposable diapers and help protect our environment for future generations.\n\n  📅 If you maintain this habit, you can reduce the carbon footprint by:\n• In 30 days: %1$s kg CO₂e\n• In 1 year: %2$s kg CO₂e\n  👉 %3$s\n"</string>
+
+    <string name="co2_analogy_low">Equivalent to turning off unnecessary lights and appliances for several weeks 💡</string>
+    <string name="co2_analogy_mid_low">Equivalent to a car running without moving for 10 to 40 hours 🚗</string>
+    <string name="co2_analogy_mid">Equivalent to driving a car for 1 to 2 months 🚘</string>
+    <string name="co2_analogy_mid_high">Equivalent to a short international flight ✈️</string>
+    <string name="co2_analogy_high">Equivalent to one or two international flights or one year of car use 🚗✈️</string>
+    <string name="co2_analogy_very_high">Equivalent to the full annual carbon footprint of an average person 🌍</string>
+
+    <!-- Baby data screen -->
+    <string name="baby_profile_title">Baby profile</string>
+    <string name="add_new_baby">Add new baby</string>
+    <string name="editing_baby">Editing: %1$s</string>
+    <string name="name">Name</string>
+    <string name="birth_date">Date of birth</string>
+    <string name="select_date">Select date</string>
+    <string name="weeks_born_question">How many weeks was the baby born at?</string>
+    <string name="gestation_weeks">Weeks of gestation</string>
+    <string name="weeks_format">%1$s weeks</string>
+    <string name="apgar">APGAR</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="height_cm">Height (cm)</string>
+    <string name="sex">Sex</string>
+    <string name="head_circumference_cm">Head circumference (cm)</string>
+    <string name="blood_type">Blood type</string>
+
+    <!-- Sex options (display only) -->
+    <string name="sex_male">Male</string>
+    <string name="sex_female">Female</string>
+    <string name="sex_other">Other</string>
+
+    <!-- Buttons -->
+    <string name="add_baby">Add baby</string>
+    <string name="update">Update</string>
+    <string name="back">Back</string>
+    <string name="add_another_baby">Add another baby</string>
+
+    <!-- Messages -->
+    <string name="baby_data_saved">Data saved</string>
+    <string name="baby_added_success">Baby added successfully</string>
+    <string name="baby_data_updated_success">Data updated successfully</string>
+
+    <!-- Baby counter selection screen -->
+    <string name="counter_screen_title">Records</string>
+    <string name="counter_question">What do you want to do?</string>
+    <string name="counter_subtitle">Select an option to get started</string>
+    <string name="counter_mascot_description">Mascot</string>
+    <string name="counter_contractions">Contractions</string>
+    <string name="counter_sleep">Sleep</string>
+    <string name="counter_breastfeeding">Breastfeeding</string>
+    <string name="counter_poops">Poops</string>
+    <string name="counter_carbon_footprint">Carbon footprint</string>
+
+    <!-- Sleep counter screen -->
+    <string name="sleep_counter_title">Sleep counter</string>
+    <string name="sleep_counter_image_description">Sleep counter illustration</string>
+    <string name="sleep_counter_running">Running…</string>
+    <string name="sleep_counter_stopped">Stopped</string>
+    <string name="sleep_counter_start">Start</string>
+    <string name="sleep_counter_stop">Stop</string>
+    <string name="sleep_counter_view_reports">View reports</string>
+
+    <!-- Lactation counter screen -->
+    <string name="lactation_counter_title">Breastfeeding</string>
+    <string name="lactation_counter_image_description">Breastfeeding illustration</string>
+    <string name="lactation_type_label">Feeding type</string>
+    <string name="lactation_type_breast_milk">Breast milk</string>
+    <string name="lactation_type_formula">Formula</string>
+    <string name="lactation_counter_running">Running…</string>
+    <string name="lactation_counter_stopped">Stopped</string>
+    <string name="lactation_counter_start">Start</string>
+    <string name="lactation_counter_stop">Stop</string>
+    <string name="lactation_counter_view_reports">View reports</string>
+
+    <!-- Poop main screen -->
+    <string name="poop_main_title">Poop log</string>
+    <string name="poop_main_image_description">Diaper illustration</string>
+    <string name="poop_main_question">What do you need to do?</string>
+    <string name="poop_main_subtitle">Select an option to get started</string>
+    <string name="poop_main_register_title">Add poops</string>
+    <string name="poop_main_register_subtitle">Record poop details</string>
+    <string name="poop_main_reports_title">Reports</string>
+    <string name="poop_main_reports_subtitle">Detailed poop information</string>
+
+    <!-- Poop registration screen -->
+    <string name="poop_reg_title">Add poop</string>
+    <string name="poop_reg_section_time">Time</string>
+    <string name="poop_reg_section_color">Color</string>
+    <string name="poop_reg_section_texture">Texture</string>
+    <string name="poop_reg_section_size">Size</string>
+    <string name="poop_reg_section_notes">Notes</string>
+    <string name="poop_reg_notes_placeholder">Write more about your baby\'s poop here</string>
+    <string name="poop_reg_accept">Accept</string>
+    <string name="poop_reg_saved_success">Record saved successfully</string>
+
+    <!-- Colors -->
+    <string name="poop_color_very_dark">Very dark</string>
+    <string name="poop_color_dark_green">Dark green</string>
+    <string name="poop_color_brown">Brown</string>
+    <string name="poop_color_yellow">Yellow</string>
+    <string name="poop_color_other">Other</string>
+
+    <!-- Textures -->
+    <string name="poop_texture_liquid">Liquid</string>
+    <string name="poop_texture_pasty">Pasty</string>
+    <string name="poop_texture_hard">Hard</string>
+    <string name="poop_texture_mucus">With mucus</string>
+    <string name="poop_texture_blood">With blood</string>
+
+    <!-- Sizes -->
+    <string name="poop_size_small">A little</string>
+    <string name="poop_size_half_diaper">Half the diaper</string>
+    <string name="poop_size_overflowing">Diaper overflowing!</string>
+
+    <!-- Notification permission helper -->
+    <string name="notif_disabled_title">Notifications disabled</string>
+    <string name="notif_disabled_message">Notifications are disabled for this app.\n\nFor the counter to work properly in the background, you need to enable notifications.\n\nSteps:\n1. Go to App Settings\n2. Look for \'Notifications\'\n3. Turn on all notifications\n4. Turn on the \'%1$s\' channel</string>
+    <string name="notif_go_to_settings">Go to Settings</string>
+    <string name="notif_later">Later</string>
+    <string name="notif_enable_title">Enable notifications</string>
+    <string name="notif_understood">Got it</string>
+
+    <string name="notif_instructions_samsung">Samsung (One UI):\n1. Settings → Apps → %1$s\n2. Notifications → Allow notifications (ON)\n3. Make sure \'%2$s\' is enabled</string>
+    <string name="notif_instructions_xiaomi">Xiaomi (MIUI):\n1. Settings → Apps → Manage apps\n2. Look for \'%1$s\'\n3. Notifications → Show notifications (ON)\n4. Also check: Settings → Notifications → %1$s</string>
+    <string name="notif_instructions_huawei">Huawei (EMUI):\n1. Settings → Apps → %1$s\n2. Notifications → Allow notifications (ON)\n3. Check that all types are enabled</string>
+    <string name="notif_instructions_oppo">Oppo (ColorOS):\n1. Settings → Notifications and status bar\n2. Manage notifications → %1$s\n3. Allow notifications (ON)</string>
+    <string name="notif_instructions_vivo">Vivo (FunTouch):\n1. Settings → Notifications and status bar\n2. %1$s → Allow notifications (ON)</string>
+    <string name="notif_instructions_oneplus">OnePlus (OxygenOS):\n1. Settings → Apps and notifications\n2. %1$s → Notifications → Show notifications (ON)</string>
+    <string name="notif_instructions_general">General steps:\n1. Go to your device Settings\n2. Look for \'Apps\'\n3. Find \'%1$s\'\n4. Tap \'Notifications\'\n5. Turn on \'Allow notifications\'\n6. Make sure \'%2$s\' is enabled</string>
+
+    <!-- Battery optimization helper -->
+    <string name="battery_opt_title">Battery optimization</string>
+    <string name="battery_opt_message">For the counter to work properly in the background, you need to turn off battery optimization for this app.\n\nThis will let the counter keep running when you close the app.</string>
+    <string name="battery_opt_later">Later</string>
+    <string name="battery_opt_configure">Configure</string>
+
+    <string name="battery_opt_manufacturer_title">Battery settings</string>
+    <string name="battery_opt_manufacturer_message">For the counter to work properly:\n\n1. Turn off battery optimization\n2. %1$s\n\nDo you want to open the settings now?</string>
+    <string name="battery_opt_yes">Yes</string>
+    <string name="battery_opt_no">No</string>
+
+    <string name="battery_opt_instructions_xiaomi">On MIUI: Go to Settings > Apps > Manage apps > %1$s > Battery saver > No restrictions</string>
+    <string name="battery_opt_instructions_huawei">On EMUI: Go to Settings > Apps > %1$s > Battery > Auto-launch (turn on)</string>
+    <string name="battery_opt_instructions_oppo">On ColorOS: Go to Settings > Battery > Power optimization > %1$s > Turn off</string>
+    <string name="battery_opt_instructions_vivo">On FunTouch: Go to Settings > Battery > Power management > %1$s > Turn off</string>
+    <string name="battery_opt_instructions_oneplus">On OxygenOS: Go to Settings > Battery > Battery optimization > %1$s > Don\'t optimize</string>
+    <string name="battery_opt_instructions_samsung">On One UI: Go to Settings > Device care > Battery > More options > Optimize battery usage > %1$s > Turn off</string>
+    <string name="battery_opt_instructions_general">Look in your battery settings for the option to turn off optimization for this app</string>
+
+    <!-- Poop diary / report screen -->
+    <string name="poop_diary_title">Poop report</string>
+    <string name="poop_diary_report_button">Report</string>
+    <string name="poop_diary_current_date">Current date</string>
+    <string name="poop_diary_no_records">No records</string>
+    <string name="poop_diary_entry_title">Bowel movement</string>
+    <string name="poop_diary_icon_description">Poop</string>
+    <string name="poop_diary_label_color">Color:</string>
+    <string name="poop_diary_label_texture">Texture:</string>
+    <string name="poop_diary_label_size">Size:</string>
+
+    <!-- Vaccine Screen -->
+    <string name="vaccine_add_title">Add Vaccines</string>
+    <string name="vaccine_registration_subtitle">Vaccine Registration</string>
+    <string name="vaccine_name">Name</string>
+    <string name="vaccine_date">Vaccination date</string>
+    <string name="vaccine_select_date">Select Date</string>
+    <string name="vaccine_open_calendar">Open calendar</string>
+    <string name="vaccine_save">Save</string>
+    <string name="vaccine_back">Back</string>
+    <string name="vaccine_list_title">Vaccine List</string>
+
+    <!-- Vaccine List -->
+    <string name="vaccine_label">Vaccine:</string>
+    <string name="vaccine_date_label">Vaccination Date:</string>
+
+    <!-- Vaccine Editing -->
+    <string name="vaccine_edit_title">Edit Vaccine</string>
+    <string name="vaccine_edit_date">Date</string>
+
+    <!-- Messages -->
+    <string name="vaccine_save_error">Error saving vaccine data: %1$s</string>
+    <string name="vaccine_save_success">Vaccine saved successfully</string>
+
+    <!-- Growth Milestones Screen -->
+    <string name="growth_milestones_title">Growth Milestones</string>
+    <string name="growth_milestones_register">Register Growth Milestones</string>
+
+    <!-- Growth Measurements -->
+    <string name="growth_weight">Weight (kg)</string>
+    <string name="growth_height">Height (cm)</string>
+    <string name="growth_head_circumference">Head Circumference (cm)</string>
+
+    <!-- Age Selection -->
+    <string name="growth_select_age">Select age of baby in months:</string>
+
+    <!-- Actions -->
+    <string name="growth_save">Save</string>
+
+    <!-- Confirmation Dialog -->
+    <string name="growth_confirmation_title">Confirmation</string>
+    <string name="growth_data_registered">Data successfully registered</string>
+    <string name="growth_accept">Accept</string>
+
+    <!-- Error Messages -->
+    <string name="growth_save_error">Error saving data: %1$s</string>
+
+    <string name="food_registration_title">Food Registration</string>
+    <string name="food_name">Food</string>
+    <string name="food_reaction">Reaction</string>
+    <string name="food_reaction_yes">Yes</string>
+    <string name="food_reaction_no">No</string>
+    <string name="food_reaction_detail">Reaction details</string>
+    <string name="food_save">Save</string>
+    <string name="food_no_reactions">There are no food records with reactions.</string>
+    <string name="food_reaction_history">Food Reaction History</string>
+    <string name="food_report">Report</string>
+    <string name="food_label">Food:</string>
+    <string name="food_reaction_label">Reaction:</string>
+    <string name="food_no_detail">No details</string>
+    <string name="food_edit_title">Edit Food Record</string>
+    <string name="food_edit_name">Food</string>
+    <string name="food_edit_reaction_detail">Reaction details</string>
+
+    <string name="medicine_registration_title">Medicine Registration</string>
+    <string name="medicine_name">Medicine</string>
+    <string name="medicine_take_time">Time to take</string>
+    <string name="medicine_select_time">Select time</string>
+    <string name="medicine_reminder_question">Would you like to receive a reminder?</string>
+    <string name="medicine_reminder_date">Reminder date</string>
+    <string name="medicine_select_date">Select date</string>
+    <string name="medicine_yes">Yes</string>
+    <string name="medicine_no">No</string>
+    <string name="medicine_save">Save</string>
+    <string name="medicine_history">Medicine History</string>
+    <string name="medicine_report">Report</string>
+    <string name="medicine_no_records">There are no medicine records.</string>
+    <string name="medicine_label">Medicine:</string>
+    <string name="medicine_time_label">Time to take:</string>
+    <string name="medicine_reminder_label">Reminder:</string>
+    <string name="medicine_reminder_yes_date">Yes - %1$s</string>
+    <string name="medicine_edit_title">Edit Medicine</string>
+    <string name="medicine_cancel">Cancel</string>
+
+    <string name="pediatrician_questions_title">Questions for the Pediatrician</string>
+    <string name="pediatrician_question">Question</string>
+    <string name="pediatrician_save_question">Save Question</string>
+    <string name="pediatrician_register_answers">Register Answers from the Pediatrician</string>
+    <string name="pediatrician_answer">Answer</string>
+    <string name="pediatrician_question_label">Questions for the Pediatrician</string>
+    <string name="pediatrician_save_answer">Save Answer</string>
+    <string name="pediatrician_questions_list">Questions and Answers List</string>
+    <string name="pediatrician_answer_label">Answer:</string>
+    <string name="pediatrician_no_answer">No answer</string>
+    <string name="pediatrician_edit_title">Edit Question and Answer</string>
+
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
+
+    <string name="pediatric_visit_title">Pediatrician Visits</string>
+    <string name="pediatric_visit_date">Visit Date</string>
+    <string name="pediatric_visit_select_date_time">Select Date and Time</string>
+    <string name="pediatric_visit_open_calendar">Open Calendar</string>
+    <string name="pediatric_visit_notes">Notes</string>
+    <string name="pediatric_visit_weight">Weight (kg)</string>
+    <string name="pediatric_visit_height">Height (cm)</string>
+    <string name="pediatric_visit_head_circumference">Head Circumference (cm)</string>
+    <string name="pediatric_visit_next_date">Next Visit Date</string>
+    <string name="pediatric_visit_select_date_time_accessibility">Select Date and Time</string>
+    <string name="pediatric_visit_required_fields">All fields are required.</string>
+    <string name="pediatric_visit_save_success">Visit saved successfully</string>
+    <string name="pediatric_visit_save_error">Error: %1$s</string>
+    <string name="pediatric_visit_list_title">Pediatrician Visit Records</string>
+    <string name="pediatric_visit_date_label">Visit Date:</string>
+    <string name="pediatric_visit_notes_label">Notes:</string>
+    <string name="pediatric_visit_weight_label">Weight (kg):</string>
+    <string name="pediatric_visit_height_label">Height (cm):</string>
+    <string name="pediatric_visit_head_circumference_label">Head Circumference (cm):</string>
+    <string name="pediatric_visit_next_visit_label">Next Visit:</string>
+    <string name="pediatric_visit_edit_title">Edit Visit</string>
 </resources>

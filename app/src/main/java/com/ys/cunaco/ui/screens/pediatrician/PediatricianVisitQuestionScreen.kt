@@ -51,14 +51,18 @@ import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.ui.components.PhdNormalText
 import com.ys.cunaco.ui.components.PhdSubtitle
 import com.ys.cunaco.viewmodel.PediatricVisitViewModel
+import androidx.compose.ui.res.stringResource
+import com.ys.cunaco.R
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun PediatricVisitScreen(navController: NavHostController,
-                         openDrawer: () -> Unit,
-                         viewModel: PediatricVisitViewModel = hiltViewModel()) {
+fun PediatricVisitScreen(
+    navController: NavHostController,
+    openDrawer: () -> Unit,
+    viewModel: PediatricVisitViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val calendar = remember { Calendar.getInstance() }
     val selectedBaby by viewModel.selectedBaby.collectAsState()
@@ -80,7 +84,6 @@ fun PediatricVisitScreen(navController: NavHostController,
             viewModel.loadPediatricianVisits()
         }
     }
-
 
     if (showDatePicker.value) {
         DatePickerDialog(
@@ -104,7 +107,12 @@ fun PediatricVisitScreen(navController: NavHostController,
             { _, hour, minute ->
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
                 calendar.set(Calendar.MINUTE, minute)
-                val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
+                val formatter = SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm",
+                    Locale.getDefault()
+                )
+
                 dateTime = formatter.format(calendar.time)
                 showTimePicker.value = false
             },
@@ -115,7 +123,7 @@ fun PediatricVisitScreen(navController: NavHostController,
     }
 
     PhdLayoutMenu(
-        title = "Visitas al pediatra",
+        title = stringResource(R.string.pediatric_visit_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -125,20 +133,43 @@ fun PediatricVisitScreen(navController: NavHostController,
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            PhdLabelText("Fecha visita")
-            Button(onClick = {
-                showDatePicker.value = true
-            }) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Abrir calendario")
+            PhdLabelText(
+                stringResource(R.string.pediatric_visit_date)
+            )
+
+            Button(
+                onClick = {
+                    showDatePicker.value = true
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = stringResource(
+                        R.string.pediatric_visit_open_calendar
+                    )
+                )
+
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(if (dateTime.isEmpty()) "Seleccionar fecha y hora" else dateTime)
+
+                Text(
+                    if (dateTime.isEmpty()) {
+                        stringResource(R.string.pediatric_visit_select_date_time)
+                    } else {
+                        dateTime
+                    }
+                )
             }
 
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("Notas") },
-                modifier = Modifier.fillMaxWidth().height(150.dp).background(Color.White),
+                label = {
+                    Text(stringResource(R.string.pediatric_visit_notes))
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Color.White),
                 maxLines = 5,
                 singleLine = false
             )
@@ -146,36 +177,59 @@ fun PediatricVisitScreen(navController: NavHostController,
             OutlinedTextField(
                 value = weight,
                 onValueChange = { weight = it },
-                label = { Text("Peso (kg)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth().background(Color.White)
+                label = {
+                    Text(stringResource(R.string.pediatric_visit_weight))
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
             )
 
             OutlinedTextField(
                 value = height,
                 onValueChange = { height = it },
-                label = { Text("Talla (cm)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth().background(Color.White)
+                label = {
+                    Text(stringResource(R.string.pediatric_visit_height))
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
             )
 
             OutlinedTextField(
                 value = headCircumference,
                 onValueChange = { headCircumference = it },
-                label = { Text("Perímetro cefálico (cm)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth().background(Color.White)
+                label = {
+                    Text(
+                        stringResource(
+                            R.string.pediatric_visit_head_circumference
+                        )
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            PhdLabelText("Fecha de próxima visita")
-            // Date Picker
+            PhdLabelText(
+                stringResource(R.string.pediatric_visit_next_date)
+            )
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        // Primero mostrar el DatePicker
                         DatePickerDialog(
                             context,
                             { _, year, month, day ->
@@ -183,7 +237,6 @@ fun PediatricVisitScreen(navController: NavHostController,
                                 viewModel.reminderMonth = month
                                 viewModel.reminderDay = day
 
-                                // Después de seleccionar la fecha, mostrar el TimePicker
                                 TimePickerDialog(
                                     context,
                                     { _, hour, minute ->
@@ -192,7 +245,7 @@ fun PediatricVisitScreen(navController: NavHostController,
                                     },
                                     viewModel.reminderHour,
                                     viewModel.reminderMinute,
-                                    true // true para formato 24h, false para AM/PM
+                                    true
                                 ).show()
                             },
                             viewModel.reminderYear,
@@ -216,9 +269,12 @@ fun PediatricVisitScreen(navController: NavHostController,
                     ),
                     modifier = Modifier.weight(1f)
                 )
+
                 Icon(
                     imageVector = Icons.Default.DateRange,
-                    contentDescription = "Seleccionar fecha y hora"
+                    contentDescription = stringResource(
+                        R.string.pediatric_visit_select_date_time_accessibility
+                    )
                 )
             }
 
@@ -234,56 +290,91 @@ fun PediatricVisitScreen(navController: NavHostController,
                         viewModel.reminderHour,
                         viewModel.reminderMinute
                     )
-                    if (dateTime.isBlank() || notes.isBlank() || weight.isBlank() || height.isBlank() || headCircumference.isBlank()) {
-                        errorMessage = "Todos los campos son obligatorios."
+
+                    if (
+                        dateTime.isBlank() ||
+                        notes.isBlank() ||
+                        weight.isBlank() ||
+                        height.isBlank() ||
+                        headCircumference.isBlank()
+                    ) {
+                        errorMessage = context.getString(
+                            R.string.pediatric_visit_required_fields
+                        )
                         successMessage = ""
                     } else {
                         viewModel.saveVisit(
-                            dateTime, notes, weight, height, headCircumference, nextVisit,
+                            dateTime,
+                            notes,
+                            weight,
+                            height,
+                            headCircumference,
+                            nextVisit,
                             onSuccess = {
-                                successMessage = "Visita guardada con éxito"
+                                successMessage = context.getString(
+                                    R.string.pediatric_visit_save_success
+                                )
                                 errorMessage = ""
                             },
                             onError = {
-                                errorMessage = "Error: $it"
+                                errorMessage = context.getString(
+                                    R.string.pediatric_visit_save_error,
+                                    it
+                                )
                                 successMessage = ""
                             }
                         )
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEFD377)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFEFD377)
+                ),
                 shape = RoundedCornerShape(24.dp),
                 modifier = Modifier
                     .width(200.dp)
                     .height(60.dp)
             ) {
-                Text("Guardar", fontWeight = FontWeight.Medium)
+                Text(
+                    stringResource(R.string.common_save),
+                    fontWeight = FontWeight.Medium
+                )
             }
 
             if (errorMessage.isNotEmpty()) {
                 PhdErrorText(errorMessage)
             }
+
             if (successMessage.isNotEmpty()) {
                 PhdBoldText(successMessage)
             }
 
-            ListPediatricianVisits(questionList = viewModel.visitDataList, viewModel = viewModel)
+            ListPediatricianVisits(
+                questionList = viewModel.visitDataList,
+                viewModel = viewModel
+            )
         }
-
     }
 }
-
 @Composable
-fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: PediatricVisitViewModel) {
-    var editingPediatricianVisit by remember { mutableStateOf<PediatricianVisit?>(null) }
+fun ListPediatricianVisits(
+    questionList: List<PediatricianVisit>,
+    viewModel: PediatricVisitViewModel
+) {
+    var editingPediatricianVisit by remember {
+        mutableStateOf<PediatricianVisit?>(null)
+    }
+
     var editedNotes by remember { mutableStateOf("") }
     var editWeight by remember { mutableStateOf("") }
     var editHeight by remember { mutableStateOf("") }
     var editHeadCircumference by remember { mutableStateOf("") }
-    var editNextVisit by remember { mutableStateOf("") }
 
     Spacer(modifier = Modifier.height(32.dp))
-    PhdSubtitle("Registro de visitas al pediatra")
+
+    PhdSubtitle(
+        stringResource(R.string.pediatric_visit_list_title)
+    )
+
     Spacer(modifier = Modifier.height(8.dp))
 
     PhdGenericCardList(
@@ -292,51 +383,91 @@ fun ListPediatricianVisits(questionList: List<PediatricianVisit>, viewModel: Ped
             editingPediatricianVisit = visit
             editedNotes = visit.notes
             editWeight = visit.weight
+            editHeight = visit.height
+            editHeadCircumference = visit.headCircumference
         }
     ) { visit ->
         Column {
-            PhdBoldText("Fecha Visita:")
+            PhdBoldText(
+                stringResource(R.string.pediatric_visit_date_label)
+            )
             PhdNormalText(visit.date)
+
             Spacer(modifier = Modifier.height(8.dp))
-            PhdBoldText("Notas:")
+
+            PhdBoldText(
+                stringResource(R.string.pediatric_visit_notes_label)
+            )
             PhdNormalText(visit.notes)
-            PhdBoldText("Peso (kg):")
+
+            PhdBoldText(
+                stringResource(R.string.pediatric_visit_weight_label)
+            )
             PhdNormalText(visit.weight)
-            PhdBoldText("Talla (cm):")
+
+            PhdBoldText(
+                stringResource(R.string.pediatric_visit_height_label)
+            )
             PhdNormalText(visit.height)
-            PhdBoldText("Perímetro cefálico (cm):")
+
+            PhdBoldText(
+                stringResource(
+                    R.string.pediatric_visit_head_circumference_label
+                )
+            )
             PhdNormalText(visit.headCircumference)
-            if(visit.nextVisit?.isNotEmpty() == true) {
-                PhdBoldText("Próxima visita:")
+
+            if (visit.nextVisit?.isNotEmpty() == true) {
+                PhdBoldText(
+                    stringResource(R.string.pediatric_visit_next_visit_label)
+                )
                 PhdNormalText(visit.nextVisit)
             }
-
         }
     }
 
     if (editingPediatricianVisit != null) {
         PhdEditItemDialog(
-            title = "Editar visita",
-            fields = listOf(
-                EditableField("Notas", editedNotes) { editedNotes = it },
-                EditableField("Peso (kg)", editWeight) { editWeight = it },
-                EditableField("Talla (cm)", editHeight) { editHeight = it },
-                EditableField("Perímetro cefálico (cm)", editHeadCircumference) { editHeadCircumference = it },
-//                EditableField("Próxima visita", editNextVisit) { editNextVisit = it }
+            title = stringResource(
+                R.string.pediatric_visit_edit_title
             ),
-            onDismiss = { editingPediatricianVisit = null },
+            fields = listOf(
+                EditableField(
+                    stringResource(R.string.pediatric_visit_notes),
+                    editedNotes
+                ) { editedNotes = it },
+
+                EditableField(
+                    stringResource(R.string.pediatric_visit_weight),
+                    editWeight
+                ) { editWeight = it },
+
+                EditableField(
+                    stringResource(R.string.pediatric_visit_height),
+                    editHeight
+                ) { editHeight = it },
+
+                EditableField(
+                    stringResource(
+                        R.string.pediatric_visit_head_circumference
+                    ),
+                    editHeadCircumference
+                ) { editHeadCircumference = it }
+            ),
+            onDismiss = {
+                editingPediatricianVisit = null
+            },
             onSave = {
-                // Save logic
                 val updated = editingPediatricianVisit!!.copy(
                     notes = editedNotes,
                     weight = editWeight,
                     height = editHeight,
-//                    headCircumference = editHeadCircumference,
+                    headCircumference = editHeadCircumference
                 )
+
                 viewModel.update(updated)
                 editingPediatricianVisit = null
             }
         )
     }
 }
-

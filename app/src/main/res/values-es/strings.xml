@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Phdmama</string>
+    <string name="app_name">CunaCo</string>
     <string name="default_web_client_id">545527532287-21q92qgk75rii447v35pkdd9lm1nfs2a.apps.googleusercontent.com</string>
     <string name="sign_out">Cerrar sesión</string>
     <string name="sign_out_title">¿Cerrar sesión?</string>
@@ -12,7 +12,6 @@
     <string name="growth_milestones_description">Signos de alerta</string>
     <string name="height_label">Altura</string>
     <string name="height_description">Seguimiento de la altura del bebé</string>
-    <string name="pediatrician_question_label">Preguntas al pediatra</string>
     <string name="pediatrician_visit_label">Visitas al pediatra</string>
     <string name="baby_selector_label">Seleccionar bebé</string>
     <plurals name="baby_selector_years">
@@ -70,4 +69,345 @@
     <string name="login_validation_empty_fields">El correo o la contraseña no pueden estar vacíos</string>
     <string name="login_error_authentication">Error de autenticación</string>
     <string name="register_success_create">Usuario creado o actualizado en Firestore</string>
+
+    <!-- Chart Strings -->
+    <string name="download">Descargar</string>
+    <string name="no_data_available">No hay datos disponibles.</string>
+    <string name="month_detail_label">Mes: %d</string>
+    <string name="weight_detail_label">Peso: %s kg</string>
+    <string name="height_detail_label">Talla: %s cm</string>
+    <string name="age_months_label">Edad (meses)</string>
+    <string name="birth">Nacimiento</string>
+    <string name="pdf_report_baby_name">Nombre del Bebé: %s</string>
+    <string name="summary_title">Resumen:</string>
+    <string name="summary_total_measurements">• Total de mediciones: %d</string>
+    <string name="summary_normal_range_count">• Mediciones en rango normal: %d de %d</string>
+    <string name="table_header_age">Edad</string>
+    <string name="table_header_weight">Peso (kg)</string>
+    <string name="table_header_height">Talla (cm)</string>
+    <string name="table_header_zscore">Z-Score</string>
+    <string name="unknown_baby">desconocido</string>
+
+    <!-- Head Circumference Chart Strings -->
+    <string name="head_circumference_report_title">Reporte de Perímetro Cefálico</string>
+    <string name="head_circumference_for_age">Perímetro Cefálico para la Edad</string>
+    <string name="head_circumference_detail_label">Perímetro cefálico: %s cm</string>
+    <string name="head_circumference_cm_axis_label">Perímetro cefálico (cm)</string>
+    <string name="summary_last_pc_measurement">• Última medición P. Cefálico: %s cm (%d meses)</string>
+    <string name="pdf_file_name_head_circumference">Reporte_Perimetro_Cefalico</string>
+    <string name="table_header_head_circumference">P. Cefálico</string>
+
+    <!-- Height/Length Chart Strings -->
+    <string name="height_report_title">Reporte de Longitud/Altura</string>
+    <string name="height_for_age">Altura para la Edad</string>
+    <string name="oms_range_label">Rango OMS: %s cm - %s cm</string>
+    <string name="pdf_file_name_height">Reporte_Longitud_Altura</string>
+    <string name="pdf_report_title_height">Reporte de Longitud/Altura</string>
+    <string name="summary_last_height_measurement">• Última medición de Talla: %s cm (%d meses)</string>
+    <string name="table_header_oms_range">Rango OMS (cm)</string>
+
+    <!-- Weight Chart Strings -->
+    <string name="weight_report_title">Reporte de Peso</string>
+    <string name="weight_for_age">Peso para la Edad</string>
+    <string name="oms_weight_range_label">Rango OMS: %s kg - %s kg</string>
+    <string name="pdf_file_name_weight">Reporte_Peso</string>
+    <string name="summary_last_weight_measurement">• Última medición de Peso: %s kg (%d meses)</string>
+    <string name="table_header_oms_weight_range">Rango OMS (kg)</string>
+
+    <!-- Carbon Footprint Screen -->
+    <string name="carbon_footprint_title">Huella de carbono</string>
+    <string name="carbon_footprint_subtitle">Datos diarios del cuidado del bebé</string>
+    <string name="label_disposable_diapers">Pañales desechables usados</string>
+    <string name="label_cloth_diapers">Pañales de tela usados</string>
+    <string name="label_wet_wipes">Toallitas húmedas usadas</string>
+    <string name="label_formula_feedings">Sólo si usas leche de fórmula (tomas)</string>
+    <string name="label_bottle_washes">Lavados de botellas</string>
+    <string name="label_baths">Baños</string>
+    <string name="btn_calculate_footprint">Calcular Huella de carbono</string>
+    <string name="btn_clear_form">Limpiar formulario</string>
+    <string name="image_description_tree">icono de árbol</string>
+
+    <string name="carbon_footprint_calculated">Huella de carbono calculada: %s kg CO₂e</string>
+    <string name="carbon_footprint_error">Error al calcular la huella: %s</string>
+    <string name="eco_msg_excellent">"🌱 ¡Excelente opción! Usar pañales de tela ahorra aproximadamente %1$s kg CO₂e. Cada pañal de tela se puede reutilizar cientos de veces, mientras que los pañales desechables tardan más de 500 años en descomponerse. ¡Tu lavado ecológico con %2$d pañales de tela (%3$d lavados eficientes) está haciendo una verdadera diferencia!\n\n  📅 Si mantienes este hábito puedes reducir la huella de carbono en:\n• En 30 días: %4$s kg CO₂e\n• En 1 año: %5$s kg CO₂e\n  👉 %6$s\n"</string>
+    <string name="eco_msg_progress">"🌿 ¡Gran progreso! Tus %1$d pañales de tela ayudan a reducir las emisiones de carbono. Considere utilizar más pañales de tela para aumentar su impacto ambiental. Con un lavado eficiente (%2$d cargas), ¡Ya estás salvando el planeta!\n\n  📅 Si mantienes este hábito, puedes reducir la huella de carbono en:\n• En 30 días: %3$s kg CO₂e\n• En 1 año: %4$s kg CO₂e\n  👉 %5$s\n"</string>
+    <string name="eco_msg_consider">"💚 ¡Considera cambiar a pañales de tela! Pueden reducir significativamente tu huella de carbono. Solo 8 pañales de tela con un ciclo de lavado ecológico pueden reemplazar muchos pañales desechables y ayudar a proteger nuestro medio ambiente para las generaciones futuras.\n\n  📅 Si mantienes este hábito puedes reducir la huella de carbono en:\n• En 30 días: %1$s kg CO₂e\n• En 1 año: %2$s kg CO₂e\n  👉 %3$s\n"</string>
+
+    <string name="co2_analogy_low">Equivale a apagar luces y electrodomésticos innecesarios durante varias semanas 💡</string>
+    <string name="co2_analogy_mid_low">Equivale a un auto encendido sin moverse durante 10 a 40 horas 🚗</string>
+    <string name="co2_analogy_mid">Equivale a conducir un auto durante 1 a 2 meses 🚘</string>
+    <string name="co2_analogy_mid_high">Equivale a un vuelo internacional corto ✈️</string>
+    <string name="co2_analogy_high">Equivale a uno o dos vuelos internacionales o un año de uso de un auto 🚗✈️</string>
+    <string name="co2_analogy_very_high">Equivale a la huella de carbono anual completa de una persona promedio 🌍</string>
+
+    <!-- Baby data screen -->
+    <string name="baby_profile_title">Perfil de bebé</string>
+    <string name="add_new_baby">Agregar nuevo bebé</string>
+    <string name="editing_baby">Editando: %1$s</string>
+    <string name="name">Nombre</string>
+    <string name="birth_date">Fecha de nacimiento</string>
+    <string name="select_date">Seleccionar fecha</string>
+    <string name="weeks_born_question">¿De cuántas semanas nació?</string>
+    <string name="gestation_weeks">Semanas de gestación</string>
+    <string name="weeks_format">%1$s semanas</string>
+    <string name="apgar">APGAR</string>
+    <string name="weight_kg">Peso (kg)</string>
+    <string name="height_cm">Talla (cm)</string>
+    <string name="sex">Sexo</string>
+    <string name="head_circumference_cm">Perímetro cefálico (cm)</string>
+    <string name="blood_type">Tipo de sangre</string>
+
+    <!-- Sex options (display only) -->
+    <string name="sex_male">Masculino</string>
+    <string name="sex_female">Femenino</string>
+    <string name="sex_other">Otro</string>
+
+    <!-- Buttons -->
+    <string name="add_baby">Agregar bebé</string>
+    <string name="update">Actualizar</string>
+    <string name="back">Volver</string>
+    <string name="add_another_baby">Agregar otro bebé</string>
+
+    <!-- Messages -->
+    <string name="baby_data_saved">Datos registrados</string>
+    <string name="baby_added_success">Bebé agregado exitosamente</string>
+    <string name="baby_data_updated_success">Datos actualizados exitosamente</string>
+
+    <!-- Baby counter selection screen -->
+    <string name="counter_screen_title">Registros</string>
+    <string name="counter_question">¿Qué quieres registrar?</string>
+    <string name="counter_subtitle">Selecciona una opción para comenzar</string>
+    <string name="counter_mascot_description">Mascota</string>
+    <string name="counter_contractions">Contracciones</string>
+    <string name="counter_sleep">Sueño</string>
+    <string name="counter_breastfeeding">Lactancia</string>
+    <string name="counter_poops">Popós</string>
+    <string name="counter_carbon_footprint">Huella de carbono</string>
+
+    <!-- Sleep counter screen -->
+    <string name="sleep_counter_title">Contador de Sueño</string>
+    <string name="sleep_counter_image_description">Ilustración del contador de sueño</string>
+    <string name="sleep_counter_running">Corriendo…</string>
+    <string name="sleep_counter_stopped">Detenido</string>
+    <string name="sleep_counter_start">Iniciar</string>
+    <string name="sleep_counter_stop">Detener</string>
+    <string name="sleep_counter_view_reports">Ver Reportes</string>
+
+    <!-- Lactation counter screen -->
+    <string name="lactation_counter_title">Lactancia</string>
+    <string name="lactation_counter_image_description">Ilustración de lactancia</string>
+    <string name="lactation_type_label">Tipo de Lactancia</string>
+    <string name="lactation_type_breast_milk">Leche materna</string>
+    <string name="lactation_type_formula">Leche de fórmula</string>
+    <string name="lactation_counter_running">Corriendo…</string>
+    <string name="lactation_counter_stopped">Detenido</string>
+    <string name="lactation_counter_start">Iniciar</string>
+    <string name="lactation_counter_stop">Detener</string>
+    <string name="lactation_counter_view_reports">Ver Reportes</string>
+
+    <!-- Poop main screen -->
+    <string name="poop_main_title">Registro de popos</string>
+    <string name="poop_main_image_description">Ilustración de pañal</string>
+    <string name="poop_main_question">¿Qué acción necesitas?</string>
+    <string name="poop_main_subtitle">Selecciona una opción para comenzar</string>
+    <string name="poop_main_register_title">Registrar popos</string>
+    <string name="poop_main_register_subtitle">Registrar detalles de las popos</string>
+    <string name="poop_main_reports_title">Reportes</string>
+    <string name="poop_main_reports_subtitle">Información detallada de popos</string>
+
+    <!-- Poop registration screen -->
+    <string name="poop_reg_title">Registro Popos</string>
+    <string name="poop_reg_section_time">Hora</string>
+    <string name="poop_reg_section_color">Color</string>
+    <string name="poop_reg_section_texture">Textura</string>
+    <string name="poop_reg_section_size">Tamaño</string>
+    <string name="poop_reg_section_notes">Notas</string>
+    <string name="poop_reg_notes_placeholder">Escribe aquí más sobre la popó de tu bebé</string>
+    <string name="poop_reg_accept">Aceptar</string>
+    <string name="poop_reg_saved_success">Registro guardado exitosamente</string>
+
+    <!-- Colors -->
+    <string name="poop_color_very_dark">Muy oscuro</string>
+    <string name="poop_color_dark_green">Verde oscuro</string>
+    <string name="poop_color_brown">Marrón</string>
+    <string name="poop_color_yellow">Amarillo</string>
+    <string name="poop_color_other">Otros</string>
+
+    <!-- Textures -->
+    <string name="poop_texture_liquid">Líquida</string>
+    <string name="poop_texture_pasty">Pastosa</string>
+    <string name="poop_texture_hard">Dura</string>
+    <string name="poop_texture_mucus">Con mocos</string>
+    <string name="poop_texture_blood">Con sangre</string>
+
+    <!-- Sizes -->
+    <string name="poop_size_small">Poco</string>
+    <string name="poop_size_half_diaper">Mitad del pañal</string>
+    <string name="poop_size_overflowing">¡Pañal desbordado!</string>
+
+    <!-- Notification permission helper -->
+    <string name="notif_disabled_title">Notificaciones Deshabilitadas</string>
+    <string name="notif_disabled_message">Las notificaciones están deshabilitadas para esta aplicación.\n\nPara que el contador funcione correctamente en segundo plano, necesitas habilitar las notificaciones.\n\nPasos:\n1. Ir a Configuración de la App\n2. Buscar \'Notificaciones\'\n3. Activar todas las notificaciones\n4. Activar el canal \'%1$s\'</string>
+    <string name="notif_go_to_settings">Ir a Configuración</string>
+    <string name="notif_later">Más tarde</string>
+    <string name="notif_enable_title">Habilitar Notificaciones</string>
+    <string name="notif_understood">Entendido</string>
+
+    <string name="notif_instructions_samsung">Samsung (One UI):\n1. Configuración → Aplicaciones → %1$s\n2. Notificaciones → Permitir notificaciones (ON)\n3. Asegúrate que \'%2$s\' esté habilitado</string>
+    <string name="notif_instructions_xiaomi">Xiaomi (MIUI):\n1. Configuración → Aplicaciones → Administrar aplicaciones\n2. Buscar \'%1$s\'\n3. Notificaciones → Mostrar notificaciones (ON)\n4. También revisar: Configuración → Notificaciones → %1$s</string>
+    <string name="notif_instructions_huawei">Huawei (EMUI):\n1. Configuración → Aplicaciones → %1$s\n2. Notificaciones → Permitir notificaciones (ON)\n3. Verificar que todos los tipos estén habilitados</string>
+    <string name="notif_instructions_oppo">Oppo (ColorOS):\n1. Configuración → Notificaciones y barra de estado\n2. Administrar notificaciones → %1$s\n3. Permitir notificaciones (ON)</string>
+    <string name="notif_instructions_vivo">Vivo (FunTouch):\n1. Configuración → Notificaciones y barra de estado\n2. %1$s → Permitir notificaciones (ON)</string>
+    <string name="notif_instructions_oneplus">OnePlus (OxygenOS):\n1. Configuración → Aplicaciones y notificaciones\n2. %1$s → Notificaciones → Mostrar notificaciones (ON)</string>
+    <string name="notif_instructions_general">Pasos generales:\n1. Ve a Configuración de tu dispositivo\n2. Busca \'Aplicaciones\' o \'Apps\'\n3. Encuentra \'%1$s\'\n4. Toca en \'Notificaciones\'\n5. Activa \'Permitir notificaciones\'\n6. Asegúrate que \'%2$s\' esté habilitado</string>
+
+    <!-- Battery optimization helper -->
+    <string name="battery_opt_title">Optimización de Batería</string>
+    <string name="battery_opt_message">Para que el contador funcione correctamente en segundo plano, necesitas desactivar la optimización de batería para esta aplicación.\n\nEsto permitirá que el contador continúe funcionando cuando cierres la app.</string>
+    <string name="battery_opt_later">Más tarde</string>
+    <string name="battery_opt_configure">Configurar</string>
+
+    <string name="battery_opt_manufacturer_title">Configuración de Batería</string>
+    <string name="battery_opt_manufacturer_message">Para que el contador funcione correctamente:\n\n1. Desactiva la optimización de batería\n2. %1$s\n\n¿Quieres abrir la configuración ahora?</string>
+    <string name="battery_opt_yes">Sí</string>
+    <string name="battery_opt_no">No</string>
+
+    <string name="battery_opt_instructions_xiaomi">En MIUI: Ve a Configuración > Apps > Administrar apps > %1$s > Ahorro de batería > Sin restricciones</string>
+    <string name="battery_opt_instructions_huawei">En EMUI: Ve a Configuración > Apps > %1$s > Batería > Inicio automático (activar)</string>
+    <string name="battery_opt_instructions_oppo">En ColorOS: Ve a Configuración > Batería > Optimización de energía > %1$s > Desactivar</string>
+    <string name="battery_opt_instructions_vivo">En FunTouch: Ve a Configuración > Batería > Gestión de consumo > %1$s > Desactivar</string>
+    <string name="battery_opt_instructions_oneplus">En OxygenOS: Ve a Configuración > Batería > Optimización de batería > %1$s > No optimizar</string>
+    <string name="battery_opt_instructions_samsung">En One UI: Ve a Configuración > Cuidado del dispositivo > Batería > Más opciones > Optimizar uso de batería > %1$s > Desactivar</string>
+    <string name="battery_opt_instructions_general">Busca en configuración de batería la opción para desactivar optimización para esta app</string>
+
+    <!-- Poop diary / report screen -->
+    <string name="poop_diary_title">Reporte de popos</string>
+    <string name="poop_diary_report_button">Reporte</string>
+    <string name="poop_diary_current_date">Fecha actual</string>
+    <string name="poop_diary_no_records">Sin registros</string>
+    <string name="poop_diary_entry_title">Deposición</string>
+    <string name="poop_diary_icon_description">Popó</string>
+    <string name="poop_diary_label_color">Color:</string>
+    <string name="poop_diary_label_texture">Textura:</string>
+    <string name="poop_diary_label_size">Tamaño:</string>
+
+    <!-- Vaccine Screen -->
+    <string name="vaccine_add_title">Agregar Vacunas</string>
+    <string name="vaccine_registration_subtitle">Registro de Vacunas</string>
+    <string name="vaccine_name">Nombre</string>
+    <string name="vaccine_date">Fecha de vacuna</string>
+    <string name="vaccine_select_date">Seleccionar Fecha</string>
+    <string name="vaccine_open_calendar">Abrir calendario</string>
+    <string name="vaccine_save">Guardar</string>
+    <string name="vaccine_back">Volver</string>
+    <string name="vaccine_list_title">Lista de vacunas</string>
+
+    <!-- Vaccine List -->
+    <string name="vaccine_label">Vacuna:</string>
+    <string name="vaccine_date_label">Fecha Vacuna:</string>
+
+    <!-- Vaccine Editing -->
+    <string name="vaccine_edit_title">Editar vacuna</string>
+    <string name="vaccine_edit_date">Fecha</string>
+
+    <!-- Messages -->
+    <string name="vaccine_save_error">Error al guardar los datos de la vacuna: %1$s</string>
+    <string name="vaccine_save_success">Vacuna guardada correctamente</string>
+
+    <!-- Growth Milestones Screen -->
+    <string name="growth_milestones_title">Hitos del crecimiento</string>
+    <string name="growth_milestones_register">Registrar Hitos del Crecimiento</string>
+
+    <!-- Growth Measurements -->
+    <string name="growth_weight">Peso (kg)</string>
+    <string name="growth_height">Talla (cm)</string>
+    <string name="growth_head_circumference">Perímetro Cefálico (cm)</string>
+
+    <!-- Age Selection -->
+    <string name="growth_select_age">Seleccionar edad del bebé en meses:</string>
+
+    <!-- Actions -->
+    <string name="growth_save">Guardar</string>
+
+    <!-- Confirmation Dialog -->
+    <string name="growth_confirmation_title">Confirmación</string>
+    <string name="growth_data_registered">Datos registrados</string>
+    <string name="growth_accept">Aceptar</string>
+
+    <!-- Error Messages -->
+    <string name="growth_save_error">Error al guardar: %1$s</string>
+
+    <string name="food_registration_title">Registro de alimentos</string>
+    <string name="food_name">Alimento</string>
+    <string name="food_reaction">Reacción</string>
+    <string name="food_reaction_yes">Sí</string>
+    <string name="food_reaction_no">No</string>
+    <string name="food_reaction_detail">Detalle de la reacción</string>
+    <string name="food_save">Guardar</string>
+    <string name="food_no_reactions">No hay registros de alimentos con reacción.</string>
+    <string name="food_reaction_history">Historial de alimentos con reacción</string>
+    <string name="food_report">Reporte</string>
+    <string name="food_label">Alimento:</string>
+    <string name="food_reaction_label">Reacción:</string>
+    <string name="food_no_detail">Sin detalle</string>
+    <string name="food_edit_title">Editar registro de alimento</string>
+    <string name="food_edit_name">Alimento</string>
+    <string name="food_edit_reaction_detail">Detalle de la reacción</string>
+
+    <string name="medicine_registration_title">Registro de medicinas</string>
+    <string name="medicine_name">Medicina</string>
+    <string name="medicine_take_time">Hora de toma</string>
+    <string name="medicine_select_time">Seleccionar hora</string>
+    <string name="medicine_reminder_question">¿Desea recibir recordatorio?</string>
+    <string name="medicine_reminder_date">Fecha de recordatorio</string>
+    <string name="medicine_select_date">Seleccionar fecha</string>
+    <string name="medicine_yes">Sí</string>
+    <string name="medicine_no">No</string>
+    <string name="medicine_save">Guardar</string>
+    <string name="medicine_history">Historial de medicinas</string>
+    <string name="medicine_report">Reporte</string>
+    <string name="medicine_no_records">No hay registros de medicinas.</string>
+    <string name="medicine_label">Medicina:</string>
+    <string name="medicine_time_label">Hora de toma:</string>
+    <string name="medicine_reminder_label">Recordatorio:</string>
+    <string name="medicine_reminder_yes_date">Sí - %1$s</string>
+    <string name="medicine_edit_title">Editar medicina</string>
+    <string name="medicine_cancel">Cancelar</string>
+
+    <string name="pediatrician_questions_title">Preguntas al pediatra</string>
+    <string name="pediatrician_question">Pregunta</string>
+    <string name="pediatrician_save_question">Guardar pregunta</string>
+    <string name="pediatrician_register_answers">Registrar respuestas al pediatra</string>
+    <string name="pediatrician_answer">Respuesta</string>
+    <string name="pediatrician_save_answer">Guardar respuesta</string>
+    <string name="pediatrician_question_label">Preguntas al pediatra</string>
+    <string name="pediatrician_questions_list">Lista de preguntas y respuestas</string>
+    <string name="pediatrician_answer_label">Respuesta:</string>
+    <string name="pediatrician_no_answer">Sin respuesta</string>
+    <string name="pediatrician_edit_title">Editar pregunta y respuesta</string>
+
+    <string name="common_save">Guardar</string>
+    <string name="common_cancel">Cancelar</string>
+
+    <string name="pediatric_visit_title">Visitas al pediatra</string>
+    <string name="pediatric_visit_date">Fecha de visita</string>
+    <string name="pediatric_visit_select_date_time">Seleccionar fecha y hora</string>
+    <string name="pediatric_visit_open_calendar">Abrir calendario</string>
+    <string name="pediatric_visit_notes">Notas</string>
+    <string name="pediatric_visit_weight">Peso (kg)</string>
+    <string name="pediatric_visit_height">Talla (cm)</string>
+    <string name="pediatric_visit_head_circumference">Perímetro cefálico (cm)</string>
+    <string name="pediatric_visit_next_date">Fecha de próxima visita</string>
+    <string name="pediatric_visit_select_date_time_accessibility">Seleccionar fecha y hora</string>
+    <string name="pediatric_visit_required_fields">Todos los campos son obligatorios.</string>
+    <string name="pediatric_visit_save_success">Visita guardada con éxito</string>
+    <string name="pediatric_visit_save_error">Error: %1$s</string>
+    <string name="pediatric_visit_list_title">Registro de visitas al pediatra</string>
+    <string name="pediatric_visit_date_label">Fecha de visita:</string>
+    <string name="pediatric_visit_notes_label">Notas:</string>
+    <string name="pediatric_visit_weight_label">Peso (kg):</string>
+    <string name="pediatric_visit_height_label">Talla (cm):</string>
+    <string name="pediatric_visit_head_circumference_label">Perímetro cefálico (cm):</string>
+    <string name="pediatric_visit_next_visit_label">Próxima visita:</string>
+    <string name="pediatric_visit_edit_title">Editar visita</string>
 </resources>

@@ -10,6 +10,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.ys.cunaco.R
 
 data class EditableField(
     val label: String,
@@ -26,14 +28,18 @@ fun PhdEditItemDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(title) },
+        title = {
+            Text(title)
+        },
         text = {
             Column {
                 fields.forEach { field ->
                     OutlinedTextField(
                         value = field.value,
                         onValueChange = field.onValueChange,
-                        label = { Text(field.label) },
+                        label = {
+                            Text(field.label)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
@@ -43,12 +49,12 @@ fun PhdEditItemDialog(
         },
         confirmButton = {
             TextButton(onClick = onSave) {
-                Text("Guardar")
+                Text(stringResource(R.string.common_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )

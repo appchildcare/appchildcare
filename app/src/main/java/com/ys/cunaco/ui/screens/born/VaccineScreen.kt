@@ -33,11 +33,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.ys.cunaco.R
 import com.ys.cunaco.model.Vaccine
 import com.ys.cunaco.ui.components.EditableField
 import com.ys.cunaco.ui.components.PhdBoldText
@@ -53,26 +55,29 @@ import java.util.Calendar
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun VaccineScreen(navController: NavController,
-                  babyDataViewModel: BabyDataViewModel = hiltViewModel(),
-                  openDrawer: () -> Unit) {
+fun VaccineScreen(
+    navController: NavController,
+    babyDataViewModel: BabyDataViewModel = hiltViewModel(),
+    openDrawer: () -> Unit
+) {
     val context = LocalContext.current
+
     var vaccineName by remember { mutableStateOf("") }
     val calendar = Calendar.getInstance()
     var selectedDate by remember { mutableStateOf(calendar.time) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     var showDatePicker by remember { mutableStateOf(false) }
 
-
     LaunchedEffect(Unit) {
         babyDataViewModel.loadVaccines()
+
         babyDataViewModel.uiEvent.collect { event ->
             when (event) {
                 is BabyDataViewModel.UiEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                     navController.popBackStack()
                     navController.navigate("bornDashboard")
-
                 }
             }
         }
@@ -85,7 +90,7 @@ fun VaccineScreen(navController: NavController,
     }
 
     PhdLayoutMenu(
-        title = "Agregar Vacunas",
+        title = stringResource(R.string.vaccine_add_title),
         navController = navController,
         snackbarHostState = snackbarHostState,
         openDrawer = openDrawer
@@ -96,27 +101,52 @@ fun VaccineScreen(navController: NavController,
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp)
         ) {
-            PhdSubtitle("Registro de Vacunas")
+            PhdSubtitle(
+                stringResource(R.string.vaccine_registration_subtitle)
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
-            
-            PhdTextField("Nombre", vaccineName) { vaccineName = it }
-            Text("Fecha de vacuna", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-            
-            Button(onClick = {
-                showDatePicker = true
-            }) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Abrir calendario")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Seleccionar Fecha")
+
+            PhdTextField(
+                stringResource(R.string.vaccine_name),
+                vaccineName
+            ) {
+                vaccineName = it
             }
+
+            Text(
+                text = stringResource(R.string.vaccine_date),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            Button(
+                onClick = {
+                    showDatePicker = true
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = stringResource(R.string.vaccine_open_calendar)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = stringResource(R.string.vaccine_select_date)
+                )
+            }
+
             if (showDatePicker) {
                 DatePickerDialog(
                     context,
                     { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                         calendar.set(year, month, dayOfMonth)
                         selectedDate = calendar.time
+
                         babyDataViewModel.onDateSelected(selectedDate)
-                        showDatePicker = false // close the dialog
+
+                        showDatePicker = false
                     },
                     calendar.get(Calendar.YEAR),
                     calendar.get(Calendar.MONTH),
@@ -128,7 +158,10 @@ fun VaccineScreen(navController: NavController,
                 DateFormat.format("dd MMMM yyyy", selectedDate).toString()
             }
 
-            Text(text = formattedDate, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = formattedDate,
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -137,36 +170,71 @@ fun VaccineScreen(navController: NavController,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 PhdButtons(
-                    "Guardar", enabled = isFormValid,
+                    stringResource(R.string.vaccine_save),
+                    enabled = isFormValid
                 ) {
                     babyDataViewModel.vaccineText = vaccineName
                     babyDataViewModel.vaccineDate = formattedDate
+
                     babyDataViewModel.addVaccines(
                         onError = { errorMessage ->
-                            Log.e("Vaccine Summary", "Failed to save vaccine data: $errorMessage")
-                            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                            Log.e(
+                                "Vaccine Summary",
+                                "Failed to save vaccine data: $errorMessage"
+                            )
+
+                            Toast.makeText(
+                                context,
+                                context.getString(
+                                    R.string.vaccine_save_error,
+                                    errorMessage
+                                ),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     )
                 }
 
-                PhdButtons("Volver") {
+                PhdButtons(
+                    stringResource(R.string.vaccine_back)
+                ) {
                     navController.navigate("bornDashboard")
                 }
             }
 
-            ListVaccines(vaccineList = babyDataViewModel.vaccineList, viewModel = babyDataViewModel)
+            ListVaccines(
+                vaccineList = babyDataViewModel.vaccineList,
+                viewModel = babyDataViewModel
+            )
         }
     }
 }
 
 @Composable
-fun ListVaccines(vaccineList: List<Vaccine>, viewModel: BabyDataViewModel) {
-    var editingVaccine by remember { mutableStateOf<Vaccine?>(null) }
-    var editedVaccineName by remember { mutableStateOf("") }
-    var editedVaccineDate by remember { mutableStateOf("") }
+fun ListVaccines(
+    vaccineList: List<Vaccine>,
+    viewModel: BabyDataViewModel
+) {
+    var editingVaccine by remember {
+        mutableStateOf<Vaccine?>(null)
+    }
+
+    var editedVaccineName by remember {
+        mutableStateOf("")
+    }
+
+    var editedVaccineDate by remember {
+        mutableStateOf("")
+    }
 
     Spacer(modifier = Modifier.height(32.dp))
-    Text("Lista de vacunas", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+
+    Text(
+        text = stringResource(R.string.vaccine_list_title),
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold
+    )
+
     Spacer(modifier = Modifier.height(8.dp))
 
     PhdGenericCardList(
@@ -178,28 +246,48 @@ fun ListVaccines(vaccineList: List<Vaccine>, viewModel: BabyDataViewModel) {
         }
     ) { vaccine ->
         Column {
-            PhdBoldText("Vacuna:")
+            PhdBoldText(
+                stringResource(R.string.vaccine_label)
+            )
+
             Text(vaccine.vaccineName)
+
             Spacer(modifier = Modifier.height(8.dp))
-            PhdBoldText("Fecha Vacuna:")
+
+            PhdBoldText(
+                stringResource(R.string.vaccine_date_label)
+            )
+
             Text(vaccine.vaccineDate)
         }
     }
 
     if (editingVaccine != null) {
         PhdEditItemDialog(
-            title = "Editar vacuna",
+            title = stringResource(R.string.vaccine_edit_title),
             fields = listOf(
-                EditableField("Nombre", editedVaccineName) { editedVaccineName = it },
-                EditableField("Fecha", editedVaccineDate) { editedVaccineDate = it },
+                EditableField(
+                    stringResource(R.string.vaccine_name),
+                    editedVaccineName
+                ) {
+                    editedVaccineName = it
+                },
+                EditableField(
+                    stringResource(R.string.vaccine_edit_date),
+                    editedVaccineDate
+                ) {
+                    editedVaccineDate = it
+                }
             ),
-            onDismiss = { editingVaccine = null },
+            onDismiss = {
+                editingVaccine = null
+            },
             onSave = {
-                // Save logic
                 val updated = editingVaccine!!.copy(
                     vaccineName = editedVaccineName,
                     vaccineDate = editedVaccineDate
                 )
+
                 viewModel.updateVaccine(updated)
                 editingVaccine = null
             }

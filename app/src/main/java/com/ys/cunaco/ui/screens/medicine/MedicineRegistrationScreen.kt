@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.collectAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ys.cunaco.R
 import com.ys.cunaco.model.MedicineRecord
 import com.ys.cunaco.ui.components.PhdBoldText
 import com.ys.cunaco.ui.components.PhdLayoutMenu
@@ -52,7 +54,6 @@ import com.ys.cunaco.ui.components.PhdLabelText
 import com.ys.cunaco.ui.components.PhdNormalText
 import com.ys.cunaco.ui.components.PhdSubtitle
 import com.ys.cunaco.viewmodel.MedicineRegistrationViewModel
-import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -71,7 +72,7 @@ fun MedicineRegistrationScreen(
     }
 
     PhdLayoutMenu(
-        title = "Registro de medicinas",
+        title = stringResource(R.string.medicine_registration_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -83,23 +84,25 @@ fun MedicineRegistrationScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            PhdLabelText("Medicina")
+            PhdLabelText(stringResource(R.string.medicine_name))
+
             OutlinedTextField(
                 value = viewModel.medicineName,
                 onValueChange = { viewModel.medicineName = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            PhdLabelText("Hora de toma")
+
+            PhdLabelText(stringResource(R.string.medicine_take_time))
+
+            val context = LocalContext.current
 
             // Time Picker
-            val context = LocalContext.current
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        val calendar = Calendar.getInstance()
                         TimePickerDialog(
                             context,
                             { _, hour, minute ->
@@ -117,18 +120,24 @@ fun MedicineRegistrationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = String.format("%02d:%02d", viewModel.selectedHour, viewModel.selectedMinute),
+                    text = String.format(
+                        "%02d:%02d",
+                        viewModel.selectedHour,
+                        viewModel.selectedMinute
+                    ),
                     modifier = Modifier.weight(1f)
                 )
+
                 Icon(
                     imageVector = Icons.Default.DateRange,
-                    contentDescription = "Seleccionar hora"
+                    contentDescription = stringResource(R.string.medicine_select_time)
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            PhdLabelText("¿Desea recibir recordatorio?")
+            PhdLabelText(stringResource(R.string.medicine_reminder_question))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
@@ -136,41 +145,49 @@ fun MedicineRegistrationScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { viewModel.wantsReminder = true }
+                    modifier = Modifier.clickable {
+                        viewModel.wantsReminder = true
+                    }
                 ) {
                     RadioButton(
                         selected = viewModel.wantsReminder == true,
                         onClick = { viewModel.wantsReminder = true }
                     )
+
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Sí")
+
+                    Text(stringResource(R.string.medicine_yes))
                 }
 
                 Spacer(modifier = Modifier.width(32.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { viewModel.wantsReminder = false }
+                    modifier = Modifier.clickable {
+                        viewModel.wantsReminder = false
+                    }
                 ) {
                     RadioButton(
                         selected = viewModel.wantsReminder == false,
                         onClick = { viewModel.wantsReminder = false }
                     )
+
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("No")
+
+                    Text(stringResource(R.string.medicine_no))
                 }
             }
 
             if (viewModel.wantsReminder == true) {
                 Spacer(modifier = Modifier.height(16.dp))
-                PhdLabelText("Fecha de recordatorio")
+
+                PhdLabelText(stringResource(R.string.medicine_reminder_date))
 
                 // Date Picker
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            val calendar = Calendar.getInstance()
                             DatePickerDialog(
                                 context,
                                 { _, year, month, day ->
@@ -197,9 +214,10 @@ fun MedicineRegistrationScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     )
+
                     Icon(
                         imageVector = Icons.Default.DateRange,
-                        contentDescription = "Seleccionar fecha"
+                        contentDescription = stringResource(R.string.medicine_select_date)
                     )
                 }
             }
@@ -208,21 +226,27 @@ fun MedicineRegistrationScreen(
 
             Button(
                 onClick = {
-                    Log.d("MedicineScreen", "Guardar clicked - Medicine: ${viewModel.medicineName}")
+                    Log.d(
+                        "MedicineScreen",
+                        "Guardar clicked - Medicine: ${viewModel.medicineName}"
+                    )
                     viewModel.saveMedicineRecord()
                 },
                 enabled = viewModel.medicineName.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFADA7D)
+                ),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Guardar")
+                Text(stringResource(R.string.medicine_save))
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             if (medicineList.isNotEmpty()) {
-                PhdSubtitle("Historial de medicinas")
+                PhdSubtitle(stringResource(R.string.medicine_history))
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 ListMedicineRecords(
@@ -233,60 +257,96 @@ fun MedicineRegistrationScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { viewModel.generatePdfReport(context) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                    onClick = {
+                        viewModel.generatePdfReport(context)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFADA7D)
+                    ),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Reporte")
+                    Text(stringResource(R.string.medicine_report))
                 }
             } else {
-                PhdNormalText("No hay registros de medicinas.")
+                PhdNormalText(stringResource(R.string.medicine_no_records))
             }
         }
     }
 }
-
 @Composable
 fun ListMedicineRecords(
     medicineList: List<MedicineRecord>,
     viewModel: MedicineRegistrationViewModel
 ) {
-    var editingMedicine by remember { mutableStateOf<MedicineRecord?>(null) }
-    var editedMedicineName by remember { mutableStateOf("") }
-    var editedHour by remember { mutableStateOf(0) }
-    var editedMinute by remember { mutableStateOf(0) }
+    var editingMedicine by remember {
+        mutableStateOf<MedicineRecord?>(null)
+    }
+
+    var editedMedicineName by remember {
+        mutableStateOf("")
+    }
+
+    var editedHour by remember {
+        mutableStateOf(0)
+    }
+
+    var editedMinute by remember {
+        mutableStateOf(0)
+    }
 
     PhdGenericCardList(
         items = medicineList,
         onEditClick = { medicine ->
             editingMedicine = medicine
             editedMedicineName = medicine.medicineName
+
             val timeParts = medicine.timeToTake.split(":")
-            editedHour = timeParts[0].toIntOrNull() ?: 0
-            editedMinute = timeParts[1].toIntOrNull() ?: 0
+
+            editedHour = timeParts.getOrNull(0)?.toIntOrNull() ?: 0
+            editedMinute = timeParts.getOrNull(1)?.toIntOrNull() ?: 0
         }
     ) { medicine ->
         Column {
-            PhdBoldText("Medicina:")
+            PhdBoldText(stringResource(R.string.medicine_label))
             PhdNormalText(medicine.medicineName)
+
             Spacer(modifier = Modifier.height(8.dp))
-            PhdBoldText("Hora de toma:")
+
+            PhdBoldText(stringResource(R.string.medicine_time_label))
             PhdNormalText(medicine.timeToTake)
+
             Spacer(modifier = Modifier.height(8.dp))
-            PhdBoldText("Recordatorio:")
-            PhdNormalText(if (medicine.notificationReminder == "Yes") "Sí - ${medicine.reminderDate}" else "No")
+
+            PhdBoldText(stringResource(R.string.medicine_reminder_label))
+
+            PhdNormalText(
+                if (medicine.notificationReminder == "Yes") {
+                    stringResource(
+                        R.string.medicine_reminder_yes_date,
+                        medicine.reminderDate
+                    )
+                } else {
+                    stringResource(R.string.medicine_no)
+                }
+            )
         }
     }
 
     if (editingMedicine != null) {
         val context = LocalContext.current
+
         AlertDialog(
-            onDismissRequest = { editingMedicine = null },
-            title = { Text("Editar medicina") },
+            onDismissRequest = {
+                editingMedicine = null
+            },
+            title = {
+                Text(stringResource(R.string.medicine_edit_title))
+            },
             text = {
                 Column {
-                    PhdLabelText("Medicina")
+                    PhdLabelText(stringResource(R.string.medicine_name))
+
                     TextField(
                         value = editedMedicineName,
                         onValueChange = { editedMedicineName = it },
@@ -295,7 +355,8 @@ fun ListMedicineRecords(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    PhdLabelText("Hora de toma")
+                    PhdLabelText(stringResource(R.string.medicine_take_time))
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -315,7 +376,13 @@ fun ListMedicineRecords(
                             .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
                             .padding(16.dp)
                     ) {
-                        Text(String.format("%02d:%02d", editedHour, editedMinute))
+                        Text(
+                            String.format(
+                                "%02d:%02d",
+                                editedHour,
+                                editedMinute
+                            )
+                        )
                     }
                 }
             },
@@ -324,18 +391,27 @@ fun ListMedicineRecords(
                     onClick = {
                         val updated = editingMedicine!!.copy(
                             medicineName = editedMedicineName,
-                            timeToTake = String.format("%02d:%02d", editedHour, editedMinute)
+                            timeToTake = String.format(
+                                "%02d:%02d",
+                                editedHour,
+                                editedMinute
+                            )
                         )
+
                         viewModel.updateMedicineRecord(updated)
                         editingMedicine = null
                     }
                 ) {
-                    Text("Guardar")
+                    Text(stringResource(R.string.medicine_save))
                 }
             },
             dismissButton = {
-                Button(onClick = { editingMedicine = null }) {
-                    Text("Cancelar")
+                Button(
+                    onClick = {
+                        editingMedicine = null
+                    }
+                ) {
+                    Text(stringResource(R.string.medicine_cancel))
                 }
             }
         )

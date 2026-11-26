@@ -25,7 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -41,6 +41,7 @@ import com.ys.cunaco.model.LengthRange
 import com.ys.cunaco.services.GraphicChartRenderer
 import com.ys.cunaco.services.PdfGeneratorUtils
 import com.ys.cunaco.viewmodel.GrowthRecord
+import java.util.Locale
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.pow
@@ -82,7 +83,7 @@ fun HeightLengthDetailScreen(
     }
 
     PhdLayoutMenu(
-        title = "Reporte de Longuitud/peso",
+        title = stringResource(id = R.string.height_report_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -111,7 +112,7 @@ fun HeightLengthDetailScreen(
                             generateHeightLengthPDF(
                                 context = context,
                                 records = records,
-                                babyName = babyName ?: "unknown",
+                                babyName = babyName ?: context.getString(R.string.unknown_baby),
                                 sex = babySex
                             )
                         },
@@ -122,7 +123,7 @@ fun HeightLengthDetailScreen(
                     ) {
                         Spacer(modifier = Modifier.padding(4.dp))
                         Text(
-                            text = "Descargar",
+                            text = stringResource(id = R.string.download),
                             color = Color.White,
                             fontSize = 12.sp
                         )
@@ -151,18 +152,18 @@ fun HeightLengthDetailScreen(
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
-                                    Text("Mes: ${record.ageInMonths}")
-                                    Text("Talla: ${record.height} cm")
+                                    Text(text = stringResource(id = R.string.month_detail_label, record.ageInMonths))
+                                    Text(text = stringResource(id = R.string.height_detail_label, String.format(Locale.getDefault(), "%.1f", record.height)))
 
                                     rango?.let {
-                                        Text("Rango OMS: ${it.min} cm - ${it.max} cm")
+                                        Text(text = stringResource(id = R.string.oms_range_label, String.format(Locale.getDefault(), "%.2f", it.min), String.format(Locale.getDefault(), "%.2f", it.max)))
                                     }
                                 }
                             }
                         }
                     }
                 } else {
-                    Text("No hay datos disponibles.")
+                    Text(text = stringResource(id = R.string.no_data_available))
                 }
             } else {
                 CircularProgressIndicator()
@@ -206,12 +207,17 @@ fun generateHeightLengthPDF(
 
     PdfGeneratorUtils.generateAndSharePdf(
         context = context,
-        fileName = "Reporte_Longitud_Altura",
-        title = "Reporte de Longitud/Altura",
-        subtitle = "Nombre del Bebé: $babyName",
+        fileName = context.getString(R.string.pdf_file_name_height),
+        title = context.getString(R.string.pdf_report_title_height),
+        subtitle = context.getString(R.string.pdf_report_baby_name, babyName),
         logoResId = R.drawable.app_child_care_logo
     ) {
-        val headers = listOf("Edad", "Talla (cm)", "Z-Score", "Rango OMS (cm)")
+        val headers = listOf(
+            context.getString(R.string.table_header_age),
+            context.getString(R.string.table_header_height),
+            context.getString(R.string.table_header_zscore),
+            context.getString(R.string.table_header_oms_range)
+        )
         val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
         val tableData = records.map { record ->
@@ -223,23 +229,23 @@ fun generateHeightLengthPDF(
 
             val rango = calcularRangoNormalTalla(record.ageInMonths, lmsTable)
             val rangoText = rango?.let {
-                "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}"
+                "${String.format(Locale.getDefault(), "%.1f", it.min)}-${String.format(Locale.getDefault(), "%.1f", it.max)}"
             } ?: "N/A"
 
             listOf(
                 "${record.ageInMonths} m",
-                "${record.height ?: "N/A"}",
-                zScore?.let { String.format("%.2f", it) } ?: "N/A",
+                "${record.height}",
+                zScore?.let { String.format(Locale.getDefault(), "%.2f", it) } ?: "N/A",
                 rangoText
             )
         }
 
         drawTable(headers, columnPositions, tableData)
-        addSectionTitle("Resumen:")
+        addSectionTitle(context.getString(R.string.summary_title))
 
         val totalMeasurements = records.size
         val lastRecord = records.lastOrNull()
-        val lastHeight = lastRecord?.height?.let { String.format("%.1f", it) } ?: "N/A"
+        val lastHeight = lastRecord?.height?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "N/A"
         val lastAge = lastRecord?.ageInMonths ?: 0
 
         val normalCount = records.count { record ->
@@ -251,9 +257,9 @@ fun generateHeightLengthPDF(
             zScore?.let { it >= -2 && it <= 2 } ?: false
         }
 
-        addText("• Total de mediciones: $totalMeasurements", indent = 20f)
-        addText("• Última medición: $lastHeight cm ($lastAge meses)", indent = 20f)
-        addText("• Mediciones en rango normal: $normalCount de $totalMeasurements", indent = 20f)
+        addText(context.getString(R.string.summary_total_measurements, totalMeasurements), indent = 20f)
+        addText(context.getString(R.string.summary_last_height_measurement, lastHeight, lastAge), indent = 20f)
+        addText(context.getString(R.string.summary_normal_range_count, normalCount, totalMeasurements), indent = 20f)
     }
 }
 
@@ -277,5 +283,5 @@ fun calcularRangoNormalTalla(
     val z = 2.0
     val min = if (L != 0.0) M * (1 + L * S * -z).pow(1 / L) else M * exp(-z * S)
     val max = if (L != 0.0) M * (1 + L * S * z).pow(1 / L) else M * exp(z * S)
-    return LengthRange(min = String.format("%.2f", min).toDouble(), max = String.format("%.2f", max).toDouble())
+    return LengthRange(min = String.format(Locale.getDefault(), "%.2f", min).toDouble(), max = String.format(Locale.getDefault(), "%.2f", max).toDouble())
 }

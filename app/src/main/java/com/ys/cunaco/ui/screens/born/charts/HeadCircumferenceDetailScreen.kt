@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +45,7 @@ import com.ys.cunaco.viewmodel.BabyDataViewModel
 import com.ys.cunaco.viewmodel.GrowthMilestonesViewModel
 import com.ys.cunaco.viewmodel.GrowthRecord
 import com.ys.cunaco.viewmodel.UserDataViewModel
+import java.util.Locale
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.exp
@@ -71,7 +73,7 @@ fun HeadCircumferenceDetailScreen(
     }
 
     val babyName = remember(selectedBabyProfile) {
-        return@remember selectedBabyProfile?.name
+        selectedBabyProfile?.name
     }
 
     LaunchedEffect(babyId) {
@@ -87,7 +89,7 @@ fun HeadCircumferenceDetailScreen(
     }
 
     PhdLayoutMenu(
-        title = "Reporte de Perímetro Cefálico",
+        title = stringResource(id = R.string.head_circumference_report_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -96,14 +98,14 @@ fun HeadCircumferenceDetailScreen(
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            PhdBoldText("Perímetro Cefálico para la Edad")
+            PhdBoldText(stringResource(id = R.string.head_circumference_for_age))
 
             Button(
                 onClick = {
                     generateHeadCircumferencePDF(
                         context = context,
                         records = records,
-                        babyName = babyName ?: "unknown",
+                        babyName = babyName ?: context.getString(R.string.unknown_baby),
                         sex = babySex
                     )
                 },
@@ -114,7 +116,7 @@ fun HeadCircumferenceDetailScreen(
             ) {
                 Spacer(modifier = Modifier.padding(4.dp))
                 Text(
-                    text = "Descargar",
+                    text = stringResource(id = R.string.download),
                     color = Color.White,
                     fontSize = 12.sp
                 )
@@ -157,16 +159,16 @@ fun HeadCircumferenceDetailScreen(
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Mes: ${record.ageInMonths}")
-                                Text("Peso: ${record.weight} kg")
-                                Text("Talla: ${record.height} cm")
-                                Text("Perímetro cefálico: ${record.headCircumference} cm")
+                                Text(text = stringResource(id = R.string.month_detail_label, record.ageInMonths))
+                                Text(text = stringResource(id = R.string.weight_detail_label, String.format(Locale.getDefault(), "%.1f", record.weight)))
+                                Text(text = stringResource(id = R.string.height_detail_label, String.format(Locale.getDefault(), "%.1f", record.height)))
+                                Text(text = stringResource(id = R.string.head_circumference_detail_label, String.format(Locale.getDefault(), "%.1f", record.headCircumference)))
                             }
                         }
                     }
                 }
             } else if (records.isEmpty()) {
-                Text("No hay datos disponibles.")
+                Text(text = stringResource(id = R.string.no_data_available))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -186,6 +188,10 @@ fun HeadCircumferenceChart(
     }
 
     if (referenceData.isEmpty()) return
+
+    val birthLabel = stringResource(id = R.string.birth)
+    val ageLabel = stringResource(id = R.string.age_months_label)
+    val hcLabel = stringResource(id = R.string.head_circumference_cm_axis_label)
 
     Canvas(modifier = modifier) {
         val chartWidth = size.width - 120f
@@ -282,7 +288,10 @@ fun HeadCircumferenceChart(
             chartHeight = chartHeight,
             maxWeeks = maxMonths,
             minHeadCircumference = minHeadCircumference,
-            maxHeadCircumference = maxHeadCircumference
+            maxHeadCircumference = maxHeadCircumference,
+            birthLabel = birthLabel,
+            ageLabel = ageLabel,
+            hcLabel = hcLabel
         )
 
         // Plot patient data points from Firebase
@@ -464,7 +473,10 @@ private fun DrawScope.drawAxes(
     chartHeight: Float,
     maxWeeks: Float,
     minHeadCircumference: Float,
-    maxHeadCircumference: Float
+    maxHeadCircumference: Float,
+    birthLabel: String,
+    ageLabel: String,
+    hcLabel: String
 ) {
     val axisColor = Color.Black
     val textPaint = Paint().asFrameworkPaint().apply {
@@ -492,7 +504,7 @@ private fun DrawScope.drawAxes(
     // X-axis labels (weeks/months)
     for (week in 0..maxWeeks.toInt()) {
         val x = chartStartX + (week / maxWeeks) * chartWidth
-        val label = if (week == 0) "Birth" else "${week}"
+        val label = if (week == 0) birthLabel else "$week"
         drawContext.canvas.nativeCanvas.drawText(
             label,
             x - 15f,
@@ -525,7 +537,7 @@ private fun DrawScope.drawAxes(
 
     // X-axis title
     drawContext.canvas.nativeCanvas.drawText(
-        "Edad (meses)",
+        ageLabel,
         chartStartX + chartWidth/2 - 60f,
         chartStartY + chartHeight + 70f,
         titlePaint
@@ -535,7 +547,7 @@ private fun DrawScope.drawAxes(
     drawContext.canvas.nativeCanvas.save()
     drawContext.canvas.nativeCanvas.rotate(-90f, 25f, chartStartY + chartHeight/2)
     drawContext.canvas.nativeCanvas.drawText(
-        "Perímetro cefálico (cm)",
+        hcLabel,
         -120f,
         chartStartY + chartHeight/2,
         titlePaint
@@ -608,13 +620,18 @@ fun generateHeadCircumferencePDF(
 
     PdfGeneratorUtils.generateAndSharePdf(
         context = context,
-        fileName = "Reporte_Perimetro_Cefalico",
-        title = "Reporte de Perimetro Cefálico",
-        subtitle = "Nombre del Bebé: $babyName",
+        fileName = context.getString(R.string.pdf_file_name_head_circumference),
+        title = context.getString(R.string.head_circumference_report_title),
+        subtitle = context.getString(R.string.pdf_report_baby_name, babyName),
         logoResId = R.drawable.app_child_care_logo
     ) {
         // Draw table
-        val headers = listOf("Edad", "Peso (kg)", "Talla (cm)", "P. Cefálico")
+        val headers = listOf(
+            context.getString(R.string.table_header_age),
+            context.getString(R.string.table_header_weight),
+            context.getString(R.string.table_header_height),
+            context.getString(R.string.table_header_head_circumference)
+        )
         val columnPositions = floatArrayOf(60f, 135f, 230f, 330f)
 
         val tableData = records.map { record ->
@@ -624,10 +641,6 @@ fun generateHeadCircumferencePDF(
             val zScore = calcularZScorePerimetroCefalico(pc, age, sex, lmsTable)
             val rango = calcularRangoNormalPerimetroCefalico(age, sex, lmsTable)
             
-            val rangoText = rango?.let {
-                "${String.format("%.1f", it.min)}-${String.format("%.1f", it.max)}"
-            } ?: "N/A"
-
             listOf(
                 "$age m",
                 "${record.weight}",
@@ -639,11 +652,11 @@ fun generateHeadCircumferencePDF(
         drawTable(headers, columnPositions, tableData)
 
         // Add summary section
-        addSectionTitle("Resumen:")
+        addSectionTitle(context.getString(R.string.summary_title))
 
         val totalMeasurements = records.size
         val lastRecord = records.lastOrNull()
-        val lastPC = lastRecord?.headCircumference?.let { String.format("%.1f", it) } ?: "N/A"
+        val lastPC = lastRecord?.headCircumference?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "N/A"
         val lastAge = lastRecord?.ageInMonths ?: 0
 
         val normalCount = records.count { record ->
@@ -651,8 +664,8 @@ fun generateHeadCircumferencePDF(
             zScore?.let { it >= -2 && it <= 2 } ?: false
         }
 
-        addText("• Total de mediciones: $totalMeasurements", indent = 20f)
-        addText("• Última medición P. Cefálico: $lastPC cm ($lastAge meses)", indent = 20f)
-        addText("• Mediciones en rango normal: $normalCount de $totalMeasurements", indent = 20f)
+        addText(context.getString(R.string.summary_total_measurements, totalMeasurements), indent = 20f)
+        addText(context.getString(R.string.summary_last_pc_measurement, lastPC, lastAge), indent = 20f)
+        addText(context.getString(R.string.summary_normal_range_count, normalCount, totalMeasurements), indent = 20f)
     }
 }

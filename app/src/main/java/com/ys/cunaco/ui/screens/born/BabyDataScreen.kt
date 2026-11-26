@@ -3,8 +3,6 @@ package com.ys.cunaco.ui.screens.born
 import android.annotation.SuppressLint
 import android.os.Build
 import android.text.format.DateFormat
-import android.util.Log
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
@@ -25,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.ys.cunaco.R
 import com.ys.cunaco.ui.components.*
 import com.ys.cunaco.ui.screens.billing.BillingScreen
 import com.ys.cunaco.viewmodel.BabyDataViewModel
@@ -43,7 +44,14 @@ fun BabyDataScreen(
     babyStatusViewModel: BabyStatusViewModel = hiltViewModel(),
     openDrawer: () -> Unit
 ) {
-    val sexOptions = listOf("Masculino", "Femenino", "Otro")
+    // Valores guardados en la base de datos (NO cambian con el idioma)
+    val sexValues = listOf("Masculino", "Femenino", "Otro")
+    // Etiquetas que ve el usuario
+    val sexLabels = listOf(
+        stringResource(R.string.sex_male),
+        stringResource(R.string.sex_female),
+        stringResource(R.string.sex_other)
+    )
     val bloodTypeOptions = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
 
     val context = LocalContext.current
@@ -54,7 +62,7 @@ fun BabyDataScreen(
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
     var headCircumference by remember { mutableStateOf("") }
-    var selectedSex by remember { mutableStateOf(sexOptions[0]) }
+    var selectedSex by remember { mutableStateOf(sexValues[0]) }
     var selectedWeeksBirth by remember { mutableStateOf("") }
     var selectedBloodType by remember { mutableStateOf(bloodTypeOptions[0]) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -66,7 +74,7 @@ fun BabyDataScreen(
 
     var isAddingNewBaby by remember { mutableStateOf(false) }
     var showSuccessAlert by remember { mutableStateOf(false) }
-    var successMessage by remember { mutableStateOf("Datos registrados") }
+    @StringRes var successMessageRes by remember { mutableStateOf(R.string.baby_data_saved) }
 
     val babyAgeInMonths = remember(selectedBaby?.birthDate) {
         selectedBaby?.let { baby ->
@@ -140,20 +148,20 @@ fun BabyDataScreen(
         }
 
         if (isAddingNewBaby) {
-            PhdMediumText("Agregar nuevo bebé")
+            PhdMediumText(stringResource(R.string.add_new_baby))
         } else if (selectedBaby != null) {
-            PhdMediumText("Editando: ${selectedBaby?.name}")
+            PhdMediumText(stringResource(R.string.editing_baby, selectedBaby?.name.orEmpty()))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        PhdTextField("Nombre", name) { name = it }
+        PhdTextField(stringResource(R.string.name), name) { name = it }
         Spacer(modifier = Modifier.height(16.dp))
 
-        PhdTextBold("Fecha Nacimiento")
+        PhdTextBold(stringResource(R.string.birth_date))
         Button(onClick = { showDatePicker = true }) {
             Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Seleccionar Fecha")
+            Text(text = stringResource(R.string.select_date))
         }
 
         if (showDatePicker) {
@@ -181,20 +189,29 @@ fun BabyDataScreen(
         WeeksSelectionDropdown(
             selectedWeeks = if (isAddingNewBaby) selectedWeeksBirth else selectedBaby?.weeksBirth,
             onWeeksSelected = { weeks -> selectedWeeksBirth = weeks.toString() },
-            label = "¿De cuántas semanas nació?"
+            label = stringResource(R.string.weeks_born_question)
         )
 
-        PhdTextField("APGAR", apgarScore) { apgarScore = it }
-        PhdTextField("Peso (kg)", weight) { weight = it }
-        PhdTextField("Talla (cm)", height) { height = it }
-        PhdDropdown("Sexo", sexOptions, selectedSex) { selectedSex = it }
-        PhdTextField("Perímetro cefálico (cm)", headCircumference) { headCircumference = it }
-        PhdDropdown("Tipo de sangre", bloodTypeOptions, selectedBloodType) { selectedBloodType = it }
-        
+        PhdTextField(stringResource(R.string.apgar), apgarScore) { apgarScore = it }
+        PhdTextField(stringResource(R.string.weight_kg), weight) { weight = it }
+        PhdTextField(stringResource(R.string.height_cm), height) { height = it }
+        PhdDropdown(
+            stringResource(R.string.sex),
+            sexLabels,
+            sexLabels[sexValues.indexOf(selectedSex).coerceAtLeast(0)]
+        ) { picked ->
+            selectedSex = sexValues[sexLabels.indexOf(picked).coerceAtLeast(0)]
+        }
+        PhdTextField(stringResource(R.string.head_circumference_cm), headCircumference) { headCircumference = it }
+        PhdDropdown(stringResource(R.string.blood_type), bloodTypeOptions, selectedBloodType) { selectedBloodType = it }
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            PhdButtons(if (isAddingNewBaby || babyList.isEmpty()) "Agregar Bebé" else "Actualizar") {
+            PhdButtons(
+                if (isAddingNewBaby || babyList.isEmpty()) stringResource(R.string.add_baby)
+                else stringResource(R.string.update)
+            ) {
                 babyDataViewModel.setBabyAttribute("name", name)
                 babyDataViewModel.setBabyAttribute("apgar", apgarScore)
                 babyDataViewModel.setBabyAttribute("height", height)
@@ -221,7 +238,7 @@ fun BabyDataScreen(
                     babyDataViewModel.addBabyToUser(
                         babyData = babyData,
                         onSuccess = {
-                            successMessage = "Bebé agregado exitosamente"
+                            successMessageRes = R.string.baby_added_success
                             showSuccessAlert = true
                             isAddingNewBaby = false
                         },
@@ -233,7 +250,7 @@ fun BabyDataScreen(
                             babyId = id,
                             babyData = babyData,
                             onSuccess = {
-                                successMessage = "Datos actualizados exitosamente"
+                                successMessageRes = R.string.baby_data_updated_success
                                 showSuccessAlert = true
                             },
                             onError = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
@@ -245,13 +262,13 @@ fun BabyDataScreen(
             AppChildAlert(
                 showAlert = showSuccessAlert,
                 onDismiss = { showSuccessAlert = false },
-                message = successMessage,
+                message = stringResource(successMessageRes),
                 onConfirm = { showSuccessAlert = false }
             )
 
-            PhdButtons("Volver") { navController.navigate("bornDashboard") }
+            PhdButtons(stringResource(R.string.back)) { navController.navigate("bornDashboard") }
         }
-        
+
         if (babyList.isNotEmpty() && !isAddingNewBaby) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
@@ -262,7 +279,7 @@ fun BabyDataScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Agregar otro bebé")
+                Text(stringResource(R.string.add_another_baby))
             }
         }
     }
@@ -271,9 +288,9 @@ fun BabyDataScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddBabyDataScreen(
-    loginViewModel: LoginViewModel = hiltViewModel(), 
+    loginViewModel: LoginViewModel = hiltViewModel(),
     navController: NavController,
-    openDrawer: () -> Unit, 
+    openDrawer: () -> Unit,
     babyId: String?
 ) {
     val userRole by loginViewModel.userRole.collectAsStateWithLifecycle()
@@ -288,7 +305,11 @@ fun AddBabyDataScreen(
         }
     }
 
-    PhdLayoutMenu(title = "Perfil de bebé", navController = navController, openDrawer = openDrawer) {
+    PhdLayoutMenu(
+        title = stringResource(R.string.baby_profile_title),
+        navController = navController,
+        openDrawer = openDrawer
+    ) {
         if (showPaymentUI) {
             BillingScreen()
         } else {
@@ -308,7 +329,7 @@ fun WeeksSelectionDropdown(
     selectedWeeks: String?,
     onWeeksSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Semanas de gestación"
+    label: String = stringResource(R.string.gestation_weeks)
 ) {
     val options = (20..42).map { it.toString() }
     var selectedOption by remember(selectedWeeks) { mutableStateOf(selectedWeeks ?: options[options.size / 2]) }
@@ -321,7 +342,7 @@ fun WeeksSelectionDropdown(
 
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             OutlinedTextField(
-                value = "$selectedOption semanas",
+                value = stringResource(R.string.weeks_format, selectedOption),
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -336,7 +357,7 @@ fun WeeksSelectionDropdown(
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(text = "$option semanas") },
+                        text = { Text(text = stringResource(R.string.weeks_format, option)) },
                         onClick = {
                             selectedOption = option
                             expanded = false

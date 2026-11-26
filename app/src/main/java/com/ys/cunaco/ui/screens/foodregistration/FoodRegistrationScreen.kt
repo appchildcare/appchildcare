@@ -34,8 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ys.cunaco.R
 import com.ys.cunaco.model.FoodReaction
 import com.ys.cunaco.ui.components.EditableField
 import com.ys.cunaco.ui.components.PhdBoldText
@@ -65,7 +67,7 @@ fun FoodRegistrationScreen(
     }
 
     PhdLayoutMenu(
-        title = "Registro de alimentos",
+        title = stringResource(R.string.food_registration_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -78,16 +80,18 @@ fun FoodRegistrationScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            PhdLabelText("Alimento")
+            PhdLabelText(stringResource(R.string.food_name))
+
             TextField(
                 value = viewModel.foodName,
                 onValueChange = { viewModel.foodName = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            PhdLabelText("Reacción")
+            PhdLabelText(stringResource(R.string.food_reaction))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
@@ -95,35 +99,40 @@ fun FoodRegistrationScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { viewModel.hasReaction = true }
+                    modifier = Modifier.clickable {
+                        viewModel.hasReaction = true
+                    }
                 ) {
                     RadioButton(
                         selected = viewModel.hasReaction == true,
                         onClick = { viewModel.hasReaction = true }
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Sí")
+                    Text(stringResource(R.string.food_reaction_yes))
                 }
 
                 Spacer(modifier = Modifier.width(32.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { viewModel.hasReaction = false }
+                    modifier = Modifier.clickable {
+                        viewModel.hasReaction = false
+                    }
                 ) {
                     RadioButton(
                         selected = viewModel.hasReaction == false,
                         onClick = { viewModel.hasReaction = false }
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("No")
+                    Text(stringResource(R.string.food_reaction_no))
                 }
             }
 
             if (viewModel.hasReaction == true) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                PhdLabelText("Detalle de la reacción")
+                PhdLabelText(stringResource(R.string.food_reaction_detail))
+
                 TextField(
                     value = viewModel.reactionDetail,
                     onValueChange = { viewModel.reactionDetail = it },
@@ -137,24 +146,31 @@ fun FoodRegistrationScreen(
 
             Button(
                 onClick = {
-                    Log.d("FoodScreen", "Guardar clicked - Food: ${viewModel.foodName}, HasReaction: ${viewModel.hasReaction}")
+                    Log.d(
+                        "FoodScreen",
+                        "Guardar clicked - Food: ${viewModel.foodName}, HasReaction: ${viewModel.hasReaction}"
+                    )
                     viewModel.saveFoodReaction()
                 },
-                enabled = viewModel.foodName.isNotBlank() && viewModel.hasReaction != null,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                enabled = viewModel.foodName.isNotBlank() &&
+                        viewModel.hasReaction != null,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFADA7D)
+                ),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("Guardar")
+                Text(stringResource(R.string.food_save))
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            if(foodList.none { it.hasReaction }) {
-                PhdNormalText("No hay registros de alimentos con reacción.")
+            if (foodList.none { it.hasReaction }) {
+                PhdNormalText(stringResource(R.string.food_no_reactions))
                 return@Column
-            } else{
-                PhdSubtitle("Historial de alimentos con reacción")
+            } else {
+                PhdSubtitle(stringResource(R.string.food_reaction_history))
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 ListFoodReactions(
@@ -167,12 +183,16 @@ fun FoodRegistrationScreen(
                 val context = LocalContext.current
 
                 Button(
-                    onClick = { viewModel.generatePdfReport(context) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                    onClick = {
+                        viewModel.generatePdfReport(context)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFADA7D)
+                    ),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Reporte")
+                    Text(stringResource(R.string.food_report))
                 }
             }
         }
