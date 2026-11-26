@@ -23,7 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import com.ys.cunaco.R
 import com.ys.cunaco.ui.components.PhdBoldText
 import com.ys.cunaco.ui.components.PhdLayoutMenu
 import com.ys.cunaco.model.Question
@@ -36,10 +38,11 @@ import com.ys.cunaco.ui.components.PhdSubtitle
 import com.ys.cunaco.viewmodel.QuestionsAndAnswersViewModel
 
 @Composable
-fun PediatricianQuestionsScreen(navController: NavHostController,
-                                openDrawer: () -> Unit,
-                                viewModel: QuestionsAndAnswersViewModel = viewModel()) {
-
+fun PediatricianQuestionsScreen(
+    navController: NavHostController,
+    openDrawer: () -> Unit,
+    viewModel: QuestionsAndAnswersViewModel = viewModel()
+) {
     val question = viewModel.savedQuestion
 
     LaunchedEffect(Unit) {
@@ -47,7 +50,7 @@ fun PediatricianQuestionsScreen(navController: NavHostController,
     }
 
     PhdLayoutMenu(
-        title = "Preguntas al pediatra",
+        title = stringResource(R.string.pediatrician_questions_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -55,109 +58,173 @@ fun PediatricianQuestionsScreen(navController: NavHostController,
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-//                .background(secondaryCream)
+                // .background(secondaryCream)
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            PhdLabelText("Pregunta")
+            PhdLabelText(stringResource(R.string.pediatrician_question))
+
             TextField(
                 value = viewModel.questionText,
                 onValueChange = { viewModel.questionText = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = { viewModel.saveQuestion() },
+                onClick = {
+                    viewModel.saveQuestion()
+                },
                 enabled = viewModel.questionText.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFADA7D)
+                ),
                 shape = RoundedCornerShape(20.dp)
             ) {
-                Text("Guardar pregunta")
+                Text(stringResource(R.string.pediatrician_save_question))
             }
 
             if (question != null) {
                 Spacer(modifier = Modifier.height(32.dp))
 
-                PhdSubtitle("Registrar respuestas al pediatra")
-                Spacer(modifier = Modifier.height(8.dp))
-
-                PhdLabelText("Pregunta")
-                TextField(
-                    value = question.text,
-                    onValueChange = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
+                PhdSubtitle(
+                    stringResource(R.string.pediatrician_register_answers)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                PhdLabelText("Respuesta")
+                PhdLabelText(
+                    stringResource(R.string.pediatrician_question)
+                )
+
+                TextField(
+                    value = question.text,
+                    onValueChange = {},
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                PhdLabelText(
+                    stringResource(R.string.pediatrician_answer)
+                )
+
                 TextField(
                     value = viewModel.answerText,
                     onValueChange = { viewModel.answerText = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = { viewModel.saveAnswer() },
+                    onClick = {
+                        viewModel.saveAnswer()
+                    },
                     enabled = viewModel.answerText.isNotBlank(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFADA7D)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFADA7D)
+                    ),
                     shape = RoundedCornerShape(20.dp)
                 ) {
-                    Text("Guardar respuesta")
+                    Text(
+                        stringResource(R.string.pediatrician_save_answer)
+                    )
                 }
             }
-            ListQuestions(questionList = viewModel.questionList, viewModel = viewModel)
+
+            ListQuestions(
+                questionList = viewModel.questionList,
+                viewModel = viewModel
+            )
         }
     }
 }
-
 @Composable
-fun ListQuestions(questionList: List<Question>, viewModel: QuestionsAndAnswersViewModel) {
-    var editingQuestion by remember { mutableStateOf<Question?>(null) }
-    var editedQuestionText by remember { mutableStateOf("") }
-    var editedAnswerText by remember { mutableStateOf("") }
+fun ListQuestions(
+    questionList: List<Question>,
+    viewModel: QuestionsAndAnswersViewModel
+) {
+    var editingQuestion by remember {
+        mutableStateOf<Question?>(null)
+    }
+
+    var editedQuestionText by remember {
+        mutableStateOf("")
+    }
+
+    var editedAnswerText by remember {
+        mutableStateOf("")
+    }
 
     Spacer(modifier = Modifier.height(32.dp))
-    PhdSubtitle("Lista de preguntas y respuestas")
+
+    PhdSubtitle(
+        stringResource(R.string.pediatrician_questions_list)
+    )
+
     Spacer(modifier = Modifier.height(8.dp))
+
+    val noAnswerText = stringResource(R.string.pediatrician_no_answer)
+
 
     PhdGenericCardList(
         items = questionList,
         onEditClick = { question ->
             editingQuestion = question
             editedQuestionText = question.text
-            editedAnswerText = question.answer ?: "Sin respuesta"
+            editedAnswerText = question.answer ?: noAnswerText
         }
     ) { visit ->
         Column {
-            PhdBoldText("Pregunta:")
+            PhdBoldText(
+                stringResource(R.string.pediatrician_question_label)
+            )
+
             PhdNormalText(visit.text)
+
             Spacer(modifier = Modifier.height(8.dp))
-            PhdBoldText("Respuesta:")
-            PhdNormalText(visit.answer ?: "Sin respuesta")
+
+            PhdBoldText(
+                stringResource(R.string.pediatrician_answer_label)
+            )
+
+            PhdNormalText(
+                visit.answer
+                    ?: stringResource(R.string.pediatrician_no_answer)
+            )
         }
     }
 
     if (editingQuestion != null) {
         PhdEditItemDialog(
-            title = "Editar pregunta y respuesta",
+            title = stringResource(R.string.pediatrician_edit_title),
             fields = listOf(
-                EditableField("Pregunta", editedQuestionText) { editedQuestionText = it },
-                EditableField("Respuesta", editedAnswerText) { editedAnswerText = it },
+                EditableField(
+                    stringResource(R.string.pediatrician_question),
+                    editedQuestionText
+                ) {
+                    editedQuestionText = it
+                },
+                EditableField(
+                    stringResource(R.string.pediatrician_answer),
+                    editedAnswerText
+                ) {
+                    editedAnswerText = it
+                }
             ),
-            onDismiss = { editingQuestion = null },
+            onDismiss = {
+                editingQuestion = null
+            },
             onSave = {
-                // Save logic
                 val updated = editingQuestion!!.copy(
                     text = editedQuestionText,
                     answer = editedAnswerText
                 )
+
                 viewModel.updateQuestion(updated)
                 editingQuestion = null
             }

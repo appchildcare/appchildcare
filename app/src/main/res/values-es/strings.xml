@@ -12,7 +12,6 @@
     <string name="growth_milestones_description">Signos de alerta</string>
     <string name="height_label">Altura</string>
     <string name="height_description">Seguimiento de la altura del bebé</string>
-    <string name="pediatrician_question_label">Preguntas al pediatra</string>
     <string name="pediatrician_visit_label">Visitas al pediatra</string>
     <string name="baby_selector_label">Seleccionar bebé</string>
     <plurals name="baby_selector_years">
@@ -374,4 +373,19 @@
     <string name="medicine_reminder_yes_date">Sí - %1$s</string>
     <string name="medicine_edit_title">Editar medicina</string>
     <string name="medicine_cancel">Cancelar</string>
+
+    <string name="pediatrician_questions_title">Preguntas al pediatra</string>
+    <string name="pediatrician_question">Pregunta</string>
+    <string name="pediatrician_save_question">Guardar pregunta</string>
+    <string name="pediatrician_register_answers">Registrar respuestas al pediatra</string>
+    <string name="pediatrician_answer">Respuesta</string>
+    <string name="pediatrician_save_answer">Guardar respuesta</string>
+    <string name="pediatrician_question_label">Preguntas al pediatra</string>
+    <string name="pediatrician_questions_list">Lista de preguntas y respuestas</string>
+    <string name="pediatrician_answer_label">Respuesta:</string>
+    <string name="pediatrician_no_answer">Sin respuesta</string>
+    <string name="pediatrician_edit_title">Editar pregunta y respuesta</string>
+
+    <string name="common_save">Guardar</string>
+    <string name="common_cancel">Cancelar</string>
 </resources>

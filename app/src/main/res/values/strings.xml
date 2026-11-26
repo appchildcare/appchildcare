@@ -12,7 +12,6 @@
     <string name="growth_milestones_description">Growth Milestones</string>
     <string name="height_label">Height</string>
     <string name="height_description">Baby Height Tracking</string>
-    <string name="pediatrician_question_label">Questions for the Pediatrician</string>
     <string name="pediatrician_visit_label">Pediatrician Visits</string>
     <string name="baby_selector_label">Select baby</string>
     <plurals name="baby_selector_years">
@@ -379,4 +378,19 @@
     <string name="medicine_reminder_yes_date">Yes - %1$s</string>
     <string name="medicine_edit_title">Edit Medicine</string>
     <string name="medicine_cancel">Cancel</string>
+
+    <string name="pediatrician_questions_title">Questions for the Pediatrician</string>
+    <string name="pediatrician_question">Question</string>
+    <string name="pediatrician_save_question">Save Question</string>
+    <string name="pediatrician_register_answers">Register Answers from the Pediatrician</string>
+    <string name="pediatrician_answer">Answer</string>
+    <string name="pediatrician_question_label">Questions for the Pediatrician</string>
+    <string name="pediatrician_save_answer">Save Answer</string>
+    <string name="pediatrician_questions_list">Questions and Answers List</string>
+    <string name="pediatrician_answer_label">Answer:</string>
+    <string name="pediatrician_no_answer">No answer</string>
+    <string name="pediatrician_edit_title">Edit Question and Answer</string>
+
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
 </resources>
