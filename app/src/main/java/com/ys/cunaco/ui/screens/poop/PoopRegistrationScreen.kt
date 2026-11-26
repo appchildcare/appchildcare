@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.compose.ui.res.stringResource
+import java.util.Locale
 import com.ys.cunaco.R
 import com.ys.cunaco.model.PoopColor
 import com.ys.cunaco.model.PoopSize
@@ -77,8 +79,6 @@ fun PoopRegistrationScreen(
     val selectedBaby by viewModel.selectedBaby.collectAsState() // TODO: pass this value to repo
 
     var showSuccessAlert by remember { mutableStateOf(false) }
-    var successMessage = "Registro guardado exitosamente"
-
 
     // Handle success state
     LaunchedEffect(uiState.isSuccess) {
@@ -97,7 +97,7 @@ fun PoopRegistrationScreen(
     }
 
     PhdLayoutMenu(
-        title = "Registro Popos",
+        title = stringResource(R.string.poop_reg_title),
         navController = navController,
         openDrawer = openDrawer
     ) {
@@ -107,8 +107,6 @@ fun PoopRegistrationScreen(
                 .padding(24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
-            // Time Selection
             TimeSection(
                 selectedTime = uiState.selectedTime,
                 onTimeSelected = viewModel::updateTime
@@ -116,7 +114,6 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Color Selection
             ColorSection(
                 selectedColor = uiState.selectedColor,
                 onColorSelected = viewModel::updateColor
@@ -124,7 +121,6 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Texture Selection
             TextureSection(
                 selectedTexture = uiState.selectedTexture,
                 onTextureSelected = viewModel::updateTexture
@@ -132,7 +128,6 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Size Selection
             SizeSection(
                 selectedSize = uiState.selectedSize,
                 onSizeSelected = viewModel::updateSize
@@ -140,7 +135,6 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Notes Section
             NotesSection(
                 notes = uiState.notes,
                 onNotesChanged = viewModel::updateNotes
@@ -152,12 +146,9 @@ fun PoopRegistrationScreen(
             Button(
                 onClick = {
                     viewModel.savePoopRecord(
-                        onSuccess = {
-                            successMessage = "Bebé agregado exitosamente"
-                            showSuccessAlert = true
-                        },
+                        onSuccess = { showSuccessAlert = true },
                         onError = { errorMessage ->
-                            Log.e("BabySummary", "Failed to save baby data: $errorMessage")
+                            Log.e("PoopRegistration", "Failed to save poop record: $errorMessage")
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }
                     )
@@ -179,7 +170,7 @@ fun PoopRegistrationScreen(
                     )
                 } else {
                     Text(
-                        text = "Aceptar",
+                        text = stringResource(R.string.poop_reg_accept),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -189,17 +180,13 @@ fun PoopRegistrationScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Add the Alert
             AppChildAlert(
                 showAlert = showSuccessAlert,
                 onDismiss = { showSuccessAlert = false },
-                message = successMessage,
-                onConfirm = {
-                    showSuccessAlert = false
-                }
+                message = stringResource(R.string.poop_reg_saved_success),
+                onConfirm = { showSuccessAlert = false }
             )
         }
-
     }
 }
 
@@ -211,7 +198,7 @@ private fun TimeSection(
     val context = LocalContext.current
 
     Column {
-        SectionTitle("Hora")
+        SectionTitle(stringResource(R.string.poop_reg_section_time))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -221,7 +208,7 @@ private fun TimeSection(
                 TimePickerDialog(
                     context,
                     { _, hourOfDay, minute ->
-                        val time = String.format("%02d:%02d", hourOfDay, minute)
+                        val time = String.format(Locale.US, "%02d:%02d", hourOfDay, minute)
                         onTimeSelected(time)
                     },
                     calendar.get(Calendar.HOUR_OF_DAY),
@@ -260,7 +247,7 @@ private fun ColorSection(
     onColorSelected: (PoopColor) -> Unit
 ) {
     Column {
-        SectionTitle("Color")
+        SectionTitle(stringResource(R.string.poop_reg_section_color))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -310,7 +297,7 @@ private fun ColorOption(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = color.displayName,
+            text = color.label(),
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
             color = if (isSelected) Color(0xFF7DD3C0) else Color.Black
@@ -324,7 +311,7 @@ private fun TextureSection(
     onTextureSelected: (PoopTexture) -> Unit
 ) {
     Column {
-        SectionTitle("Textura")
+        SectionTitle(stringResource(R.string.poop_reg_section_texture))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -348,6 +335,14 @@ private fun TextureOption(
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
+    val iconRes = when (texture) {
+        PoopTexture.LIQUIDA -> R.drawable.iconos_popo_liquida
+        PoopTexture.PASTOSA -> R.drawable.iconos_popo_pastosa
+        PoopTexture.DURA -> R.drawable.iconos_popo_dura
+        PoopTexture.CON_MOCOS -> R.drawable.iconos_popo_moco
+        PoopTexture.CON_SANGRE -> R.drawable.iconos_popo_sangre
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable { onSelected() }
@@ -361,53 +356,17 @@ private fun TextureOption(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            when (texture) {
-                PoopTexture.LIQUIDA -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.iconos_popo_liquida),
-                        contentDescription = null,
-                        modifier = Modifier.size(94.dp),
-                    )
-                }
-
-                PoopTexture.PASTOSA -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.iconos_popo_pastosa),
-                        contentDescription = null,
-                        modifier = Modifier.size(94.dp),
-                    )
-                }
-
-                PoopTexture.DURA -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.iconos_popo_dura),
-                        contentDescription = null,
-                        modifier = Modifier.size(94.dp),
-                    )
-                }
-
-                PoopTexture.CON_MOCOS -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.iconos_popo_moco),
-                        contentDescription = null,
-                        modifier = Modifier.size(94.dp),
-                    )
-                }
-
-                PoopTexture.CON_SANGRE -> {
-                    Image(
-                        painter = painterResource(id = R.drawable.iconos_popo_sangre),
-                        contentDescription = null,
-                        modifier = Modifier.size(94.dp),
-                    )
-                }
-            }
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(94.dp),
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = texture.displayName,
+            text = texture.label(),
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
             color = if (isSelected) Color(0xFF7DD3C0) else Color.Black
@@ -421,7 +380,7 @@ private fun SizeSection(
     onSizeSelected: (PoopSize) -> Unit
 ) {
     Column {
-        SectionTitle("Tamaño")
+        SectionTitle(stringResource(R.string.poop_reg_section_size))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -453,7 +412,7 @@ private fun SizeOption(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = selectedSize.displayName,
+                    text = selectedSize.label(),
                     fontSize = 16.sp,
                     color = Color.Black
                 )
@@ -473,7 +432,7 @@ private fun SizeOption(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = size.displayName,
+                            text = size.label(),
                             fontSize = 16.sp,
                             color = if (size == selectedSize) Color(0xFF7DD3C0) else Color.Black
                         )
@@ -494,7 +453,7 @@ private fun NotesSection(
     onNotesChanged: (String) -> Unit
 ) {
     Column {
-        SectionTitle("Notas")
+        SectionTitle(stringResource(R.string.poop_reg_section_notes))
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -503,7 +462,7 @@ private fun NotesSection(
             onValueChange = onNotesChanged,
             placeholder = {
                 Text(
-                    text = "Escribe aquí más sobre la popó de tu bebé",
+                    text = stringResource(R.string.poop_reg_notes_placeholder),
                     color = Color.Gray
                 )
             },
@@ -533,6 +492,30 @@ private fun SectionTitle(title: String) {
         )
 
         Spacer(modifier = Modifier.width(8.dp))
-
     }
+}
+
+@Composable
+private fun PoopColor.label(): String = when (this) {
+    PoopColor.MUY_OSCURO -> stringResource(R.string.poop_color_very_dark)
+    PoopColor.VERDE_OSCURO -> stringResource(R.string.poop_color_dark_green)
+    PoopColor.MARRON -> stringResource(R.string.poop_color_brown)
+    PoopColor.AMARILLO -> stringResource(R.string.poop_color_yellow)
+    PoopColor.OTROS -> stringResource(R.string.poop_color_other)
+}
+
+@Composable
+private fun PoopTexture.label(): String = when (this) {
+    PoopTexture.LIQUIDA -> stringResource(R.string.poop_texture_liquid)
+    PoopTexture.PASTOSA -> stringResource(R.string.poop_texture_pasty)
+    PoopTexture.DURA -> stringResource(R.string.poop_texture_hard)
+    PoopTexture.CON_MOCOS -> stringResource(R.string.poop_texture_mucus)
+    PoopTexture.CON_SANGRE -> stringResource(R.string.poop_texture_blood)
+}
+
+@Composable
+private fun PoopSize.label(): String = when (this) {
+    PoopSize.POCO -> stringResource(R.string.poop_size_small)
+    PoopSize.MITAD_PANAL -> stringResource(R.string.poop_size_half_diaper)
+    PoopSize.PANAL_DESBORDADO -> stringResource(R.string.poop_size_overflowing)
 }

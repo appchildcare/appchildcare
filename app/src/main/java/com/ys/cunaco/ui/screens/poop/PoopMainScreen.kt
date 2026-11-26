@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.compose.ui.res.stringResource
 import com.ys.cunaco.R
 import com.ys.cunaco.navigation.NavRoutes.POOP_REGISTER
 import com.ys.cunaco.navigation.NavRoutes.POOP_TRACKING
@@ -43,10 +44,10 @@ fun PoopMainScreen(
     openDrawer: () -> Unit
 ) {
     PhdLayoutMenu(
-        title = "Registro de popos",
+        title = stringResource(R.string.poop_main_title),
         navController = navController,
         openDrawer = openDrawer,
-        showBottomBar= true,
+        showBottomBar = true,
     ) {
         Column(
             modifier = Modifier
@@ -62,14 +63,14 @@ fun PoopMainScreen(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.icono_app_panal),
-                    contentDescription = "poop",
+                    contentDescription = stringResource(R.string.poop_main_image_description),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
                 )
 
                 Text(
-                    text = "¿Qué acción necesitas?",
+                    text = stringResource(R.string.poop_main_question),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32),
@@ -77,7 +78,7 @@ fun PoopMainScreen(
                 )
 
                 Text(
-                    text = "Selecciona una opción para comenzar",
+                    text = stringResource(R.string.poop_main_subtitle),
                     fontSize = 16.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -85,10 +86,10 @@ fun PoopMainScreen(
                 )
             }
 
-            // Sleep Option
+            // Register option
             TrackingOptionCard(
-                title = "Registrar popos",
-                subtitle = "Registrar detalles de las popos",
+                title = stringResource(R.string.poop_main_register_title),
+                subtitle = stringResource(R.string.poop_main_register_subtitle),
                 icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,
@@ -101,9 +102,10 @@ fun PoopMainScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Reports option
             TrackingOptionCard(
-                title = "Reportes",
-                subtitle = "Información detallada de popos",
+                title = stringResource(R.string.poop_main_reports_title),
+                subtitle = stringResource(R.string.poop_main_reports_subtitle),
                 icon = painterResource(id = R.drawable.icono_app_poop),
                 gradientColors = listOf(
                     primaryTeal,

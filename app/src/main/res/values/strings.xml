@@ -210,4 +210,44 @@
     <string name="lactation_counter_start">Start</string>
     <string name="lactation_counter_stop">Stop</string>
     <string name="lactation_counter_view_reports">View reports</string>
+
+    <!-- Poop main screen -->
+    <string name="poop_main_title">Poop log</string>
+    <string name="poop_main_image_description">Diaper illustration</string>
+    <string name="poop_main_question">What do you need to do?</string>
+    <string name="poop_main_subtitle">Select an option to get started</string>
+    <string name="poop_main_register_title">Add poops</string>
+    <string name="poop_main_register_subtitle">Record poop details</string>
+    <string name="poop_main_reports_title">Reports</string>
+    <string name="poop_main_reports_subtitle">Detailed poop information</string>
+
+    <!-- Poop registration screen -->
+    <string name="poop_reg_title">Add poop</string>
+    <string name="poop_reg_section_time">Time</string>
+    <string name="poop_reg_section_color">Color</string>
+    <string name="poop_reg_section_texture">Texture</string>
+    <string name="poop_reg_section_size">Size</string>
+    <string name="poop_reg_section_notes">Notes</string>
+    <string name="poop_reg_notes_placeholder">Write more about your baby\'s poop here</string>
+    <string name="poop_reg_accept">Accept</string>
+    <string name="poop_reg_saved_success">Record saved successfully</string>
+
+    <!-- Colors -->
+    <string name="poop_color_very_dark">Very dark</string>
+    <string name="poop_color_dark_green">Dark green</string>
+    <string name="poop_color_brown">Brown</string>
+    <string name="poop_color_yellow">Yellow</string>
+    <string name="poop_color_other">Other</string>
+
+    <!-- Textures -->
+    <string name="poop_texture_liquid">Liquid</string>
+    <string name="poop_texture_pasty">Pasty</string>
+    <string name="poop_texture_hard">Hard</string>
+    <string name="poop_texture_mucus">With mucus</string>
+    <string name="poop_texture_blood">With blood</string>
+
+    <!-- Sizes -->
+    <string name="poop_size_small">A little</string>
+    <string name="poop_size_half_diaper">Half the diaper</string>
+    <string name="poop_size_overflowing">Diaper overflowing!</string>
 </resources>

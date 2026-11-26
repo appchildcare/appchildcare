@@ -205,4 +205,44 @@
     <string name="lactation_counter_start">Iniciar</string>
     <string name="lactation_counter_stop">Detener</string>
     <string name="lactation_counter_view_reports">Ver Reportes</string>
+
+    <!-- Poop main screen -->
+    <string name="poop_main_title">Registro de popos</string>
+    <string name="poop_main_image_description">Ilustración de pañal</string>
+    <string name="poop_main_question">¿Qué acción necesitas?</string>
+    <string name="poop_main_subtitle">Selecciona una opción para comenzar</string>
+    <string name="poop_main_register_title">Registrar popos</string>
+    <string name="poop_main_register_subtitle">Registrar detalles de las popos</string>
+    <string name="poop_main_reports_title">Reportes</string>
+    <string name="poop_main_reports_subtitle">Información detallada de popos</string>
+
+    <!-- Poop registration screen -->
+    <string name="poop_reg_title">Registro Popos</string>
+    <string name="poop_reg_section_time">Hora</string>
+    <string name="poop_reg_section_color">Color</string>
+    <string name="poop_reg_section_texture">Textura</string>
+    <string name="poop_reg_section_size">Tamaño</string>
+    <string name="poop_reg_section_notes">Notas</string>
+    <string name="poop_reg_notes_placeholder">Escribe aquí más sobre la popó de tu bebé</string>
+    <string name="poop_reg_accept">Aceptar</string>
+    <string name="poop_reg_saved_success">Registro guardado exitosamente</string>
+
+    <!-- Colors -->
+    <string name="poop_color_very_dark">Muy oscuro</string>
+    <string name="poop_color_dark_green">Verde oscuro</string>
+    <string name="poop_color_brown">Marrón</string>
+    <string name="poop_color_yellow">Amarillo</string>
+    <string name="poop_color_other">Otros</string>
+
+    <!-- Textures -->
+    <string name="poop_texture_liquid">Líquida</string>
+    <string name="poop_texture_pasty">Pastosa</string>
+    <string name="poop_texture_hard">Dura</string>
+    <string name="poop_texture_mucus">Con mocos</string>
+    <string name="poop_texture_blood">Con sangre</string>
+
+    <!-- Sizes -->
+    <string name="poop_size_small">Poco</string>
+    <string name="poop_size_half_diaper">Mitad del pañal</string>
+    <string name="poop_size_overflowing">¡Pañal desbordado!</string>
 </resources>
