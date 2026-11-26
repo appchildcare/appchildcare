@@ -337,4 +337,21 @@
 
     <!-- Error Messages -->
     <string name="growth_save_error">Error al guardar: %1$s</string>
+
+    <string name="food_registration_title">Registro de alimentos</string>
+    <string name="food_name">Alimento</string>
+    <string name="food_reaction">Reacción</string>
+    <string name="food_reaction_yes">Sí</string>
+    <string name="food_reaction_no">No</string>
+    <string name="food_reaction_detail">Detalle de la reacción</string>
+    <string name="food_save">Guardar</string>
+    <string name="food_no_reactions">No hay registros de alimentos con reacción.</string>
+    <string name="food_reaction_history">Historial de alimentos con reacción</string>
+    <string name="food_report">Reporte</string>
+    <string name="food_label">Alimento:</string>
+    <string name="food_reaction_label">Reacción:</string>
+    <string name="food_no_detail">Sin detalle</string>
+    <string name="food_edit_title">Editar registro de alimento</string>
+    <string name="food_edit_name">Alimento</string>
+    <string name="food_edit_reaction_detail">Detalle de la reacción</string>
 </resources>

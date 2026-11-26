@@ -342,4 +342,21 @@
 
     <!-- Error Messages -->
     <string name="growth_save_error">Error saving data: %1$s</string>
+
+    <string name="food_registration_title">Food Registration</string>
+    <string name="food_name">Food</string>
+    <string name="food_reaction">Reaction</string>
+    <string name="food_reaction_yes">Yes</string>
+    <string name="food_reaction_no">No</string>
+    <string name="food_reaction_detail">Reaction details</string>
+    <string name="food_save">Save</string>
+    <string name="food_no_reactions">There are no food records with reactions.</string>
+    <string name="food_reaction_history">Food Reaction History</string>
+    <string name="food_report">Report</string>
+    <string name="food_label">Food:</string>
+    <string name="food_reaction_label">Reaction:</string>
+    <string name="food_no_detail">No details</string>
+    <string name="food_edit_title">Edit Food Record</string>
+    <string name="food_edit_name">Food</string>
+    <string name="food_edit_reaction_detail">Reaction details</string>
 </resources>
