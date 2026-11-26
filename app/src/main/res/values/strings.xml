@@ -393,4 +393,26 @@
 
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
+
+    <string name="pediatric_visit_title">Pediatrician Visits</string>
+    <string name="pediatric_visit_date">Visit Date</string>
+    <string name="pediatric_visit_select_date_time">Select Date and Time</string>
+    <string name="pediatric_visit_open_calendar">Open Calendar</string>
+    <string name="pediatric_visit_notes">Notes</string>
+    <string name="pediatric_visit_weight">Weight (kg)</string>
+    <string name="pediatric_visit_height">Height (cm)</string>
+    <string name="pediatric_visit_head_circumference">Head Circumference (cm)</string>
+    <string name="pediatric_visit_next_date">Next Visit Date</string>
+    <string name="pediatric_visit_select_date_time_accessibility">Select Date and Time</string>
+    <string name="pediatric_visit_required_fields">All fields are required.</string>
+    <string name="pediatric_visit_save_success">Visit saved successfully</string>
+    <string name="pediatric_visit_save_error">Error: %1$s</string>
+    <string name="pediatric_visit_list_title">Pediatrician Visit Records</string>
+    <string name="pediatric_visit_date_label">Visit Date:</string>
+    <string name="pediatric_visit_notes_label">Notes:</string>
+    <string name="pediatric_visit_weight_label">Weight (kg):</string>
+    <string name="pediatric_visit_height_label">Height (cm):</string>
+    <string name="pediatric_visit_head_circumference_label">Head Circumference (cm):</string>
+    <string name="pediatric_visit_next_visit_label">Next Visit:</string>
+    <string name="pediatric_visit_edit_title">Edit Visit</string>
 </resources>

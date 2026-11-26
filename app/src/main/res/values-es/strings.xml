@@ -388,4 +388,26 @@
 
     <string name="common_save">Guardar</string>
     <string name="common_cancel">Cancelar</string>
+
+    <string name="pediatric_visit_title">Visitas al pediatra</string>
+    <string name="pediatric_visit_date">Fecha de visita</string>
+    <string name="pediatric_visit_select_date_time">Seleccionar fecha y hora</string>
+    <string name="pediatric_visit_open_calendar">Abrir calendario</string>
+    <string name="pediatric_visit_notes">Notas</string>
+    <string name="pediatric_visit_weight">Peso (kg)</string>
+    <string name="pediatric_visit_height">Talla (cm)</string>
+    <string name="pediatric_visit_head_circumference">Perímetro cefálico (cm)</string>
+    <string name="pediatric_visit_next_date">Fecha de próxima visita</string>
+    <string name="pediatric_visit_select_date_time_accessibility">Seleccionar fecha y hora</string>
+    <string name="pediatric_visit_required_fields">Todos los campos son obligatorios.</string>
+    <string name="pediatric_visit_save_success">Visita guardada con éxito</string>
+    <string name="pediatric_visit_save_error">Error: %1$s</string>
+    <string name="pediatric_visit_list_title">Registro de visitas al pediatra</string>
+    <string name="pediatric_visit_date_label">Fecha de visita:</string>
+    <string name="pediatric_visit_notes_label">Notas:</string>
+    <string name="pediatric_visit_weight_label">Peso (kg):</string>
+    <string name="pediatric_visit_height_label">Talla (cm):</string>
+    <string name="pediatric_visit_head_circumference_label">Perímetro cefálico (cm):</string>
+    <string name="pediatric_visit_next_visit_label">Próxima visita:</string>
+    <string name="pediatric_visit_edit_title">Editar visita</string>
 </resources>
