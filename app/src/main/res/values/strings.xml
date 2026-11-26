@@ -296,4 +296,27 @@
     <string name="poop_diary_label_color">Color:</string>
     <string name="poop_diary_label_texture">Texture:</string>
     <string name="poop_diary_label_size">Size:</string>
+
+    <!-- Vaccine Screen -->
+    <string name="vaccine_add_title">Add Vaccines</string>
+    <string name="vaccine_registration_subtitle">Vaccine Registration</string>
+    <string name="vaccine_name">Name</string>
+    <string name="vaccine_date">Vaccination date</string>
+    <string name="vaccine_select_date">Select Date</string>
+    <string name="vaccine_open_calendar">Open calendar</string>
+    <string name="vaccine_save">Save</string>
+    <string name="vaccine_back">Back</string>
+    <string name="vaccine_list_title">Vaccine List</string>
+
+    <!-- Vaccine List -->
+    <string name="vaccine_label">Vaccine:</string>
+    <string name="vaccine_date_label">Vaccination Date:</string>
+
+    <!-- Vaccine Editing -->
+    <string name="vaccine_edit_title">Edit Vaccine</string>
+    <string name="vaccine_edit_date">Date</string>
+
+    <!-- Messages -->
+    <string name="vaccine_save_error">Error saving vaccine data: %1$s</string>
+    <string name="vaccine_save_success">Vaccine saved successfully</string>
 </resources>
